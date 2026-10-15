@@ -1,0 +1,27 @@
+# production-engineering-evals-security
+
+Source: https://anthropic-partners.skilljar.com/path/claude-certified-developer-foundations/production-engineering-evals-security
+
+- 01-what-you-will-be-able-to-do-by-the-end.md (1 screens)
+- 02-defining-done-before-you-ship-evals-and-a-calibrated-judge.md (1 screens)
+- 03-the-demo-that-passed-and-the-edge-case-that-did-not.md (1 screens)
+- 04-complete-a-partial-eval-for-a-summarization-feature.md (1 screens)
+- 05-testing-and-tracing.md (1 screens)
+- 06-the-pieces-passed-and-the-seam-broke.md (1 screens)
+- 07-diagnose-which-test-level-a-failure-belongs-to.md (1 screens)
+- 08-surviving-production-failure-tool-errors.md (1 screens)
+- 09-the-call-that-never-failed-in-development.md (1 screens)
+- 10-repair-the-broken-error-and-retry-path.md (1 screens)
+- 11-model-selection-in-production.md (1 screens)
+- 12-choose-the-model-and-name-the-deciding-constraint.md (1 screens)
+- 13-keeping-cost-latency-and-reliability-in-budget-across-agents.md (1 screens)
+- 14-the-parallel-fan-out-that-tripled-the-bill.md (1 screens)
+- 15-match-each-task-to-its-agent-type-and-cost-lever.md (1 screens)
+- 16-securing-the-integration-against-untrusted-input-and-a-regul.md (1 screens)
+- 17-the-fetched-page-that-gave-the-orders.md (1 screens)
+- 18-assemble-the-minimal-secure-configuration-for-a-fetch-and-wr.md (1 screens)
+- 19-cumulative-production-hardening-task-find-the-three-defects-.md (1 screens)
+- 20-cumulative-production-hardening-task-write-the-corrected-ver.md (1 screens)
+- 21-key-takeaways.md (1 screens)
+- 22-key-terms-from-this-module.md (1 screens)
+- 23-congrats-you-ve-successfully-completed-this-module.md (1 screens)

@@ -1,0 +1,26 @@
+# claude-code-mcp-integration
+
+Source: https://anthropic-partners.skilljar.com/path/claude-certified-developer-foundations/claude-code-mcp-integration
+
+- 01-what-you-will-be-able-to-do-by-the-end.md (1 screens)
+- 02-claude-code-agent-loop-permission-modes-settings-and-where-a.md (1 screens)
+- 03-the-bypass-mode-that-removed-the-one-prompt-that-mattered.md (1 screens)
+- 04-checkpoint-1-assemble-the-settings-file-and-place-the-human-.md (1 screens)
+- 05-durable-project-context-with-claude-md-rules-files-hooks-and.md (1 screens)
+- 06-the-claude-md-that-kept-growing-until-the-rules-stopped-land.md (1 screens)
+- 07-checkpoint-2-drag-the-correct-value.md (1 screens)
+- 08-packaging-a-workflow-as-a-plugin-skills-custom-commands-and-.md (1 screens)
+- 09-checkpoint-3-place-the-skill-in-the-right-runtime.md (1 screens)
+- 10-the-plugin-that-installed-on-your-machine-and-failed-on-ever.md (1 screens)
+- 11-checkpoint-4-fix-the-broken-plugin-definition.md (1 screens)
+- 12-building-and-configuring-an-mcp-server-transport-scope-and-t.md (1 screens)
+- 13-the-api-key-that-traveled-with-the-configuration-file-into-t.md (1 screens)
+- 14-checkpoint-5-match-transport-and-scope-to-each-deployment-sc.md (1 screens)
+- 15-connecting-claude-to-enterprise-systems-and-authenticating-i.md (1 screens)
+- 16-the-oauth-connection-that-worked-in-staging-and-failed-in-pr.md (1 screens)
+- 17-checkpoint-6-diagnose-the-authentication-failure-from-a-trac.md (1 screens)
+- 18-cumulative-integration-task-checkpoint.md (1 screens)
+- 19-cumulative-integration-task-assembly.md (1 screens)
+- 20-seven-key-takeaways.md (1 screens)
+- 21-key-terms-from-this-module.md (1 screens)
+- 22-congrats-you-ve-successfully-completed-this-module.md (1 screens)
