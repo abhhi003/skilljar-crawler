@@ -1,0 +1,46 @@
+{
+  "code": "CCAR-F",
+  "title": "Claude Certified Architect – Foundations",
+  "storagePrefix": "ccarf",
+  "setSize": 60,
+  "minutes": 120,
+  "passPercent": 72,
+  "seed": 20261017,
+  "domains": [
+    [
+      "Agentic Architecture & Orchestration",
+      27
+    ],
+    [
+      "Claude Code Configuration & Workflows",
+      20
+    ],
+    [
+      "Prompt Engineering & Structured Output",
+      20
+    ],
+    [
+      "Tool Design & MCP Integration",
+      18
+    ],
+    [
+      "Context Management & Reliability",
+      15
+    ]
+  ],
+  "scenarios": [
+    "Customer Support Resolution Agent",
+    "Code Generation with Claude Code",
+    "Multi-Agent Research System",
+    "Developer Productivity with Claude",
+    "Claude Code for Continuous Integration",
+    "Structured Data Extraction"
+  ],
+  "modules": {
+    "1": "API Foundations, Prompting & Evals",
+    "2": "Tool Use, RAG & Claude Features",
+    "3": "MCP, Agents & Workflows",
+    "4": "Claude Code in Action",
+    "5": "AI Fluency & Claude 101"
+  }
+}

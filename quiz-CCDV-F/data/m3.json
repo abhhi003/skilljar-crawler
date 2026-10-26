@@ -1,0 +1,1070 @@
+[
+  {
+    "id": "M3-001",
+    "module": 3,
+    "topic": "Permission modes & agent loop",
+    "domain": "Claude Code",
+    "difficulty": "easy",
+    "question": "A developer has just been handed an unfamiliar, high-stakes legacy codebase. They want Claude Code to read files, trace the logic, and propose a structured set of changes, but make no file edits or shell commands until they approve. Which permission mode fits?",
+    "options": [
+      "acceptEdits, because edits inside the working directory are reversible",
+      "Plan mode, which holds the agent in the explore phase until a plan is approved",
+      "bypassPermissions, so the exploration finishes without interruptions",
+      "The CI-oriented mode that auto-denies every tool not on the allow list"
+    ],
+    "answer": 1,
+    "explanation": "Plan mode auto-approves reads only and gates all edits and shell commands until you approve a plan, which the course calls a useful default for unfamiliar or high-stakes codebases. acceptEdits is tempting because edits seem reversible, but it would let the agent start writing files before you have reviewed any plan.",
+    "source": "03-claude-code-mcp-integration/02-claude-code-agent-loop-permission-modes-settings-and-where-a.md"
+  },
+  {
+    "id": "M3-002",
+    "module": 3,
+    "topic": "Permission modes & agent loop",
+    "domain": "Claude Code",
+    "difficulty": "hard",
+    "question": "A team runs a cleanup task in acceptEdits mode. Claude Code first issues `rm` directly on three stale files inside the working directory, then tries to run `./cleanup.sh`. What happens at each step?",
+    "options": [
+      "Both steps prompt, because acceptEdits gates every destructive operation",
+      "Neither step prompts, because acceptEdits auto-approves all shell commands",
+      "The rm commands run without a prompt; the script invocation asks for confirmation",
+      "The rm commands prompt for confirmation; the script runs without a prompt"
+    ],
+    "answer": 2,
+    "explanation": "acceptEdits auto-approves file edits and common filesystem commands such as rm, mv, and cp on paths inside the working directory, but all other shell commands, including running a script, still prompt. The course stresses that only default mode would have prompted for the direct rm calls, so assuming acceptEdits gates every destructive operation is the trap.",
+    "source": "03-claude-code-mcp-integration/03-the-bypass-mode-that-removed-the-one-prompt-that-mattered.md"
+  },
+  {
+    "id": "M3-003",
+    "module": 3,
+    "topic": "Permission modes & agent loop",
+    "domain": "Claude Code",
+    "difficulty": "medium",
+    "question": "A platform team wants Claude Code to run inside a locked-down CI job with no human watching. It should run only the tools they have explicitly allow-listed plus read-only commands, and anything else must fail immediately rather than wait for confirmation. Which mode behavior matches?",
+    "options": [
+      "Default mode, which prompts before nearly every edit or command",
+      "The mode that auto-approves allow-listed tools and auto-denies everything else",
+      "Auto mode, where a classifier reviews each action before it runs",
+      "bypassPermissions combined with an allow rule for the CI tools"
+    ],
+    "answer": 1,
+    "explanation": "The course describes a mode that auto-approves only pre-approved allow-rule tools plus read-only commands and auto-denies everything else with no confirmation queue, built for locked-down CI and scripts. Default mode would stall an unattended job waiting on prompts that no one will answer.",
+    "source": "03-claude-code-mcp-integration/02-claude-code-agent-loop-permission-modes-settings-and-where-a.md"
+  },
+  {
+    "id": "M3-004",
+    "module": 3,
+    "topic": "Permission modes & agent loop",
+    "domain": "Claude Code",
+    "difficulty": "medium",
+    "question": "A developer is tired of constant prompts during routine local work but does not want to lose the safety net entirely. According to the course, what is the better alternative to bypassPermissions, and what caveat applies?",
+    "options": [
+      "Auto mode, whose classifier blocks escalating actions; it is a research preview, not a safety guarantee",
+      "Plan mode, which removes prompts for edits once the first plan has been approved",
+      "bypassPermissions with a user-level allow rule, which restores the protected-path guard",
+      "acceptEdits, which also auto-approves arbitrary scripts once they have run successfully"
+    ],
+    "answer": 0,
+    "explanation": "The course recommends a classifier-gated mode such as auto when you want fewer prompts without a full bypass; its classifier blocks actions that escalate beyond the request, target unrecognized infrastructure, or look driven by hostile content. It still warns that auto mode is a research preview and no substitute for reviewing sensitive operations. acceptEdits never auto-approves arbitrary scripts.",
+    "source": "03-claude-code-mcp-integration/03-the-bypass-mode-that-removed-the-one-prompt-that-mattered.md"
+  },
+  {
+    "id": "M3-005",
+    "module": 3,
+    "topic": "Permission modes & agent loop",
+    "domain": "Claude Code",
+    "difficulty": "easy",
+    "question": "Where does the course say bypassPermissions is appropriate to use?",
+    "options": [
+      "On any developer workstation, once the agent has behaved well for several days",
+      "Only for renaming tasks that are confined to the /src directory",
+      "Only inside an isolated container or VM where the environment is disposable",
+      "In CI pipelines, because it is the mode designed for unattended scripts"
+    ],
+    "answer": 2,
+    "explanation": "bypassPermissions removes all confirmation prompts and safety checks, so the course limits it to isolated, disposable containers or VMs and says never to use it on a workstation against a live codebase. The 'it behaved well for days' reasoning is exactly the trap in the watch-out story, where a routine rename deleted production config.",
+    "source": "03-claude-code-mcp-integration/02-claude-code-agent-loop-permission-modes-settings-and-where-a.md"
+  },
+  {
+    "id": "M3-006",
+    "module": 3,
+    "topic": "Permission modes & agent loop",
+    "domain": "Security and Safety",
+    "difficulty": "medium",
+    "question": "A team has a legitimate, isolated reason to run a session in bypassPermissions, but the repository also contains /deploy/config/prod/. What should they put in place before switching modes?",
+    "options": [
+      "A CLAUDE.md line telling the agent that the prod directory is out of scope",
+      "A PostToolUse hook that alerts the team whenever a prod file is deleted",
+      "Nothing extra, since the protected-path guard still prompts for those files",
+      "A deny rule covering the sensitive directory, set before the mode switch"
+    ],
+    "answer": 3,
+    "explanation": "bypassPermissions skips the protected-path guard the other modes keep, so the course says to set a deny rule on sensitive directories before switching, since deny rules apply regardless of mode. The protected-path option is wrong because bypass is precisely the mode that removes that guard, and a PostToolUse alert fires only after the damage is done.",
+    "source": "03-claude-code-mcp-integration/03-the-bypass-mode-that-removed-the-one-prompt-that-mattered.md"
+  },
+  {
+    "id": "M3-007",
+    "module": 3,
+    "topic": "Settings hierarchy",
+    "domain": "Applications and Integration",
+    "difficulty": "medium",
+    "question": "A security lead must ensure that no developer in the organization can let Claude Code edit environment files, even if a project's settings allow it or someone switches to a bypass mode. Where should this control live?",
+    "options": [
+      "A deny rule in the committed project file .claude/settings.json",
+      "A deny rule in the enterprise managed-settings.json set by administrators",
+      "A deny rule in each developer's ~/.claude/settings.json",
+      "An instruction in CLAUDE.md marking environment files as off-limits"
+    ],
+    "answer": 1,
+    "explanation": "Enterprise managed settings cannot be overridden by users or project files, and the course calls an enterprise-level deny rule the most durable governance control because it applies even when a bypass mode is set. A project-level deny is tempting, but a developer can edit or remove it in the repository.",
+    "source": "03-claude-code-mcp-integration/02-claude-code-agent-loop-permission-modes-settings-and-where-a.md"
+  },
+  {
+    "id": "M3-008",
+    "module": 3,
+    "topic": "Settings hierarchy",
+    "domain": "Applications and Integration",
+    "difficulty": "easy",
+    "question": "A developer wants a personal permission override for one project that should never be committed to the shared repository. Which file is designed for this?",
+    "options": [
+      ".claude/settings.local.json",
+      ".claude/settings.json",
+      "~/.claude/settings.json",
+      "managed-settings.json"
+    ],
+    "answer": 0,
+    "explanation": "The local project level, .claude/settings.local.json, holds personal overrides for one project and is git-ignored automatically. ~/.claude/settings.json is also personal, but it applies to every project on the machine, not just this one.",
+    "source": "03-claude-code-mcp-integration/02-claude-code-agent-loop-permission-modes-settings-and-where-a.md"
+  },
+  {
+    "id": "M3-009",
+    "module": 3,
+    "topic": "Settings hierarchy",
+    "domain": "Applications and Integration",
+    "difficulty": "medium",
+    "question": "You are configuring Claude Code for a trusted local refactor of the payments module. Edits should be auto-approved, destructive shell commands must never run, and the agent must never be able to read `.env.production`. Which settings fragments belong in the configuration? (Select TWO.)",
+    "options": [
+      "{ \"permissions\": { \"allow\": [\"Bash(npm run:*)\"], \"deny\": [\"Bash(rm:*)\", \"Bash(git push:*)\"] } }",
+      "{ \"permissions\": { \"defaultMode\": \"bypassPermissions\" } }",
+      "{ \"permissions\": { \"deny\": [\"Read(.env.production)\"] } }",
+      "{ \"permissions\": { \"allow\": [\"Bash(*)\", \"Edit(*)\"] } }",
+      "{ \"permissions\": { \"defaultMode\": \"default\" } }"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "The deny rules on Bash(rm:*) and git push stop destructive commands, and the deny on Read(.env.production) keeps the secrets file unreadable. Deny rules win over any allow rule or mode. A blanket allow of Bash(*) and Edit(*) is the tempting shortcut, but it pre-approves every shell command, which is the opposite of what the refactor requires, and bypassPermissions removes every prompt.",
+    "source": "03-claude-code-mcp-integration/04-checkpoint-1-assemble-the-settings-file-and-place-the-human-.md"
+  },
+  {
+    "id": "M3-010",
+    "module": 3,
+    "topic": "Human review gates",
+    "domain": "Claude Code",
+    "difficulty": "medium",
+    "question": "Your settings auto-approve file edits for a refactor. Midway through, the agent proposes changing a deployment configuration file that several production services read. Where should the human gate go for this one action?",
+    "options": [
+      "Nowhere, because the session's settings already auto-approve edits",
+      "At the next pull request review, after the write has already landed",
+      "Remove the gate by switching to bypassPermissions for the rest of the task",
+      "A person reviews and approves the change before the write executes"
+    ],
+    "answer": 3,
+    "explanation": "The gate goes where the worst-case cost is high and hard to undo. A wrong value in shared deployment config reaches systems outside the file, so a human must approve it before it executes. Reviewing at the next PR is tempting, but by then the change has already happened, and the gate exists to stop it beforehand.",
+    "source": "03-claude-code-mcp-integration/04-checkpoint-1-assemble-the-settings-file-and-place-the-human-.md"
+  },
+  {
+    "id": "M3-011",
+    "module": 3,
+    "topic": "Human review gates",
+    "domain": "Claude Code",
+    "difficulty": "hard",
+    "question": "An AI reviewer comments on a PR with two findings: (1) a missing null check on a line it cites in the diff, and (2) a claim that the change will cause timeouts in a downstream billing service it cannot see. How should the developer treat these?",
+    "options": [
+      "Treat both as verdicts and apply both fixes, since the reviewer already analyzed the change",
+      "Confirm the null check on the cited lines; treat the billing-service claim as a hypothesis to test",
+      "Ignore both findings, because AI reviews are not reliable enough to act on",
+      "Trust the billing-service claim more, because cross-system reasoning is what reviewers do best"
+    ],
+    "answer": 1,
+    "explanation": "The course says an AI review is a set of findings to triage, not a verdict. Trust findings the reviewer can prove from the diff and confirm them on the cited lines, and treat claims about runtime behavior or other systems as hypotheses, because the reviewer had no evidence for them. Applying both as verdicts ignores that difference in evidence.",
+    "source": "03-claude-code-mcp-integration/20-seven-key-takeaways.md"
+  },
+  {
+    "id": "M3-012",
+    "module": 3,
+    "topic": "CLAUDE.md & rules files",
+    "domain": "Tools and MCPs",
+    "difficulty": "easy",
+    "question": "A developer runs `/init` in a new repository and Claude Code generates a CLAUDE.md. What does the course recommend doing next?",
+    "options": [
+      "Validate and refine it so it holds the rules that actually control outcomes",
+      "Commit it unchanged, since it was generated from a scan of the codebase",
+      "Delete it, since Claude Code already reads the codebase at the start of every session",
+      "Append the team's full historical decision log so no context is ever lost"
+    ],
+    "answer": 0,
+    "explanation": "/init produces a good baseline that should be validated and refined to hold testing commands, framework conventions, paths not to touch, and style decisions that differ from defaults. Appending a historical decision log is the dilution mistake the course warns against.",
+    "source": "03-claude-code-mcp-integration/05-durable-project-context-with-claude-md-rules-files-hooks-and.md"
+  },
+  {
+    "id": "M3-013",
+    "module": 3,
+    "topic": "CLAUDE.md & rules files",
+    "domain": "Tools and MCPs",
+    "difficulty": "hard",
+    "question": "A team creates `.claude/rules/database/transactions.md` with no YAML frontmatter, expecting it to load only when Claude works on database files. What actually happens?",
+    "options": [
+      "It loads only for files under a database/ directory, matching its folder name",
+      "It never loads, because rules files require a paths field to activate",
+      "It loads unconditionally at launch, with the same priority as CLAUDE.md",
+      "It loads only when a subagent is dispatched to work on database files"
+    ],
+    "answer": 2,
+    "explanation": "Rules files are scoped by a paths glob in their frontmatter, not by where they sit. Subdirectories under .claude/rules/ are organizational only, so a rules file with no paths field loads unconditionally at launch, just like CLAUDE.md. Assuming the folder name scopes it is the specific misconception the course corrects.",
+    "source": "03-claude-code-mcp-integration/05-durable-project-context-with-claude-md-rules-files-hooks-and.md"
+  },
+  {
+    "id": "M3-014",
+    "module": 3,
+    "topic": "CLAUDE.md & rules files",
+    "domain": "Tools and MCPs",
+    "difficulty": "medium",
+    "question": "A team has two new constraints: 'never modify the database schema' (applies everywhere) and 'all SQL under src/db must include an explicit transaction boundary.' Where should each go?",
+    "options": [
+      "Both in CLAUDE.md, so they are always present from the first prompt",
+      "Both in a rules file with paths: src/db/**/*.sql, to keep CLAUDE.md small",
+      "The schema rule in a rules file; the transaction rule in a skill loaded on demand",
+      "The schema rule in CLAUDE.md; the transaction rule in a rules file scoped with paths"
+    ],
+    "answer": 3,
+    "explanation": "Universal constraints belong in CLAUDE.md because they apply in every session. Path-specific guidance belongs in a .claude/rules/ file with a paths glob, so it enters context only when Claude works on matching files. Putting both in CLAUDE.md adds noise everywhere and dilutes the rules that matter.",
+    "source": "03-claude-code-mcp-integration/05-durable-project-context-with-claude-md-rules-files-hooks-and.md"
+  },
+  {
+    "id": "M3-015",
+    "module": 3,
+    "topic": "Hooks",
+    "domain": "Security and Safety",
+    "difficulty": "medium",
+    "question": "A CLAUDE.md instruction says 'run Prettier after every file edit,' but the agent occasionally forgets. The team wants formatting to happen every time without exception. What should they configure?",
+    "options": [
+      "A PreToolUse hook on Edit that exits with code 2 until the file is formatted",
+      "A PostToolUse hook on edit tools that runs Prettier after each edit completes",
+      "Move the instruction to the top of CLAUDE.md so it carries more weight",
+      "A UserPromptSubmit hook that reminds the agent about Prettier on each prompt"
+    ],
+    "answer": 1,
+    "explanation": "Hooks run independently of what the model decides, and PostToolUse is the event for automated side effects such as running a formatter after an edit. Moving the instruction higher in CLAUDE.md still leaves it as a convention the model follows most of the time, not a guarantee.",
+    "source": "03-claude-code-mcp-integration/05-durable-project-context-with-claude-md-rules-files-hooks-and.md"
+  },
+  {
+    "id": "M3-016",
+    "module": 3,
+    "topic": "Hooks",
+    "domain": "Security and Safety",
+    "difficulty": "easy",
+    "question": "Complete the hook so that it blocks reads of `.env.production`:\n{ \"hooks\": { \"____\": [ { \"matcher\": \"Read\", \"hooks\": [{ \"type\": \"command\", \"command\": \"<script>\" }] } ] } }\nWhich event and script behavior are correct?",
+    "options": [
+      "PostToolUse, with a script that logs the read to an audit file and exits 0",
+      "SessionStart, with a script that prints a warning about the file and exits 0",
+      "PreToolUse, with a script that checks the path and exits 2, writing the reason to stderr",
+      "UserPromptSubmit, with a script that removes the file name from the prompt"
+    ],
+    "answer": 2,
+    "explanation": "PreToolUse runs before the tool call, and a hook there can exit with code 2 to block it, with stderr sent back to the agent as feedback. A PostToolUse logger is useful for auditing, but it runs after the read has already happened, so it cannot prevent it.",
+    "source": "03-claude-code-mcp-integration/07-checkpoint-2-drag-the-correct-value.md"
+  },
+  {
+    "id": "M3-017",
+    "module": 3,
+    "topic": "Hooks",
+    "domain": "Security and Safety",
+    "difficulty": "hard",
+    "question": "A team configures a hook on the PostToolUse event that inspects edits to `config/prod/*` and exits with code 2 when it finds one. In testing, the protected files are still being modified. What is the diagnosis?",
+    "options": [
+      "PostToolUse fires after the edit completes, so it cannot block it; the check belongs in PreToolUse",
+      "Exit code 2 is reserved for warnings; the script must exit 1 to block a tool call",
+      "Hooks are ignored whenever the session runs in acceptEdits mode",
+      "The matcher must name the file path rather than the tool type for blocking to work"
+    ],
+    "answer": 0,
+    "explanation": "PostToolUse runs after the tool call has finished, so it cannot block it. That makes it right for formatters, tests, and audit logs, but not access control. A PreToolUse hook exiting with code 2 blocks the call, and the course says this applies regardless of permission mode, so blaming acceptEdits is wrong.",
+    "source": "03-claude-code-mcp-integration/05-durable-project-context-with-claude-md-rules-files-hooks-and.md"
+  },
+  {
+    "id": "M3-018",
+    "module": 3,
+    "topic": "Subagents",
+    "domain": "Tools and MCPs",
+    "difficulty": "hard",
+    "question": "CLAUDE.md states 'never import from /legacy/tokens/.' A developer delegates a research-and-recommend task to the built-in Explore subagent, and its recommendations ignore that rule. What is the most likely cause and fix?",
+    "options": [
+      "The subagent inherited too much conversation history; clear the session before delegating",
+      "Explore skips CLAUDE.md to stay fast; use the general-purpose or a custom subagent that loads the rules",
+      "Subagents only read rules files, so move the constraint into .claude/rules/",
+      "Explore loads CLAUDE.md but ignores negative rules; rephrase the rule as a positive instruction"
+    ],
+    "answer": 1,
+    "explanation": "The built-in Explore and Plan subagents skip CLAUDE.md and git status to keep research fast and cheap, so project rules are not in their context. The general-purpose subagent loads both, and a custom subagent can load the rules it needs. The history option has it backwards, since subagents start clean and inherit no conversation history.",
+    "source": "03-claude-code-mcp-integration/05-durable-project-context-with-claude-md-rules-files-hooks-and.md"
+  },
+  {
+    "id": "M3-019",
+    "module": 3,
+    "topic": "CLAUDE.md & rules files",
+    "domain": "Tools and MCPs",
+    "difficulty": "medium",
+    "question": "A project's CLAUDE.md has grown to 847 lines, including a historical decisions log (lines 361-700) and archived notes. The agent edited /legacy/tokens/store.ts even though line 347 forbids touching that directory. Which remediations match the course's guidance? (Select TWO.)",
+    "options": [
+      "Repeat the /legacy/tokens/ rule near the top and bottom of CLAUDE.md so it is seen twice",
+      "Move the historical log and archived notes into a separate reference document read on demand",
+      "Split CLAUDE.md into several root-level CLAUDE.md files of under 300 lines each",
+      "Enforce the /legacy/tokens/ restriction with a PreToolUse hook that blocks edits to that path",
+      "Switch the project to plan mode permanently so every edit is reviewed first"
+    ],
+    "answer": [
+      1,
+      3
+    ],
+    "explanation": "The failure was dilution: 846 other lines reduced the weight of the one rule that mattered. The course says to move historical context into an on-demand reference document and to make the rule you cannot afford to lose a hook, which blocks the edit regardless of what the model decides. Repeating the rule still leaves it competing with hundreds of lines and adds even more.",
+    "source": "03-claude-code-mcp-integration/06-the-claude-md-that-kept-growing-until-the-rules-stopped-land.md"
+  },
+  {
+    "id": "M3-020",
+    "module": 3,
+    "topic": "Subagents",
+    "domain": "Tools and MCPs",
+    "difficulty": "medium",
+    "question": "A developer defines a custom subagent in `.claude/agents` for release reviews. It needs the team's `release-checklist` skill, which the main session uses regularly. What must the developer do?",
+    "options": [
+      "Nothing, since subagents inherit all skills available to the parent session",
+      "Reference the skill in CLAUDE.md, which every subagent loads at startup",
+      "Invoke the skill by name in the main session just before delegating",
+      "List the skill explicitly in the custom subagent's front matter"
+    ],
+    "answer": 3,
+    "explanation": "Custom subagents do not automatically see your skills. A skill the subagent needs must be listed explicitly in its front matter, and that holds in every runtime that supports subagents. Assuming inheritance is the misconception the course warns about, since subagents start from a clean slate.",
+    "source": "03-claude-code-mcp-integration/05-durable-project-context-with-claude-md-rules-files-hooks-and.md"
+  },
+  {
+    "id": "M3-021",
+    "module": 3,
+    "topic": "Skills, commands & plugins",
+    "domain": "Tools and MCPs",
+    "difficulty": "easy",
+    "question": "Two installed plugins, `payments` and `search`, both ship a command named `run-tests`. How does a developer run the one from the payments plugin?",
+    "options": [
+      "/run-tests --plugin=payments",
+      "/payments:run-tests",
+      "/run-tests, since the most recently installed plugin wins",
+      "/plugin run payments run-tests"
+    ],
+    "answer": 1,
+    "explanation": "Plugin commands are namespaced automatically with the plugin name as a prefix, so the payments command is /payments:run-tests, and two plugins can ship the same command name without colliding. That namespacing is also why renaming a plugin renames every command it ships.",
+    "source": "03-claude-code-mcp-integration/08-packaging-a-workflow-as-a-plugin-skills-custom-commands-and-.md"
+  },
+  {
+    "id": "M3-022",
+    "module": 3,
+    "topic": "Skills, commands & plugins",
+    "domain": "Tools and MCPs",
+    "difficulty": "medium",
+    "question": "A team has a production-release workflow that must run only when a developer explicitly calls it, never because Claude decided the description matched the task. What is the recommended way to build it in current Claude Code?",
+    "options": [
+      "A skill with disable-model-invocation: true in its frontmatter, invoked as /skill-name",
+      "A file in .claude/commands/, which is the current recommended format for explicit commands",
+      "A skill with a deliberately vague description so it never matches automatically",
+      "An instruction in CLAUDE.md telling Claude never to start a release by itself"
+    ],
+    "answer": 0,
+    "explanation": "Skills are the recommended format for both explicit and automatic invocation. Setting disable-model-invocation: true makes the workflow run only when you call it directly. The .claude/commands/ directory still works, but the course calls it a legacy format, so it is not the current recommendation.",
+    "source": "03-claude-code-mcp-integration/08-packaging-a-workflow-as-a-plugin-skills-custom-commands-and-.md"
+  },
+  {
+    "id": "M3-023",
+    "module": 3,
+    "topic": "Skill portability across runtimes",
+    "domain": "Applications and Integration",
+    "difficulty": "medium",
+    "question": "A review-checklist skill in `.claude/skills` works perfectly in the Claude Code terminal. The same repo is used by a scheduled headless job built on the Agent SDK, and there the skill never activates. What is the most likely cause?",
+    "options": [
+      "The Agent SDK requires the code-execution and skills beta headers to load skills",
+      "Skills only work in interactive sessions and cannot run in headless jobs",
+      "settingSources was never set explicitly, so filesystem sources such as skills did not load",
+      "The SDK runs skills in Anthropic's container, which cannot see the repository"
+    ],
+    "answer": 2,
+    "explanation": "In the Agent SDK, whether filesystem settings such as CLAUDE.md and skills load is controlled by settingSources (setting_sources in Python). The course calls a skill that silently does nothing because this was never set 'the common surprise.' Beta headers and Anthropic's code-execution container belong to the Messages API, not the SDK, which runs in your own environment.",
+    "source": "03-claude-code-mcp-integration/08-packaging-a-workflow-as-a-plugin-skills-custom-commands-and-.md"
+  },
+  {
+    "id": "M3-024",
+    "module": 3,
+    "topic": "Skill portability across runtimes",
+    "domain": "Applications and Integration",
+    "difficulty": "medium",
+    "question": "A service sends a review-checklist skill with its Messages API request. One step shells out to a CLI installed on the developer's laptop, and that step fails in production. What must the team do for the skill to run correctly on the API? (Select TWO.)",
+    "options": [
+      "Send the code-execution and skills beta headers with the request",
+      "Set settingSources explicitly so filesystem skills are loaded",
+      "Rewrite the step so it does not depend on local files or local tools",
+      "List the skill in a custom subagent's front matter",
+      "Add the managed-agents-2026-04-01 beta header to the request"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "On the Messages API, a skill runs inside Anthropic's code-execution container and needs the code-execution and skills beta headers. That container lacks your laptop's CLI, so the steps must not assume local tools. settingSources is the tempting distractor, but it is the Agent SDK's control for loading filesystem sources, not an API setting.",
+    "source": "03-claude-code-mcp-integration/09-checkpoint-3-place-the-skill-in-the-right-runtime.md"
+  },
+  {
+    "id": "M3-025",
+    "module": 3,
+    "topic": "Skill portability across runtimes",
+    "domain": "Applications and Integration",
+    "difficulty": "hard",
+    "question": "A product team wants the review-checklist skill to run inside a long-running agent that Anthropic hosts, reachable by an agent ID across sessions. Which statement about this setup is accurate?",
+    "options": [
+      "Skills are attached per session, so each new session can choose a different skill set",
+      "It is discovered from .claude/skills on the client's filesystem when the session starts",
+      "Skills are attached in the agent definition, calls need the managed-agents-2026-04-01 header, and the skill runs in Anthropic's sandbox",
+      "Because sessions are server-side, the setup automatically qualifies for Zero Data Retention"
+    ],
+    "answer": 2,
+    "explanation": "Managed Agents are defined once as an API resource that lists the model, tools, MCP servers, and skills. Skills are attached at definition time, not session time, and the steps run in an Anthropic-provisioned sandbox without access to your local files. The ZDR option reverses the course: because sessions are stored server-side, Managed Agents are currently not eligible for ZDR or HIPAA BAA coverage.",
+    "source": "03-claude-code-mcp-integration/09-checkpoint-3-place-the-skill-in-the-right-runtime.md"
+  },
+  {
+    "id": "M3-026",
+    "module": 3,
+    "topic": "Plugin distribution & marketplaces",
+    "domain": "Applications and Integration",
+    "difficulty": "hard",
+    "question": "An enterprise admin configures a managed marketplace allowlist naming the company's internal plugin repo. A week later, developers report that the marketplace does not appear for them unless they add it manually. What did the admin miss?",
+    "options": [
+      "The allowlist only restricts which sources users may add; pair it with extraKnownMarketplaces to push it to everyone",
+      "Allowlisted marketplaces take effect only after each developer runs /init",
+      "The allowlist belongs in the project .claude/settings.json, not in managed settings",
+      "Only the official Anthropic marketplace can be distributed through managed settings"
+    ],
+    "answer": 0,
+    "explanation": "A managed marketplace allowlist controls which marketplace sources users are permitted to add, but it does not register them. To push a marketplace to all users without them running the add command, the course says to pair it with extraKnownMarketplaces in managed settings. Moving the setting to a project file would lose the managed-scope precedence users cannot override.",
+    "source": "03-claude-code-mcp-integration/08-packaging-a-workflow-as-a-plugin-skills-custom-commands-and-.md"
+  },
+  {
+    "id": "M3-027",
+    "module": 3,
+    "topic": "Plugin portability",
+    "domain": "Applications and Integration",
+    "difficulty": "hard",
+    "question": "A plugin ships a hook whose script `lint-guard.sh` is bundled inside the plugin, and a skill that calls `scripts/validate.sh` stored in the consuming project's repo. How should each path be written so it resolves on any teammate's machine?",
+    "options": [
+      "~/.claude/plugins/lint-guard.sh for the hook and ~/scripts/validate.sh for the skill",
+      "$CLAUDE_PROJECT_DIR for both, since every plugin is installed into the project root",
+      "${CLAUDE_PLUGIN_ROOT}/lint-guard.sh for the hook and $CLAUDE_PROJECT_DIR/scripts/validate.sh for the skill",
+      "An absolute path on a shared network drive for both, so every machine sees the same file"
+    ],
+    "answer": 2,
+    "explanation": "The course says to use ${CLAUDE_PLUGIN_ROOT} for scripts bundled inside the plugin and $CLAUDE_PROJECT_DIR for scripts stored in the project, so paths resolve no matter whose machine runs them or which directory the session started in. Home-directory shortcuts still assume a layout that exists only on the author's machine.",
+    "source": "03-claude-code-mcp-integration/10-the-plugin-that-installed-on-your-machine-and-failed-on-ever.md"
+  },
+  {
+    "id": "M3-028",
+    "module": 3,
+    "topic": "Plugin portability",
+    "domain": "Applications and Integration",
+    "difficulty": "medium",
+    "question": "A plugin installs cleanly for every teammate, but one skill fails midway because it depends on a `DEPLOY_TOKEN` variable the author set in their own shell profile. Three teammates lose two hours finding it. Which practices would have prevented this? (Select TWO.)",
+    "options": [
+      "Hard-code the token value in SKILL.md so the dependency is visible",
+      "Document every required environment variable and validate it at install time",
+      "Ask each teammate to copy the author's shell profile during setup",
+      "Test the plugin install on a clean machine before distributing it",
+      "Treat a successful install on teammates' machines as proof the skill runs"
+    ],
+    "answer": [
+      1,
+      3
+    ],
+    "explanation": "Undocumented environment variables are dangerous because nothing in the package announces them, so the failure only shows up at the step that needs the variable. The course says to document each variable, validate it at install time, and test on a clean machine that does not hide the author's setup. A clean install proves only that the package was assembled correctly, not that it will run.",
+    "source": "03-claude-code-mcp-integration/10-the-plugin-that-installed-on-your-machine-and-failed-on-ever.md"
+  },
+  {
+    "id": "M3-029",
+    "module": 3,
+    "topic": "Plugin portability",
+    "domain": "Applications and Integration",
+    "difficulty": "easy",
+    "question": "A SKILL.md step reads: `Run the validation script: /Users/alexmorgan/projects/deploy-utils/validate.sh`. Teammates who install the plugin cannot run it. Which fix is correct?",
+    "options": [
+      "Change it to ~/projects/deploy-utils/validate.sh so it follows each user's home directory",
+      "Remove the step so the skill no longer calls an external script",
+      "Lengthen the skill's description so the model matches it more reliably",
+      "Reference the script from the project root using $CLAUDE_PROJECT_DIR"
+    ],
+    "answer": 3,
+    "explanation": "The defect is the absolute path to the author's home directory. Referencing the script through $CLAUDE_PROJECT_DIR makes it resolve wherever the project is cloned. The ~ shortcut looks portable, but it still assumes every user has the same projects/deploy-utils layout as the author.",
+    "source": "03-claude-code-mcp-integration/11-checkpoint-4-fix-the-broken-plugin-definition.md"
+  },
+  {
+    "id": "M3-030",
+    "module": 3,
+    "topic": "MCP transport & scope",
+    "domain": "Applications and Integration",
+    "difficulty": "easy",
+    "question": "A code-search MCP service is hosted on company infrastructure, and the whole engineering team should get it automatically when they clone the repo. Which transport and scope fit?",
+    "options": [
+      "stdio + local scope in ~/.claude.json",
+      "stdio + user scope in personal Claude settings",
+      "HTTP + project scope via a committed .mcp.json",
+      "SSE + enterprise scope via managed settings"
+    ],
+    "answer": 2,
+    "explanation": "A remotely hosted server uses HTTP transport, and project scope writes it to a .mcp.json at the repo root, so everyone who clones the repository gets it. stdio runs the server as a local subprocess and cannot reach a server hosted elsewhere, and SSE is a legacy transport that is not recommended for new servers.",
+    "source": "03-claude-code-mcp-integration/14-checkpoint-5-match-transport-and-scope-to-each-deployment-sc.md"
+  },
+  {
+    "id": "M3-031",
+    "module": 3,
+    "topic": "MCP transport & scope",
+    "domain": "Tools and MCPs",
+    "difficulty": "easy",
+    "question": "While reviewing older documentation for an MCP server, you see it configured with SSE (Server-Sent Events) transport. How does the course say to treat this for a new server?",
+    "options": [
+      "As the preferred transport for remote servers that stream results",
+      "As a legacy option superseded by HTTP and not recommended for new servers",
+      "As required whenever the server uses OAuth for authentication",
+      "As the local-process equivalent of stdio for servers on the same machine"
+    ],
+    "answer": 1,
+    "explanation": "SSE predates the current HTTP transport and has been superseded by it, so it should be treated as a legacy option. HTTP is the recommended transport for any server that does not run locally, and SSE has nothing to do with OAuth.",
+    "source": "03-claude-code-mcp-integration/12-building-and-configuring-an-mcp-server-transport-scope-and-t.md"
+  },
+  {
+    "id": "M3-032",
+    "module": 3,
+    "topic": "MCP transport & scope",
+    "domain": "Applications and Integration",
+    "difficulty": "hard",
+    "question": "A team commits this to .mcp.json so everyone gets a documentation tool:\n{ \"mcpServers\": { \"docs\": { \"command\": \"npx\", \"args\": [\"-y\", \"docs-mcp\"] } } }\nOne teammate reports the server never starts on their machine. What is the most likely explanation?",
+    "options": [
+      "Project-scoped stdio servers launch only on the machine that first committed the file",
+      "stdio servers ignore .mcp.json and must be registered at user scope instead",
+      "The configuration is missing an Authorization header, so the server rejects the connection",
+      "Each clone spawns its own local subprocess, so this teammate needs Node installed locally"
+    ],
+    "answer": 3,
+    "explanation": "For a stdio server, the committed configuration stores the launch command, and every clone spawns its own local subprocess, so each teammate needs the runtime (Node, for an npx-launched server) installed. A missing Authorization header is a plausible-sounding cause, but a local stdio subprocess relies on file-system boundaries, not network authentication.",
+    "source": "03-claude-code-mcp-integration/12-building-and-configuring-an-mcp-server-transport-scope-and-t.md"
+  },
+  {
+    "id": "M3-033",
+    "module": 3,
+    "topic": "MCP primitives: tools, resources, prompts",
+    "domain": "Tools and MCPs",
+    "difficulty": "medium",
+    "question": "An MCP server author wants a list of available policy documents, plus any single document by its identifier, to be pulled into context at the start of a turn, without the model spending a tool call to fetch them. Which MCP capability fits best?",
+    "options": [
+      "A prompt template that tells the model to list and read the documents",
+      "A direct resource for the list and a templated resource keyed by document ID",
+      "A tool that returns the documents, marked read-only in its schema",
+      "A PostToolUse hook that appends the documents to each response"
+    ],
+    "answer": 1,
+    "explanation": "Resources are read-only data the client fetches by address and places straight into context. A direct resource has a fixed address with no parameters, and a templated resource puts a parameter such as a document ID in the address. A read-only tool still requires the model to call it, which is the overhead the author wants to avoid. Resource support varies by client, so check it first.",
+    "source": "03-claude-code-mcp-integration/12-building-and-configuring-an-mcp-server-transport-scope-and-t.md"
+  },
+  {
+    "id": "M3-034",
+    "module": 3,
+    "topic": "MCP tool permissions",
+    "domain": "Security and Safety",
+    "difficulty": "medium",
+    "question": "The team connects the GitHub MCP server. They want `create_issue` to run without a prompt, every other GitHub tool to keep prompting, and a write-capable `merge_pull_request` tool blocked entirely. Which configuration achieves this?",
+    "options": [
+      "Allow mcp__github__create_issue and deny mcp__github__merge_pull_request",
+      "Allow mcp__github and deny mcp__github__merge_pull_request",
+      "Allow mcp__github__create_issue and set defaultMode to acceptEdits",
+      "Deny mcp__github and allow mcp__github__create_issue"
+    ],
+    "answer": 0,
+    "explanation": "Permission rules can target a single MCP tool by its mcp__server__tool name. Allowing create_issue lets just that tool skip the prompt while the others still prompt, and a deny on the write tool blocks it. Allowing the whole server would remove the prompts on every other tool, and a server-wide deny would override the per-tool allow, because deny always wins.",
+    "source": "03-claude-code-mcp-integration/12-building-and-configuring-an-mcp-server-transport-scope-and-t.md"
+  },
+  {
+    "id": "M3-035",
+    "module": 3,
+    "topic": "MCP tool permissions",
+    "domain": "Tools and MCPs",
+    "difficulty": "hard",
+    "question": "Through the API MCP connector, a team registers a server with 40 tools but wants the model to see only 5 of them, both to save context and to narrow scope. Which control does this, and how does it differ from a permission rule?",
+    "options": [
+      "A deny rule on the other 35 tools, which also removes them from the model's view",
+      "Prompt caching on the tool definitions, which hides tools that are not called",
+      "The per-tool enabled flag in mcp_toolset, which decides visibility; a permission rule decides whether a visible tool may run",
+      "Registering the server at enterprise scope, which exposes only administrator-approved tools to the model"
+    ],
+    "answer": 2,
+    "explanation": "In the API MCP connector, the mcp_toolset enabled flag controls whether the model sees a tool at all, which is a context-cost and scope control. A permission rule decides whether an exposed tool may run, which is a governance control. The course notes the two are often used together. A deny rule blocks execution but does not remove the tool from what the model sees.",
+    "source": "03-claude-code-mcp-integration/12-building-and-configuring-an-mcp-server-transport-scope-and-t.md"
+  },
+  {
+    "id": "M3-036",
+    "module": 3,
+    "topic": "Prompt caching & context cost",
+    "domain": "Model Selection and Optimization",
+    "difficulty": "hard",
+    "question": "An agent sends a large, stable system prompt and tool set, then pauses 15-20 minutes between steps while waiting on external jobs. Cache hits are almost zero even though a cache_control breakpoint is set. What change addresses this?",
+    "options": [
+      "Move the breakpoint before the tool definitions so the tools are reprocessed each time",
+      "Enable the global caching setting in the Messages API, which overrides breakpoint lifetimes",
+      "Add a timestamp to the system prompt so each request writes a fresh cache entry",
+      "Set a ttl of 1h on the breakpoint, since the default lifetime is five minutes from the last read"
+    ],
+    "answer": 3,
+    "explanation": "The default cache lifetime is five minutes from the last read, so 15-20 minute gaps let it expire and you keep paying the write cost with no read benefit. The opt-in one-hour ttl is meant for agents that pause between steps. There is no global caching setting; caching is turned on only by marking breakpoints, and a changing timestamp before the cache point would invalidate the cache on every request.",
+    "source": "03-claude-code-mcp-integration/12-building-and-configuring-an-mcp-server-transport-scope-and-t.md"
+  },
+  {
+    "id": "M3-037",
+    "module": 3,
+    "topic": "Retrieval (RAG)",
+    "domain": "Applications and Integration",
+    "difficulty": "medium",
+    "question": "A team's retrieval-backed assistant keeps answering refund questions from the wrong policy, even though the right document is in the knowledge base. The files are named like `notes_final_v3.pdf`. What does the course point to?",
+    "options": [
+      "Retrieval is only as good as what it finds; descriptive names and grouping help the right document surface",
+      "The knowledge base is too large, and retrieval costs rise with every document added",
+      "Agentic search should be replaced by loading every document into context upfront",
+      "Classical RAG cannot handle PDFs, so the files must be converted to Markdown first"
+    ],
+    "answer": 0,
+    "explanation": "The model reasons only over the slice retrieval returns, so if retrieval misses the right document, the model never sees it. The course says descriptively named, well-grouped files are easier to surface than vague ones like notes_final_v3.pdf. The size option contradicts the course, which says per-request cost stays flat as the library grows.",
+    "source": "03-claude-code-mcp-integration/12-building-and-configuring-an-mcp-server-transport-scope-and-t.md"
+  },
+  {
+    "id": "M3-038",
+    "module": 3,
+    "topic": "Secrets in MCP config",
+    "domain": "Security and Safety",
+    "difficulty": "easy",
+    "question": "A developer committed an API key inline in .mcp.json, then pushed a follow-up commit replacing it with `${WAREHOUSE_MCP_TOKEN}`. What must still happen?",
+    "options": [
+      "Nothing, because the latest commit no longer contains the key",
+      "Treat the key as compromised and rotate it, because it remains in repository history",
+      "Add .mcp.json to .gitignore so the old version is hidden from history",
+      "Rename the environment variable so the old key can no longer be used"
+    ],
+    "answer": 1,
+    "explanation": "Overwriting the file removes the key only from the current version. It stays in repository history and in every clone, so any credential committed inline must be treated as compromised and rotated. Adding .gitignore now cannot undo copies that history, teammates' machines, and CI runners already hold.",
+    "source": "03-claude-code-mcp-integration/13-the-api-key-that-traveled-with-the-configuration-file-into-t.md"
+  },
+  {
+    "id": "M3-039",
+    "module": 3,
+    "topic": "Secrets in MCP config",
+    "domain": "Security and Safety",
+    "difficulty": "medium",
+    "question": "After an API key leaked through a committed .mcp.json, a lead wants to stop Claude Code from ever writing credential values inline into that file again. Which two layers does the course recommend? (Select TWO.)",
+    "options": [
+      "A CLAUDE.md instruction stating credentials must never be written inline to .mcp.json",
+      "A PostToolUse hook that reverts .mcp.json after a credential has been written",
+      "A PreToolUse hook that inspects writes and edits to .mcp.json and blocks inline credential patterns",
+      "A deny rule on Read(.mcp.json) so the agent cannot open the file",
+      "Moving the server from project scope to user scope so the file is never committed"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "The CLAUDE.md instruction tells the model the rule each session, and the PreToolUse hook enforces it every time, because it fires on every relevant tool call no matter what the model decides. A PostToolUse revert is tempting but comes too late, since the write has already happened, and denying reads of the file does nothing to stop a write.",
+    "source": "03-claude-code-mcp-integration/13-the-api-key-that-traveled-with-the-configuration-file-into-t.md"
+  },
+  {
+    "id": "M3-040",
+    "module": 3,
+    "topic": "MCP transport & scope",
+    "domain": "Applications and Integration",
+    "difficulty": "easy",
+    "question": "IT needs a security-scanning MCP server deployed to every developer's Claude Code installation, without relying on each developer to configure it and without letting them override it. Which transport and scope fit?",
+    "options": [
+      "HTTP + enterprise scope through administrator-managed settings",
+      "HTTP + project scope through a committed .mcp.json",
+      "stdio + user scope in each developer's personal settings",
+      "stdio or HTTP + local scope in ~/.claude.json"
+    ],
+    "answer": 0,
+    "explanation": "Enterprise scope lets administrators push a server to every user through managed settings that individuals cannot override, which suits organization-wide security tooling. Project scope reaches only people who clone that particular repository, and developers can edit the file.",
+    "source": "03-claude-code-mcp-integration/14-checkpoint-5-match-transport-and-scope-to-each-deployment-sc.md"
+  },
+  {
+    "id": "M3-041",
+    "module": 3,
+    "topic": "Enterprise authentication & secrets",
+    "domain": "Security and Safety",
+    "difficulty": "medium",
+    "question": "A service-account key for an internal API is used by four services and two CI pipelines, and compliance wants a record of who reads it. Where should the key's value live?",
+    "options": [
+      "Inline in each service's MCP configuration, so each one can rotate independently",
+      "In an environment variable on each machine, because that is always sufficient",
+      "In a managed secret store that returns it to authorized callers at runtime and logs access",
+      "In a single shared .env file committed to a private repository"
+    ],
+    "answer": 2,
+    "explanation": "The course says an environment variable is enough for a local, short-lived secret, but a secret store fits a value that is shared or must be audited. It centralizes the value, so one rotation updates every consumer, and it records who read what. Per-machine environment variables are fine for local secrets but give no access audit and leave copies scattered across consumers.",
+    "source": "03-claude-code-mcp-integration/15-connecting-claude-to-enterprise-systems-and-authenticating-i.md"
+  },
+  {
+    "id": "M3-042",
+    "module": 3,
+    "topic": "Enterprise authentication & secrets",
+    "domain": "Applications and Integration",
+    "difficulty": "medium",
+    "question": "A healthcare customer's security review asks three questions: how is every agent tool call logged, can an admin lock the auth setup during an audit window, and where is data processed? Which set of answers matches the course?",
+    "options": [
+      "A Stop hook writes a session summary; CLAUDE.md states the auth rules; the provider's default region",
+      "A PostToolUse audit hook; enterprise managed configuration; a regional HTTP endpoint with platform processing pinned to that region",
+      "A UserPromptSubmit hook logs each prompt; project-scoped .mcp.json; a stdio server on each laptop",
+      "A PreToolUse hook that blocks risky calls; local-scope settings; data residency handled by OAuth"
+    ],
+    "answer": 1,
+    "explanation": "A PostToolUse hook logs every tool call and its parameters deterministically. Enterprise managed configuration cannot be overridden by individual developers. A regional HTTP endpoint combined with a platform deployment pinned to that region gives reviewers a checkable residency answer. A project-scoped .mcp.json can be edited by any developer, so it does not lock the configuration.",
+    "source": "03-claude-code-mcp-integration/15-connecting-claude-to-enterprise-systems-and-authenticating-i.md"
+  },
+  {
+    "id": "M3-043",
+    "module": 3,
+    "topic": "OAuth across environments",
+    "domain": "Security and Safety",
+    "difficulty": "medium",
+    "question": "An OAuth-authenticated MCP integration passed every staging test. After cutover, every production sign-in fails with a redirect URI mismatch and loops back to the sign-in screen. What is the fix, and what should the team also check?",
+    "options": [
+      "Switch the integration to a personal access token, and file a code defect against the client",
+      "Copy the staging access token into the production configuration, and extend its expiry",
+      "Roll back to SSE transport, and retry the cutover outside business hours",
+      "Register the production host's redirect URI, and check whether policy requires separate per-environment app registrations"
+    ],
+    "answer": 3,
+    "explanation": "OAuth providers accept only redirect URIs that have been explicitly registered per host, so a working staging setup says nothing about production. The fix is a configuration step, not a code change, and many enterprise customers also require separate OAuth app registrations for staging and production. Switching to a PAT abandons the user-identity model OAuth exists to provide.",
+    "source": "03-claude-code-mcp-integration/16-the-oauth-connection-that-worked-in-staging-and-failed-in-pr.md"
+  },
+  {
+    "id": "M3-044",
+    "module": 3,
+    "topic": "Enterprise authentication & secrets",
+    "domain": "Security and Safety",
+    "difficulty": "hard",
+    "question": "A Jenkins job's MCP trace shows:\n[MCP Client] GET /auth/token, 401 Unauthorized\n[MCP Client] Reading credential from: /home/jenkins/.config/mcp-credentials.json\n[MCP Client] Retrying with credential, 401 Unauthorized\nWhich fix addresses both the immediate failure and the underlying design problem?",
+    "options": [
+      "Rotate the key and write the new value into /home/jenkins/.config/mcp-credentials.json",
+      "Switch this internal service-account integration from API key auth to OAuth",
+      "Rotate the rejected key, inject it as a CI pipeline secret environment variable, and reference that variable in the MCP config",
+      "Increase the retry count, since a 401 often clears after a few attempts"
+    ],
+    "answer": 2,
+    "explanation": "The key is being rejected, so it must be rotated, but it also lives in a file on the runner, which breaks the separation rule. For CI, the course says the key is injected as a secret by the pipeline runner and referenced by name in the config. Rotating into the same file fixes today's 401 but keeps the credential somewhere it can spread, and OAuth is meant for user-identity services, not service accounts.",
+    "source": "03-claude-code-mcp-integration/17-checkpoint-6-diagnose-the-authentication-failure-from-a-trac.md"
+  },
+  {
+    "id": "M3-045",
+    "module": 3,
+    "topic": "Cumulative integration",
+    "domain": "Applications and Integration",
+    "difficulty": "medium",
+    "question": "A production-migration workstation has this .claude/settings.json:\n{ \"permissions\": { \"defaultMode\": \"bypassPermissions\", \"deny\": [\"Read(.env.production)\"] } }\nWhat is the bug, and what is the course's corrected value?",
+    "options": [
+      "The deny rule is wrong and should be removed; bypassPermissions is fine on this workstation",
+      "The deny rule must move to managed settings; the defaultMode should become plan",
+      "Both lines are correct; the risk is handled by the deny rule alone",
+      "defaultMode is wrong; it should be acceptEdits, while the deny rule stays as it is"
+    ],
+    "answer": 3,
+    "explanation": "bypassPermissions removes every confirmation prompt on a non-isolated production workstation, including for destructive operations, so the mode is the bug. The model answer changes it to acceptEdits, which auto-approves edits and common filesystem commands but gates other shell commands, and keeps the correct deny rule. A single deny rule cannot stand in for all the other prompts bypass removes.",
+    "source": "03-claude-code-mcp-integration/18-cumulative-integration-task-checkpoint.md"
+  },
+  {
+    "id": "M3-046",
+    "module": 3,
+    "topic": "Permission modes & agent loop",
+    "domain": "Claude Code",
+    "difficulty": "medium",
+    "question": "A new teammate complains that Claude Code 'wastes time' reading files and drafting a plan instead of writing code right away. You explain why the explore, plan, and code sequence matters. Which reasons are given in the course? (Select TWO.)",
+    "options": [
+      "Understanding the codebase first leads to fewer assumptions and catches more downstream effects",
+      "The plan step lets the agent skip permission checks during the code phase",
+      "It is where permission modes plug in: plan mode holds the agent in the explore phase until you release it",
+      "Exploring first means no tokens are consumed until code is written",
+      "The sequence guarantees the generated code will have no defects"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "The course gives two reasons: understanding the codebase before touching it produces better output with fewer assumptions, and the loop is where the permission modes plug in, with plan mode blocking edits and shell commands until you approve. The idea that planning lets the agent skip permission checks gets it backwards, because the approval gate sits at the plan.",
+    "source": "03-claude-code-mcp-integration/02-claude-code-agent-loop-permission-modes-settings-and-where-a.md"
+  },
+  {
+    "id": "M3-047",
+    "module": 3,
+    "topic": "MCP primitives: tools, resources, prompts",
+    "domain": "Tools and MCPs",
+    "difficulty": "medium",
+    "question": "A support-tooling team has spent weeks refining an incident-summary instruction that produces materially better results than what engineers type on their own. They want every MCP client connected to their server to use that exact wording, maintained in one place. What should the server expose?",
+    "options": [
+      "A templated resource that returns the instruction text by incident ID",
+      "A tool that the model calls to fetch the instruction before summarizing",
+      "A prompt: a vetted instruction template that clients invoke by name",
+      "A rules file distributed to each client's .claude/rules directory"
+    ],
+    "answer": 2,
+    "explanation": "An MCP prompt is a pre-written instruction template the server exposes so clients can invoke a vetted prompt by name, which fits when careful wording beats what users would type and every client should get the same quality. A resource is read-only data placed into context, not an invocable instruction template, so it does not fit this need.",
+    "source": "03-claude-code-mcp-integration/12-building-and-configuring-an-mcp-server-transport-scope-and-t.md"
+  },
+  {
+    "id": "M3-048",
+    "module": 3,
+    "topic": "MCP server design",
+    "domain": "Tools and MCPs",
+    "difficulty": "medium",
+    "question": "An architect is deciding where to build an MCP server and where to wire a tool directly into the application's API call. Which situations favor building an MCP server? (Select TWO.)",
+    "options": [
+      "Three separate internal applications all need the same ticketing-system integration",
+      "A one-off script that one developer will run once against a single project",
+      "A stable repository integration the team reuses across many Claude Code sessions",
+      "A demo that will be thrown away after a single customer meeting",
+      "A tool whose logic only ever runs inside one application's single API call"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "MCP moves tool definitions out of individual applications into a reusable server, so you build the capability once and every client that connects gets it. That pays off when several applications need the same service or a stable integration is reused across sessions and shared with a team. The course says one-off or single-project, single-person tools are simpler to wire directly in the API call.",
+    "source": "03-claude-code-mcp-integration/12-building-and-configuring-an-mcp-server-transport-scope-and-t.md"
+  },
+  {
+    "id": "M3-049",
+    "module": 3,
+    "topic": "MCP context cost",
+    "domain": "Tools and MCPs",
+    "difficulty": "medium",
+    "question": "A developer connects twelve MCP servers to Claude Code and worries that every request will now carry hundreds of tool definitions. What does Claude Code do by default?",
+    "options": [
+      "Loads every connected server's definitions upfront so tool selection is accurate",
+      "Defers the definitions and uses a search step to load only the tools a task needs",
+      "Rejects new servers once their combined definitions exceed 10 percent of context",
+      "Caches all definitions for one hour so they cost nothing after the first request"
+    ],
+    "answer": 1,
+    "explanation": "By default, Claude Code defers MCP tool definitions and discovers and loads only the relevant tools through a search step, so only the tools a task calls enter context. Loading definitions upfront is an opt-in mode that applies only while they fit within roughly 10 percent of the context window. Even so, the course advises connecting only the servers you need.",
+    "source": "03-claude-code-mcp-integration/12-building-and-configuring-an-mcp-server-transport-scope-and-t.md"
+  },
+  {
+    "id": "M3-050",
+    "module": 3,
+    "topic": "Subagents",
+    "domain": "Tools and MCPs",
+    "difficulty": "medium",
+    "question": "A lead is deciding which work to hand to subagents during a large investigation. Which tasks fit a subagent well? (Select TWO.)",
+    "options": [
+      "Digging through a huge log dump whose raw output would bloat the main session's context",
+      "A small edit that depends on decisions made earlier in the main conversation",
+      "Several independent investigations that can run in parallel and each report back",
+      "Guaranteeing that every file edit is followed by a formatter run",
+      "Holding a universal constraint that must apply in every session"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "A subagent runs in an isolated context and returns only its output, which suits exploration whose output would bloat the main context and tasks that can be broken down and parallelized. It does not inherit the main conversation history, so a task that depends on earlier decisions fits poorly. Guaranteed formatting belongs in a hook, and universal constraints belong in CLAUDE.md.",
+    "source": "03-claude-code-mcp-integration/05-durable-project-context-with-claude-md-rules-files-hooks-and.md"
+  },
+  {
+    "id": "M3-051",
+    "module": 3,
+    "topic": "Hooks",
+    "domain": "Security and Safety",
+    "difficulty": "medium",
+    "question": "A compliance team needs Claude Code to (a) write every tool call and its parameters to an audit store and (b) confirm that required environment variables and services are present before the agent starts any work. Which hook-event choices are correct? (Select TWO.)",
+    "options": [
+      "PostToolUse for the audit log, since it fires after each tool call completes",
+      "PostToolUse to block edits to protected paths before they land",
+      "SessionStart to validate environment variables and reachable services",
+      "Notification to deny tool calls that lack an audit entry",
+      "UserPromptSubmit to write the audit entry after the model finishes responding"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "PostToolUse runs after each tool call, so it suits audit logging, and the course names it as the deterministic audit mechanism. SessionStart runs when a session starts or resumes, which is the place to validate environment variables and confirm services are reachable. Using PostToolUse to block is the classic mistake, because the call has already happened by the time it fires.",
+    "source": "03-claude-code-mcp-integration/05-durable-project-context-with-claude-md-rules-files-hooks-and.md"
+  },
+  {
+    "id": "M3-052",
+    "module": 3,
+    "topic": "OAuth & user identity",
+    "domain": "Security and Safety",
+    "difficulty": "easy",
+    "question": "A developer connecting the Linear MCP server for the first time asks which API key they should paste into .mcp.json. What is the correct guidance?",
+    "options": [
+      "Generate a personal access token and pass it as a Bearer header, as with GitHub",
+      "Commit a shared service-account key so every teammate signs in as the same identity",
+      "None is needed: the server returns 401, the client opens a browser sign-in, and the token is stored",
+      "Store the key in ~/.claude.json, since local scope keeps credentials out of the repository"
+    ],
+    "answer": 2,
+    "explanation": "Linear uses OAuth. The server returns 401 Unauthorized, the client starts a browser-based sign-in, and after you approve, a token is issued and stored automatically, so no one copies a credential by hand. The PAT-as-Bearer pattern is how the GitHub server authenticates, and the course uses it to contrast with Linear.",
+    "source": "03-claude-code-mcp-integration/15-connecting-claude-to-enterprise-systems-and-authenticating-i.md"
+  },
+  {
+    "id": "M3-053",
+    "module": 3,
+    "topic": "GitHub MCP server setup",
+    "domain": "Applications and Integration",
+    "difficulty": "medium",
+    "question": "A team wants everyone working on a repository to have the GitHub MCP server, which GitHub hosts remotely and which authenticates with a personal access token. Which setup follows the course?",
+    "options": [
+      "stdio transport at local scope, with the token written into the args list",
+      "HTTP transport at project scope, with the token pasted into the committed .mcp.json header",
+      "SSE transport at user scope, with the token stored in personal settings",
+      "HTTP transport at project scope, with the Bearer header referencing an environment variable"
+    ],
+    "answer": 3,
+    "explanation": "The GitHub server is remotely hosted, so it uses HTTP, and project scope gives the whole team the same tooling. The PAT goes in a Bearer header that references an environment variable. Pasting the token inline into the committed .mcp.json is the tempting shortcut, but it puts the token into repository history, where a later commit cannot remove it.",
+    "source": "03-claude-code-mcp-integration/12-building-and-configuring-an-mcp-server-transport-scope-and-t.md"
+  },
+  {
+    "id": "M3-054",
+    "module": 3,
+    "topic": "MCP transport & scope",
+    "domain": "Applications and Integration",
+    "difficulty": "medium",
+    "question": "A developer has two MCP servers: a local database utility they use in every project, and an experimental scraper tied to one repository that they are not ready to share. Which scope choices are correct? (Select TWO.)",
+    "options": [
+      "User scope for the database utility, so it is available across all their projects",
+      "Project scope for the database utility, so it travels with every repository",
+      "Local scope for the scraper, stored in ~/.claude.json under that project's path",
+      "Enterprise scope for the scraper, so administrators can review it before sharing",
+      "User scope for the scraper, written into the repository's .mcp.json"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "User scope keeps a server personal but available in every project, which fits a utility used everywhere. Local scope stores the server in ~/.claude.json under the current project's path, so it applies only to that project and is not shared, which fits an unshared experiment. Project scope would commit the utility to each repository and share it with teammates who never asked for it.",
+    "source": "03-claude-code-mcp-integration/12-building-and-configuring-an-mcp-server-transport-scope-and-t.md"
+  },
+  {
+    "id": "M3-055",
+    "module": 3,
+    "topic": "Enterprise authentication & secrets",
+    "domain": "Applications and Integration",
+    "difficulty": "hard",
+    "question": "After a leaked service-account key was rotated, two external services that had been configured with the same key broke, and fixing them took three hours. Which habit from the course would most directly have made this rotation cheaper?",
+    "options": [
+      "Rotating only once a year so consumers have time to prepare for the change",
+      "Keeping a record of which services use each credential and scoping each one narrowly",
+      "Using one shared key everywhere so a single rotation covers every consumer",
+      "Skipping rotation and removing the key from the latest commit instead"
+    ],
+    "answer": 1,
+    "explanation": "The course names two habits that make rotation cheaper: scope each credential to the narrowest access its task needs, and keep a record of which services use each credential, so rotating it does not surprise unknown consumers. One shared key widens the blast radius, and removing the key from the latest commit leaves it in history, so rotation is still mandatory.",
+    "source": "03-claude-code-mcp-integration/15-connecting-claude-to-enterprise-systems-and-authenticating-i.md"
+  },
+  {
+    "id": "M3-056",
+    "module": 3,
+    "topic": "Code modernization scoping",
+    "domain": "Applications and Integration",
+    "difficulty": "hard",
+    "question": "A consultancy is scoping an agent-driven modernization of a large, unfamiliar legacy codebase for a bank. Before the first session, which questions does the course say the scoping must answer? (Select TWO.)",
+    "options": [
+      "What is the blast radius: which systems depend on this code and what breaks downstream if an edit is wrong?",
+      "Which permission mode will produce the fewest prompts over the whole engagement?",
+      "Who approves each phase before the next one begins, and is that documented?",
+      "Can the CLAUDE.md be grown to include the full legacy history for reference?",
+      "Can SSE transport be reused so the legacy MCP configuration does not need to change?"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "The course lists three scoping questions for high-risk agentic work: the blast radius, how changes are audited (for example, a PostToolUse logging hook), and who approves each phase before the next. Choosing a mode for the fewest prompts treats permission mode as a speed decision, when the course says it is a risk decision.",
+    "source": "03-claude-code-mcp-integration/15-connecting-claude-to-enterprise-systems-and-authenticating-i.md"
+  },
+  {
+    "id": "M3-057",
+    "module": 3,
+    "topic": "Plugin distribution & marketplaces",
+    "domain": "Applications and Integration",
+    "difficulty": "medium",
+    "question": "An administrator deploys a compliance plugin through managed settings. A developer's project settings try to disable it for one repository. What happens?",
+    "options": [
+      "The managed deployment takes priority; user and project files cannot override it",
+      "The project setting wins, because project scope is more specific than managed scope",
+      "The plugin is disabled for that repository until the administrator re-runs install",
+      "Both apply, and the developer is prompted to choose one at session start"
+    ],
+    "answer": 0,
+    "explanation": "Managed settings sit above user and project settings in the configuration hierarchy, so a plugin deployed at managed scope takes priority and cannot be overridden by users or project files. 'More specific wins' is a common intuition from other config systems, but it does not apply here.",
+    "source": "03-claude-code-mcp-integration/08-packaging-a-workflow-as-a-plugin-skills-custom-commands-and-.md"
+  },
+  {
+    "id": "M3-058",
+    "module": 3,
+    "topic": "Enterprise authentication & secrets",
+    "domain": "Applications and Integration",
+    "difficulty": "easy",
+    "question": "A developer builds a quick proof-of-concept that connects Claude to a mock internal API. It will never touch production data. How much of the enterprise integration checklist should they apply?",
+    "options": [
+      "All of it: OAuth, managed settings, audit hooks, and data residency from day one",
+      "None, including secrets handling, since nothing in a demo is sensitive",
+      "Skip the full checklist, but still keep any credential in an environment variable",
+      "Only data residency, because it is the hardest item to retrofit"
+    ],
+    "answer": 2,
+    "explanation": "The course says the full checklist is not warranted for a demo-only integration that never sees production data, but keeping secrets in environment variables costs nothing and is good practice. Dropping secrets hygiene entirely is the tempting shortcut, and it is how a prototype credential ends up committed and leaked.",
+    "source": "03-claude-code-mcp-integration/15-connecting-claude-to-enterprise-systems-and-authenticating-i.md"
+  },
+  {
+    "id": "M3-059",
+    "module": 3,
+    "topic": "Agent SDK configuration",
+    "domain": "Applications and Integration",
+    "difficulty": "medium",
+    "question": "A team moves a terminal workflow into a headless Agent SDK job and assumes that, because no one is at a terminal, their project deny rules no longer matter and can be dropped. Why is this wrong?",
+    "options": [
+      "The SDK ignores deny rules, so the rules must be rewritten as CLAUDE.md instructions",
+      "The SDK exposes the same agent loop, and the same permission model and deny rules apply",
+      "Deny rules apply only in bypassPermissions mode, which SDK jobs cannot use",
+      "The SDK runs in Anthropic's sandbox, so deny rules are replaced by sandbox limits"
+    ],
+    "answer": 1,
+    "explanation": "The Agent SDK is a programmable interface to the same agent loop Claude Code runs in the terminal. You set the permission mode and tools from code, and the same permission model and deny rules apply. The sandbox option confuses the SDK with the Messages API and Managed Agents, which run elsewhere; the SDK runs in your own process.",
+    "source": "03-claude-code-mcp-integration/21-key-terms-from-this-module.md"
+  },
+  {
+    "id": "M3-060",
+    "module": 3,
+    "topic": "Enterprise authentication & secrets",
+    "domain": "Applications and Integration",
+    "difficulty": "hard",
+    "question": "An integration review lists three services: a SaaS project tracker where actions must be attributed to each user, an internal pricing API called with a service account, and a local file-system tool. Which authentication pairings match the course's checklist? (Select TWO.)",
+    "options": [
+      "SaaS project tracker: OAuth, with the token issued by the provider and stored by the client",
+      "Internal pricing API: OAuth, so each developer signs in to the service account",
+      "Local file-system tool: stdio with no network auth, governed by file-system permissions and deny rules",
+      "Local file-system tool: an API key committed to .mcp.json so every clone can connect",
+      "Internal pricing API: a personal access token written inline in the project config"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "OAuth fits remote services whose authorization model is tied to user identity. Local tools use stdio with no network authentication, where the security boundary is file-system permissions and deny rules. The internal service-account API should use an API key in an environment variable, so OAuth is the wrong pattern there, and an inline credential in config is never acceptable.",
+    "source": "03-claude-code-mcp-integration/15-connecting-claude-to-enterprise-systems-and-authenticating-i.md"
+  }
+]

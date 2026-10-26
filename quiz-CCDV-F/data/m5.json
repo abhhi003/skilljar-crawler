@@ -1,0 +1,714 @@
+[
+  {
+    "id": "M5-001",
+    "module": 5,
+    "domain": "Applications and Integration",
+    "topic": "Module introduction",
+    "difficulty": "easy",
+    "question": "According to Module 5, at what point in a build's life does the work of packaging, contributing, deploying, and defending it begin?",
+    "options": [
+      "When the second engagement asks to reuse the build",
+      "When the code starts working correctly",
+      "When the customer schedules its security review",
+      "When the first upstream model update ships"
+    ],
+    "answer": 1,
+    "explanation": "The module's throughline is that the point where code starts working is where this module's work begins: a working build is not yet one that survives reuse, review, or deployment. Waiting for a second engagement to ask is exactly the failure the packaging postmortem describes, because by then the knowledge of what was customer-specific has gone.",
+    "source": "05-accelerators-ip-contribution/01-module-introduction.md"
+  },
+  {
+    "id": "M5-002",
+    "module": 5,
+    "domain": "Applications and Integration",
+    "topic": "Packaging for reuse",
+    "difficulty": "easy",
+    "question": "A team shares a working agent as a folder of loose scripts. Each script holds a few customer-specific values, and every new team copies the folder and edits the files differently. What packaging change best fixes this?",
+    "options": [
+      "Add a top-level README that lists which file contains each value to edit",
+      "Merge all the scripts into one large file so the values sit closer together",
+      "Package it as an agent template with customer-specific values exposed as configuration with documented defaults",
+      "Publish each script separately so teams can pick only the ones they need"
+    ],
+    "answer": 2,
+    "explanation": "The course calls loose scripts the most common wrong approach: they run and so look reusable, but values are buried across files and teams copy and diverge. An agent template pulls domain-specific values into configuration with documented defaults, so a new team sets values instead of editing the loop. A README listing edit locations still leaves teams editing code rather than configuring one asset.",
+    "source": "05-accelerators-ip-contribution/02-packaging-for-reuse.md"
+  },
+  {
+    "id": "M5-003",
+    "module": 5,
+    "domain": "Applications and Integration",
+    "topic": "Packaging for reuse",
+    "difficulty": "easy",
+    "question": "A \"reusable\" code-review template defines build_review_agent() with no arguments and passes repo_path=\"/home/acme/checkout-service\" to the Agent. What is the correct fix?",
+    "options": [
+      "Add a comment telling the next team to replace the path before running",
+      "Change the path to a relative directory so it works on any machine",
+      "Move the path into the system prompt so the model knows which repository to read",
+      "Make repo_path a parameter of build_review_agent and pass it through to the Agent"
+    ],
+    "answer": 3,
+    "explanation": "The defect is a customer-specific value hardcoded where a parameter belongs; the corrected form is build_review_agent(repo_path) with repo_path=repo_path so each engagement sets it. A comment still requires the next team to edit the code, which is the copy-and-diverge pattern packaging is meant to prevent.",
+    "source": "05-accelerators-ip-contribution/02-packaging-for-reuse.md"
+  },
+  {
+    "id": "M5-004",
+    "module": 5,
+    "domain": "Applications and Integration",
+    "topic": "Packaging for reuse",
+    "difficulty": "medium",
+    "question": "An accelerator is parameterized, documented, and ships with an eval. It demos well, but it stalls at a regulated customer's first security review. The reviewer asks what data it touches, what identity it acts under, and what record it leaves. What was missing from the package?",
+    "options": [
+      "A bundled audit log covering data touched, identity used, and actions taken",
+      "A larger eval dataset that includes the customer's own regulated records",
+      "A pinned model alias so the reviewer knows which model family is used",
+      "A packaging checklist recording which values were parameterized"
+    ],
+    "answer": 0,
+    "explanation": "The course says an accelerator without the data touched, the identity acted under, and the log of what it did passes a demo and stalls at the first security review, so the audit log must be treated as part of the package. A bigger eval proves behavior but does not answer the reviewer's data and identity questions.",
+    "source": "05-accelerators-ip-contribution/02-packaging-for-reuse.md"
+  },
+  {
+    "id": "M5-005",
+    "module": 5,
+    "domain": "Applications and Integration",
+    "topic": "Packaging for reuse",
+    "difficulty": "hard",
+    "question": "A developer is finishing a one-off data cleanup agent for a customer, who has confirmed it will never be reused or run again. A teammate insists on full accelerator packaging (parameters, assumptions docs, bundled eval) because \"packaging while fresh is always cheaper.\" What does the course recommend?",
+    "options": [
+      "Package it fully, since reconstructing intent later always costs more",
+      "Parameterize only the credentials and skip the rest of the checklist",
+      "Ship the build and move on, since packaging overhead is not worth it here",
+      "Contribute it to the Cookbook so the packaging effort is not wasted"
+    ],
+    "answer": 2,
+    "explanation": "The packaging lesson's \"use a different approach\" guidance says that for a one-off a customer will never reuse, packaging overhead is not worth it: ship the build and move on. Packaging while fresh is cheaper only when reuse is actually expected; packaging adds real time to the first build, and here nothing will ever reuse it.",
+    "source": "05-accelerators-ip-contribution/02-packaging-for-reuse.md"
+  },
+  {
+    "id": "M5-006",
+    "module": 5,
+    "domain": "Applications and Integration",
+    "topic": "Contributing back",
+    "difficulty": "easy",
+    "question": "A developer wants to share a complete customer-service application, including its UI and deployment scripts, through the Claude Cookbook. What should they do?",
+    "options": [
+      "Submit the whole application so reviewers can see every pattern in context",
+      "Strip out the reusable pattern and submit it to the Cookbook as a focused example",
+      "Split the application into several Cookbook pull requests opened at the same time",
+      "Open the application in its own repository and link it from the Cookbook README"
+    ],
+    "answer": 1,
+    "explanation": "The Cookbook is a repository of focused reference implementations, so a full multi-component application is a channel mismatch that stalls because reviewers look at one focused pattern. The right move is to strip the reusable pattern out as a focused example. Submitting the whole app for context is the specific mismatch the course calls one of the most common reasons a contribution never gets reviewed.",
+    "source": "05-accelerators-ip-contribution/03-contributing-back.md"
+  },
+  {
+    "id": "M5-007",
+    "module": 5,
+    "domain": "Applications and Integration",
+    "topic": "Contributing back",
+    "difficulty": "medium",
+    "question": "A developer's pull request has been open for three weeks with no review. The code is correct and they use it every day. What change is most likely to get it reviewed?",
+    "options": [
+      "Add a runnable example, a test proving the behavior, and a short statement of assumptions",
+      "Expand the PR with related improvements so it delivers more value to reviewers",
+      "Rewrite the description to explain how much daily use the code has seen",
+      "Ask the maintainer to set up a harness and reproduce the developer's own environment"
+    ],
+    "answer": 0,
+    "explanation": "A maintainer accepts what they can verify; a PR stalls when they would have to reconstruct intent. The example, test, and assumptions statement leave the reviewer nothing to reverse-engineer. Expanding the PR makes it worse, because a sprawling contribution forces the reviewer to reconstruct intent before evaluating it.",
+    "source": "05-accelerators-ip-contribution/03-contributing-back.md"
+  },
+  {
+    "id": "M5-008",
+    "module": 5,
+    "domain": "Applications and Integration",
+    "topic": "Contributing back",
+    "difficulty": "medium",
+    "question": "A developer has a one-line fix for an existing Cookbook example. The corrected line came from work on a customer engagement. Which readiness item must be cleared before technical review?",
+    "options": [
+      "A new end-to-end example application built around the fixed line",
+      "Reduction of the fix into a single focused pattern for review",
+      "A benchmark showing the fix improves latency in the customer's region",
+      "Confirmation of the right to contribute the code, with prior work attributed"
+    ],
+    "answer": 3,
+    "explanation": "Licensing and attribution decide whether a contribution can be accepted at all, so they come before technical review, and engagement code may have constraints on where it can go. A one-line fix is already focused, so reducing it to a single pattern is not what it is missing; it belongs in the Cookbook example's own repository once the rights check passes.",
+    "source": "05-accelerators-ip-contribution/03-contributing-back.md"
+  },
+  {
+    "id": "M5-009",
+    "module": 5,
+    "domain": "Applications and Integration",
+    "topic": "Contributing back",
+    "difficulty": "hard",
+    "question": "While preparing a reusable conversation-handling pattern for contribution, a developer finds that the engagement contract restricts where that code may be shared, and they cannot get the restriction cleared. What should they do?",
+    "options": [
+      "Remove customer names and data, then contribute it since the pattern is general",
+      "Contribute it to an open-source MCP repository instead of the Cookbook",
+      "Not contribute it, and escalate to the owner of the engagement constraint",
+      "Contribute it with an attribution note naming the customer engagement"
+    ],
+    "answer": 2,
+    "explanation": "The course says that when code carries an engagement licensing constraint you cannot clear, you do not contribute it and you escalate to the owner. Stripping customer specifics is what you do to prepare code you are allowed to share; it does not remove a licensing constraint, and skipping the check leaves a problem the legal team has to unwind later.",
+    "source": "05-accelerators-ip-contribution/03-contributing-back.md"
+  },
+  {
+    "id": "M5-010",
+    "module": 5,
+    "domain": "Applications and Integration",
+    "topic": "Requirements & lifecycle",
+    "difficulty": "easy",
+    "question": "A regulated EU bank wants an agent that summarizes customer call transcripts for its support team. Which statement is a valid functional requirement?",
+    "options": [
+      "The agent should be fast and accurate for support staff",
+      "The agent produces a summary that a human approves before it is stored",
+      "Transcript data must be processed inside the EU",
+      "The system must run on a cloud provider the bank has approved"
+    ],
+    "answer": 1,
+    "explanation": "A functional requirement names what the system must do as a checkable statement of behavior, and human approval before storage is exactly that. EU processing is a real requirement, but it is an infrastructure (residency) constraint on the deployment, not a behavior. \"Fast and accurate\" is too vague to design against or verify.",
+    "source": "05-accelerators-ip-contribution/04-requirements-lifecycle.md"
+  },
+  {
+    "id": "M5-011",
+    "module": 5,
+    "domain": "Applications and Integration",
+    "topic": "Requirements & lifecycle",
+    "difficulty": "medium",
+    "question": "During scoping, a business owner says only \"help support agents answer faster.\" Which set of questions should the developer ask to derive the infrastructure requirements most likely to decide the deployment platform?",
+    "options": [
+      "Which queues tickets go to, which policies replies cite, and who approves sends",
+      "Which model tier, which prompt template, and which tools the agent will call",
+      "Which platform the team knows best, which is cheapest per token, and which is quickest to build on",
+      "How fast responses must be where users are, peak volume, where data must be processed, and who acts under what credentials"
+    ],
+    "answer": 3,
+    "explanation": "Infrastructure requirements are usually not stated in the business problem; you derive them by asking about latency, scale, residency, and identity, which most often decide the platform. Queues, cited policies, and approval are functional requirements about behavior. Choosing by familiarity or token price is what the course warns against.",
+    "source": "05-accelerators-ip-contribution/04-requirements-lifecycle.md"
+  },
+  {
+    "id": "M5-012",
+    "module": 5,
+    "domain": "Applications and Integration",
+    "topic": "Requirements & lifecycle",
+    "difficulty": "hard",
+    "question": "In the systems lifecycle for a Claude application, which phase does \"choosing Amazon Bedrock because the customer holds its compliance posture there\" belong to?",
+    "options": [
+      "Requirements",
+      "Deploy",
+      "Design",
+      "Operate"
+    ],
+    "answer": 2,
+    "explanation": "The Design phase is where you choose the platform, the model, and the trust boundaries, so picking Bedrock is design work. Requirements is tempting because compliance is involved, but that phase captures the constraint (for example, where data must be processed); choosing the platform that meets it comes after. Deploy is where you pin the version and gate promotion on the eval.",
+    "source": "05-accelerators-ip-contribution/04-requirements-lifecycle.md"
+  },
+  {
+    "id": "M5-013",
+    "module": 5,
+    "domain": "Applications and Integration",
+    "topic": "Requirements & lifecycle",
+    "difficulty": "medium",
+    "question": "A team on a regulated deployment is behind schedule. They want to start building while the residency check on the proposed platform is still open, and confirm it later. What does the lifecycle guidance say?",
+    "options": [
+      "Do not move from design to build until the platform satisfies the residency requirement",
+      "Start building, then run the residency check together with the eval at deploy",
+      "Collapse design and build into one phase, since the gate adds only paperwork",
+      "Proceed and record the residency risk in the requirements record for later review"
+    ],
+    "answer": 0,
+    "explanation": "Gates are where a regulated engagement keeps control, and the course's example is not moving from design to build until the platform satisfies the residency requirement. A one-off experiment may collapse phases, but a regulated deployment cannot. Deferring the check to deploy is how residency shows up as a rejection after the build is finished.",
+    "source": "05-accelerators-ip-contribution/04-requirements-lifecycle.md"
+  },
+  {
+    "id": "M5-014",
+    "module": 5,
+    "domain": "Applications and Integration",
+    "topic": "Deployment & versioning",
+    "difficulty": "easy",
+    "question": "A production log shows: deploy model=\"opus\" ok; alias advanced to a new version with no app change; parser KeyError \"summary\"; rollback failed because no pinned prior version was retained. The team hotfixed the parser. What fix addresses the root cause?",
+    "options": [
+      "Make the parser tolerant of missing keys so future shape changes do not fail",
+      "Pin the full model ID, keep the prior pinned version, and gate new versions through the eval",
+      "Switch the alias from opus to sonnet, since it changes less often",
+      "Add an alert that fires whenever the alias resolves to a new version"
+    ],
+    "answer": 1,
+    "explanation": "The application never changed; the alias did, and there was nothing to roll back to. The course's fix is to pin the full model ID, keep the prior pinned version as the rollback target, and run the eval before promotion. A more tolerant parser is the hotfix the team already applied, and the trace notes it left the unpinned deployment in place.",
+    "source": "05-accelerators-ip-contribution/05-deployment-versioning.md"
+  },
+  {
+    "id": "M5-015",
+    "module": 5,
+    "domain": "Applications and Integration",
+    "topic": "Deployment & versioning",
+    "difficulty": "medium",
+    "question": "A customer runs on AWS, has a data-residency requirement, and must be able to roll back a model update. Which is the minimal deployment configuration that satisfies both?",
+    "options": [
+      "First-party API, an Anthropic API key, a pinned full model ID, and the prior version retained",
+      "Amazon Bedrock, an AWS identity reference, a moving alias, and the prior version retained",
+      "Amazon Bedrock, an AWS identity reference, a pinned full model ID, and the prior version retained",
+      "Google Vertex AI, an AWS identity reference, a pinned full model ID, and no retention"
+    ],
+    "answer": 2,
+    "explanation": "Bedrock uses AWS identity and keeps data inside the customer's AWS boundary, with regional routing for residency. A pinned full model ID plus the retained prior version makes rollback possible. The option with a moving alias fails because an alias can resolve to a new version without notice, leaving no fixed snapshot to roll back from.",
+    "source": "05-accelerators-ip-contribution/05-deployment-versioning.md"
+  },
+  {
+    "id": "M5-016",
+    "module": 5,
+    "domain": "Applications and Integration",
+    "topic": "Deployment & versioning",
+    "difficulty": "hard",
+    "question": "An AWS customer wants feature parity with the first-party API through the Messages API. Their compliance team also requires that inference data stay inside their configured AWS boundary. Which platform fits?",
+    "options": [
+      "Claude in Amazon Bedrock",
+      "Claude Platform on AWS",
+      "Claude on Amazon Bedrock (legacy)",
+      "The first-party Claude API"
+    ],
+    "answer": 0,
+    "explanation": "Claude in Amazon Bedrock uses the Messages API at /anthropic/v1/messages with broad feature parity, and data stays inside the customer's configured AWS boundary. Claude Platform on AWS is tempting because it is reached through the customer's AWS account, but its inference is Anthropic-operated outside the AWS boundary, so it fails the data-boundary requirement.",
+    "source": "05-accelerators-ip-contribution/05-deployment-versioning.md"
+  },
+  {
+    "id": "M5-017",
+    "module": 5,
+    "domain": "Applications and Integration",
+    "topic": "Deployment & versioning",
+    "difficulty": "medium",
+    "question": "A customer has an existing Bedrock integration built on the InvokeModel and Converse APIs and has not migrated to the Messages API. How should the deployment be versioned?",
+    "options": [
+      "Use the anthropic.-prefixed model ID from the Messages API integration",
+      "Use the first-party Claude API model ID and follow Anthropic's deprecation schedule",
+      "Use the moving alias, since legacy integrations do not support pinning",
+      "Pin through ARN-versioned model identifiers using Bedrock's versioning controls"
+    ],
+    "answer": 3,
+    "explanation": "Claude on Amazon Bedrock (legacy) uses InvokeModel/Converse with ARN-versioned model identifiers, and you pin through Bedrock's versioning controls. The anthropic.-prefixed full model ID is the pinning format for Claude in Amazon Bedrock (the Messages API integration), which this customer has not migrated to.",
+    "source": "05-accelerators-ip-contribution/05-deployment-versioning.md"
+  },
+  {
+    "id": "M5-018",
+    "module": 5,
+    "domain": "Applications and Integration",
+    "topic": "Deployment & versioning",
+    "difficulty": "medium",
+    "question": "A team has a pinned production model and wants to adopt a newer snapshot. Which rollout process does the course describe?",
+    "options": [
+      "Switch all traffic at once, then run the eval suite on production logs afterward",
+      "Send a portion of traffic to the new version, compare it to the pinned baseline, then promote or roll back",
+      "Change the model line to the alias so the new snapshot is picked up automatically",
+      "Run the eval once during development and skip it at deployment if it passed"
+    ],
+    "answer": 1,
+    "explanation": "The course says to gate promotion on the eval suite: send the new version to a portion of traffic, compare against the pinned baseline, and promote or roll back on the result. That is where the eval stops being a one-time test and becomes the deployment gate. Moving all traffic first means a regression reaches production before anything has checked it.",
+    "source": "05-accelerators-ip-contribution/05-deployment-versioning.md"
+  },
+  {
+    "id": "M5-019",
+    "module": 5,
+    "domain": "Model Selection and Optimization",
+    "topic": "Comparing platforms",
+    "difficulty": "easy",
+    "question": "A developer measures 180 ms latency from their laptop and reports the platform is fast enough. The customer runs in eu-west with 12 KB payloads. What should the developer do next?",
+    "options": [
+      "Accept the 180 ms figure, since latency barely varies by region",
+      "Optimize the response parser to bring the laptop latency down further",
+      "Measure latency from the customer's actual region using their actual payload",
+      "Add a caching layer so repeat calls skip the round trip"
+    ],
+    "answer": 2,
+    "explanation": "A latency number is only accurate when measured from the customer's actual region against their actual payload; a laptop measurement hides the round-trip penalty that appears where the customer runs. Optimizing the parser tunes a number that was measured in the wrong place, so it does not answer whether the platform is fast enough for the customer.",
+    "source": "05-accelerators-ip-contribution/06-comparing-platforms.md"
+  },
+  {
+    "id": "M5-020",
+    "module": 5,
+    "domain": "Model Selection and Optimization",
+    "topic": "Comparing platforms",
+    "difficulty": "hard",
+    "question": "A team picks a platform because its per-token price is the lowest of the options. After launch, total spend is higher than a competing platform would have cost. Which approach would have caught this?",
+    "options": [
+      "Compare total cost per call for the actual workload, including egress, platform fees, and integration effort",
+      "Negotiate a lower per-token rate, since token price is the main cost driver across platforms",
+      "Pick the platform with the newest model features, since those reduce the number of calls",
+      "Compare published per-token rates again at contract renewal and switch if they changed"
+    ],
+    "answer": 0,
+    "explanation": "The course says per-token rates are broadly aligned across platforms, and total cost moves on egress, platform fees, and integration effort, so a cheaper token can cost more overall. You compare instrumented total cost per call. Treating token price as the main cost driver is the misconception the lesson corrects.",
+    "source": "05-accelerators-ip-contribution/06-comparing-platforms.md"
+  },
+  {
+    "id": "M5-021",
+    "module": 5,
+    "domain": "Model Selection and Optimization",
+    "topic": "Comparing platforms",
+    "difficulty": "hard",
+    "question": "A regulated healthcare customer states in scoping that data must be processed only in the EU. The team plans a full latency, compliance, and cost benchmark of every platform, starting with the first-party API that they know best. What is the best approach?",
+    "options": [
+      "Run the full benchmark first, then weigh residency against latency and cost",
+      "Start on the first-party API for familiarity and add EU routing once the build passes",
+      "Pick the platform with the lowest measured latency and request a residency exception",
+      "Let the pass-or-fail residency rule decide placement, confirming EU coverage per platform"
+    ],
+    "answer": 3,
+    "explanation": "For regulated customers compliance is pass-or-fail, not a tradeoff, and when it already is, the course says to skip the full comparison and let that constraint decide placement. The first-party API may not offer EU residency, and EU-only typically needs Bedrock or Vertex AI, so starting there on familiarity repeats the trap where a finished build fails the residency review.",
+    "source": "05-accelerators-ip-contribution/06-comparing-platforms.md"
+  },
+  {
+    "id": "M5-022",
+    "module": 5,
+    "domain": "Security and Safety",
+    "topic": "Trust boundaries",
+    "difficulty": "easy",
+    "question": "Three components each pass their own tests. A Claude Code task fetches a customer web page and passes the content straight into the next call as part of the prompt. What is the correct diagnosis and fix?",
+    "options": [
+      "Add more unit tests to the Claude Code task so its output is verified",
+      "Mark the seam as a trust boundary and treat the fetched content as data, not instructions",
+      "Merge the two components so the content never crosses between deployments",
+      "Give the receiving component broader permissions so it can validate any instruction"
+    ],
+    "answer": 1,
+    "explanation": "Passing its own tests says nothing about the seam a component sends data across. Fetched content is untrusted the moment it leaves the Claude Code task, so the seam needs a control that treats it as data rather than instructions. More component tests is the tempting answer, but the problem is the unmarked boundary, not the component.",
+    "source": "05-accelerators-ip-contribution/07-trust-boundaries.md"
+  },
+  {
+    "id": "M5-023",
+    "module": 5,
+    "domain": "Security and Safety",
+    "topic": "Trust boundaries",
+    "difficulty": "medium",
+    "question": "In an API to Claude Code task to MCP server workflow, every component is tightly scoped except the MCP server, which has full access to the customer database although the workflow only reads from it. How does the course assess this?",
+    "options": [
+      "Acceptable, since the other components are tightly scoped and limit what reaches the server",
+      "Acceptable if the server's tool inputs are documented in the package",
+      "The weak point, because the app is only as contained as its most privileged seam; scope it read-only and log access",
+      "The weak point, so the fix is to move database access into the first-party API component"
+    ],
+    "answer": 2,
+    "explanation": "Least privilege applies to the whole application, and a single component scoped too broadly becomes the weak point even when every other component is properly scoped. The control at the MCP server seam is to scope it to least privilege (read-only here) and log the access. The tightly scoped neighbors do not contain an over-privileged server that a steered action can reach.",
+    "source": "05-accelerators-ip-contribution/07-trust-boundaries.md"
+  },
+  {
+    "id": "M5-024",
+    "module": 5,
+    "domain": "Security and Safety",
+    "topic": "Trust boundaries",
+    "difficulty": "medium",
+    "question": "During a regulated review of a multi-component app, the team finds one seam where they cannot put an adequate control in place before the launch date. What should they do?",
+    "options": [
+      "Escalate the seam to a human owner instead of shipping around it",
+      "Ship on schedule and add logging at the seam to investigate later",
+      "Remove the seam from the integration map so the review covers only secured seams",
+      "Rely on the downstream component's own tests to catch any unsafe input"
+    ],
+    "answer": 0,
+    "explanation": "The course states that when a seam cannot be secured, you do not ship around it; it goes to a human owner. Shipping with logging only records the boundary crossing and puts no control on it, which leaves the gap a steered action can cross.",
+    "source": "05-accelerators-ip-contribution/07-trust-boundaries.md"
+  },
+  {
+    "id": "M5-025",
+    "module": 5,
+    "domain": "Applications and Integration",
+    "topic": "Cumulative task",
+    "difficulty": "hard",
+    "question": "A packaged code-review accelerator for a regulated AWS customer contains: Agent(model=\"opus\", repo_path=\"/home/acme/checkout\", ...), deploy(platform=\"amazon_bedrock\", identity=aws_role_arn), and next_call(input=fetched) where fetched comes from a Claude Code task. Which set correctly names the three planted defects?",
+    "options": [
+      "Hardcoded repo path; Bedrock chosen over first-party API; AWS role ARN used as identity",
+      "Moving model alias; AWS role ARN used as identity; fetched content passed as instructions",
+      "Hardcoded repo path; Bedrock chosen over first-party API; fetched content passed as instructions",
+      "Hardcoded repo path; moving model alias with no retained version; fetched content passed as instructions"
+    ],
+    "answer": 3,
+    "explanation": "The model answer names a hardcoded repo path (packaging), a moving alias with no retained rollback version (versioning), and fetched content passed directly as instructions (trust boundary). Bedrock with an AWS role identity is correct for a regulated AWS customer, so neither is a defect. The corrected version also gates the pinned Bedrock model ID through the bundled eval against a baseline score.",
+    "source": "05-accelerators-ip-contribution/08-cumulative-task.md"
+  },
+  {
+    "id": "M5-026",
+    "module": 5,
+    "domain": "Applications and Integration",
+    "topic": "Packaging for reuse",
+    "difficulty": "medium",
+    "question": "A team is packaging the eval suite that proves their summarization agent works, so other engagements can reuse it. Which TWO steps match the course's packaging guidance for an eval suite? (Select TWO.)",
+    "options": [
+      "Ship the graded dataset and the judge rubric together so a new team can run them in its own context",
+      "Document the rubric logic, what the scores mean, and the baseline the asset is pinned to",
+      "Hardcode the original customer's pass threshold so every team grades against the same bar",
+      "Ship only the original engagement's score report, since rerunning the suite is redundant",
+      "Document each tool input and the scope boundaries the installing team controls"
+    ],
+    "answer": [
+      0,
+      1
+    ],
+    "explanation": "An eval suite is packaged by shipping the dataset and rubric together and documenting the rubric logic, score meanings, and pinned baseline, so a new team can confirm the asset still works in its context. Thresholds and dataset paths are what you parameterize per customer, so hardcoding the original threshold is wrong. Tool inputs and scope boundaries belong to MCP server packaging.",
+    "source": "05-accelerators-ip-contribution/02-packaging-for-reuse.md"
+  },
+  {
+    "id": "M5-027",
+    "module": 5,
+    "domain": "Applications and Integration",
+    "topic": "Packaging for reuse",
+    "difficulty": "medium",
+    "question": "A developer is packaging an MCP server that reads from a ticketing system so other customer teams can install it without editing code. Which TWO choices follow the packaging checklist? (Select TWO.)",
+    "options": [
+      "Embed a service-account token so the server works the moment it is installed",
+      "Reference credentials instead of including them, and let the installing team set the scope",
+      "Hardcode the first customer's ticket-system URL as a sensible default for everyone",
+      "Document the expected inputs for each tool, its scope boundaries, and the failure modes it handles",
+      "Leave scope wide open so no installing team hits a permission error"
+    ],
+    "answer": [
+      1,
+      3
+    ],
+    "explanation": "The checklist says to parameterize scopes, credentials by reference, and per-customer paths for an MCP server, and to document each tool's expected inputs, scope boundaries, and handled failure modes. An embedded token is tempting because it installs without setup, but credentials belong by reference, and an embedded secret ties every install to one customer's identity.",
+    "source": "05-accelerators-ip-contribution/02-packaging-for-reuse.md"
+  },
+  {
+    "id": "M5-028",
+    "module": 5,
+    "domain": "Applications and Integration",
+    "topic": "Packaging for reuse",
+    "difficulty": "easy",
+    "question": "A lead says their agent template needs no documentation because \"the code is clean and self-explanatory.\" According to the course, what should the documentation cover that the code cannot?",
+    "options": [
+      "A line-by-line explanation of how the agent loop works",
+      "Environment assumptions, expected inputs, handled failure modes, and the eval that defines working",
+      "The commit history and the names of everyone who worked on the template",
+      "A list of every model the template has been tested against over time"
+    ],
+    "answer": 1,
+    "explanation": "Code describes behavior; documentation covers what a future builder cannot reliably infer from the source: environment assumptions, expected inputs, failure modes already handled, and the eval that defines whether it works. A line-by-line walkthrough only repeats what clean code already shows, and without the missing items the next team treats the asset as a black box and rebuilds it.",
+    "source": "05-accelerators-ip-contribution/02-packaging-for-reuse.md"
+  },
+  {
+    "id": "M5-029",
+    "module": 5,
+    "domain": "Applications and Integration",
+    "topic": "Contributing back",
+    "difficulty": "easy",
+    "question": "A developer has written a focused tool that wraps a single API in one clean function and wants to share it. The submission is just the function. Where should it go, and what is it missing?",
+    "options": [
+      "The Cookbook as a focused example; it is missing a rights check",
+      "The tool's own repository; it is missing a test that proves the wrapper works",
+      "The Cookbook after reducing it to one pattern; it is missing a deployment script",
+      "The tool's own repository; it is missing a full end-to-end application around it"
+    ],
+    "answer": 1,
+    "explanation": "Open-source tools live in their own repositories with their own contribution conventions, so a focused tool goes there. A bare function lets a maintainer read the code but not verify it, so the missing item is a test proving the behavior. Wrapping it in a full application makes the contribution sprawl, which is the opposite of what reviewers need.",
+    "source": "05-accelerators-ip-contribution/03-contributing-back.md"
+  },
+  {
+    "id": "M5-030",
+    "module": 5,
+    "domain": "Applications and Integration",
+    "topic": "Requirements & lifecycle",
+    "difficulty": "medium",
+    "question": "A developer is writing the requirements record for a regulated deployment. The platform choice will be reviewed later by security and procurement staff who were not in scoping. Which TWO items should the record capture so the choice can be defended? (Select TWO.)",
+    "options": [
+      "The functional behaviors, each written as a checkable statement",
+      "The platforms the team has shipped on before, ranked by familiarity",
+      "The infrastructure constraints, each with the regulation it comes from",
+      "The per-token price of each candidate platform, as the deciding factor",
+      "A note that requirements will be finalized after the platform is chosen"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "The course's short requirements record covers the functional behaviors, the infrastructure constraints, and the regulation each constraint comes from, so the platform choice can be shown to follow from requirements rather than familiarity. Ranking by familiarity records the very bias the record exists to counter, and infrastructure constraints are easiest to capture before a platform is chosen.",
+    "source": "05-accelerators-ip-contribution/04-requirements-lifecycle.md"
+  },
+  {
+    "id": "M5-031",
+    "module": 5,
+    "domain": "Applications and Integration",
+    "topic": "Requirements & lifecycle",
+    "difficulty": "medium",
+    "question": "A ticket-triage agent has been in production for a month. Per-call instrumentation shows that one ticket category is misrouted again and again. Under the systems lifecycle, where should this finding go?",
+    "options": [
+      "Into Iterate, feeding the finding back into the requirements",
+      "Into Operate only, by tightening a guardrail without changing anything else",
+      "Into Deploy, by switching the pinned model to the latest alias",
+      "Nowhere until the next customer engagement starts from scratch"
+    ],
+    "answer": 0,
+    "explanation": "Iterate is the phase that feeds production findings back into requirements, so the next pass through design, build, and test addresses the issue. Operate is tempting because that is where the instrumentation lives, but its job is instrumenting and enforcing guardrails, not changing what the system is required to do.",
+    "source": "05-accelerators-ip-contribution/04-requirements-lifecycle.md"
+  },
+  {
+    "id": "M5-032",
+    "module": 5,
+    "domain": "Applications and Integration",
+    "topic": "Requirements & lifecycle",
+    "difficulty": "medium",
+    "question": "A team is sorting its release tasks into systems lifecycle phases. Which TWO activities belong to the Deploy phase? (Select TWO.)",
+    "options": [
+      "Deciding that data must be processed in a specific region",
+      "Pinning the full model ID and keeping the prior version",
+      "Instrumenting token cost and latency per call in production",
+      "Choosing the platform where the customer holds its compliance posture",
+      "Gating promotion on the eval result before a version reaches production"
+    ],
+    "answer": [
+      1,
+      4
+    ],
+    "explanation": "The course defines Deploy as pinning the version and gating promotion on the eval, so those two belong there. Instrumenting cost and latency in production is Operate, deciding the processing region is Requirements, and choosing the platform is Design.",
+    "source": "05-accelerators-ip-contribution/04-requirements-lifecycle.md"
+  },
+  {
+    "id": "M5-033",
+    "module": 5,
+    "domain": "Applications and Integration",
+    "topic": "Deployment & versioning",
+    "difficulty": "easy",
+    "question": "A team is shipping a production agent on a Claude model older than 4.6 and wants the model version fixed. Which model reference pins the snapshot?",
+    "options": [
+      "model = \"claude-haiku-4-5\"",
+      "model = \"haiku\"",
+      "model = \"claude-haiku-4-5-20251001\"",
+      "model = \"claude-haiku-latest\""
+    ],
+    "answer": 2,
+    "explanation": "For models before 4.6, pinning needs the model ID plus a date suffix, as in claude-haiku-4-5-20251001. The course's example marks claude-haiku-4-5 as a convenience alias that can resolve to a new version without you knowing. For Claude 4.6 and later the model ID alone pins a snapshot, and the convention should be checked at platform.claude.com at build time.",
+    "source": "05-accelerators-ip-contribution/05-deployment-versioning.md"
+  },
+  {
+    "id": "M5-034",
+    "module": 5,
+    "domain": "Applications and Integration",
+    "topic": "Deployment & versioning",
+    "difficulty": "medium",
+    "question": "A team has pinned its full model ID but still had a silent change in production when a teammate edited the system prompt. Which TWO practices would have kept that change tracked and reversible? (Select TWO.)",
+    "options": [
+      "Version the prompt and the asset alongside the code",
+      "Switch back to the moving alias so model and prompt change together",
+      "Keep the prior version available so a regression can be rolled back",
+      "Delete earlier prompt versions so only one version is ever live",
+      "Skip the eval for prompt-only edits, since the model is already pinned"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "Versioning keeps both model and prompt changes from becoming silent production changes: pin the model, version the prompt and asset with the code, and keep the prior version for rollback. Skipping the eval for prompt edits is tempting because the model is pinned, but a prompt change can still regress output, which is why promotion is gated on the eval.",
+    "source": "05-accelerators-ip-contribution/05-deployment-versioning.md"
+  },
+  {
+    "id": "M5-035",
+    "module": 5,
+    "domain": "Applications and Integration",
+    "topic": "Deployment & versioning",
+    "difficulty": "hard",
+    "question": "A customer runs on Google Cloud, already holds its compliance posture there, and needs regional data handling. Which TWO decisions follow the course's deployment-platform guidance? (Select TWO.)",
+    "options": [
+      "Deploy on Google Vertex AI using Google Cloud identity and IAM, with regional endpoints",
+      "Deploy on the first-party API so the customer gets new features first",
+      "Pin the full model ID in Vertex's format before rollout",
+      "Assume retirement dates match Anthropic's own deprecation schedule",
+      "Use Claude Platform on AWS, since it shares Anthropic's model lifecycle"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "The customer's existing cloud and compliance posture usually decide the platform, so a Google Cloud customer goes to Vertex AI with Google Cloud identity and regional endpoints, pinning the full model ID in Vertex's format before rollout. Assuming Anthropic's retirement dates is a trap, because partner retirement dates differ from Anthropic's schedule. The first-party API gets features early, but that does not outweigh the existing compliance posture.",
+    "source": "05-accelerators-ip-contribution/05-deployment-versioning.md"
+  },
+  {
+    "id": "M5-036",
+    "module": 5,
+    "domain": "Applications and Integration",
+    "topic": "Deployment & versioning",
+    "difficulty": "hard",
+    "question": "A regulated customer already runs Microsoft Foundry and wants Claude there. The developer plans to treat every Foundry Claude model as running on Azure infrastructure for the residency review. What should the developer do?",
+    "options": [
+      "Proceed, since Foundry is an Azure product and all its models run on Azure",
+      "Move the workload to the first-party API, since Foundry cannot meet residency",
+      "Confirm the hosting form of the specific model with Microsoft, since residency depends on it",
+      "Use the Foundry model alias so Microsoft picks a compliant host automatically"
+    ],
+    "answer": 2,
+    "explanation": "Foundry offers Claude in two hosting forms: Hosted on Azure, where inference runs end-to-end on Azure for certain models, and Hosted on Anthropic for all others. Residency assumptions depend on the hosting form of the specific model, so the developer must confirm it and the current model split with Microsoft. Treating every Foundry model as Azure-hosted is the mistake, because Anthropic-hosted Foundry models do not meet EU regional residency.",
+    "source": "05-accelerators-ip-contribution/05-deployment-versioning.md"
+  },
+  {
+    "id": "M5-037",
+    "module": 5,
+    "domain": "Model Selection and Optimization",
+    "topic": "Comparing platforms",
+    "difficulty": "hard",
+    "question": "A team is placing a workload on Amazon Bedrock for a customer with a residency requirement and a tight budget. They plan to use the global endpoint because it was fastest in a quick test. What should they do before committing?",
+    "options": [
+      "Use the global endpoint, since endpoint choice affects latency and nothing else",
+      "Measure both global and regional endpoints from the customer's region, since the choice controls residency and can affect cost",
+      "Use the regional endpoint without measuring, since regional is always cheaper",
+      "Leave the endpoint choice to the customer's procurement team after launch"
+    ],
+    "answer": 1,
+    "explanation": "On Bedrock, choosing between global and regional endpoints is the primary residency control and can affect cost, so the course says to measure both from the customer's actual region before committing. Treating the endpoint as a pure latency choice misses its residency and cost effects. Assuming regional is always cheaper skips the measurement the course requires.",
+    "source": "05-accelerators-ip-contribution/06-comparing-platforms.md"
+  },
+  {
+    "id": "M5-038",
+    "module": 5,
+    "domain": "Security and Safety",
+    "topic": "Trust boundaries",
+    "difficulty": "medium",
+    "question": "In a multi-component app, the first-party API orchestrates the workflow and is the entry point for requests from outside. Which TWO controls does the integration map assign to that seam? (Select TWO.)",
+    "options": [
+      "Input validation on the request entering the app",
+      "Treating the incoming request as trusted instructions for downstream components",
+      "Full access for the orchestrator so it can call any component",
+      "The identity the call runs under",
+      "Skipping logging at the entry point to reduce latency"
+    ],
+    "answer": [
+      0,
+      3
+    ],
+    "explanation": "The integration map puts the first-party API's boundary at the request entering the app from outside, enforced by input validation and the identity the call runs under. Full access for the orchestrator breaks least privilege, since the app is only as contained as its most privileged seam. Treating outside input as trusted instructions is the injection failure the boundary exists to stop.",
+    "source": "05-accelerators-ip-contribution/07-trust-boundaries.md"
+  },
+  {
+    "id": "M5-039",
+    "module": 5,
+    "domain": "Security and Safety",
+    "topic": "Trust boundaries",
+    "difficulty": "hard",
+    "question": "A developer is scoping a multi-component Claude application for a regulated healthcare customer's compliance review. Which TWO actions does the course call for? (Select TWO.)",
+    "options": [
+      "Justify audit logging, data-residency decisions, and permission controls across the full application",
+      "Assume ZDR and HIPAA BAA eligibility carries over from one component to the rest",
+      "Confirm ZDR and HIPAA BAA eligibility for each component against the Anthropic Trust Center and platform.claude.com",
+      "Review only the component that handles patient data, since the others never touch it",
+      "Pick the platform the team knows best and document residency after the review"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "A regulated review requires justifying audit logging, data-residency decisions, and permission controls across the whole application, and confirming ZDR and HIPAA BAA eligibility per component before scoping. Assuming eligibility carries over is the trap: trust does not carry over between components, and each one must be confirmed on its own.",
+    "source": "05-accelerators-ip-contribution/07-trust-boundaries.md"
+  },
+  {
+    "id": "M5-040",
+    "module": 5,
+    "domain": "Security and Safety",
+    "topic": "Trust boundaries",
+    "difficulty": "easy",
+    "question": "A team plans to wire an API call, a Claude Code task, and an MCP server together first and do threat modeling once the end-to-end flow works. What does the course recommend instead?",
+    "options": [
+      "Wire first, since components that work alone will not introduce new risks",
+      "Threat-model only the MCP server, since it is the one that reaches customer systems",
+      "Wait for the security review to point out which connections need controls",
+      "Map what each component does and mark every seam as a boundary before connecting anything"
+    ],
+    "answer": 3,
+    "explanation": "Connecting components multiplies the places where identity, secrets, and untrusted input can cross, so the course says to map which component does what and identify every boundary before connecting anything. Wiring first because each component works alone is the mistaken belief that a component trusted in isolation makes its seams trustworthy.",
+    "source": "05-accelerators-ip-contribution/07-trust-boundaries.md"
+  }
+]

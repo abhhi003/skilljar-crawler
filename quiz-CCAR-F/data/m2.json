@@ -1,0 +1,1385 @@
+[
+  {
+    "id": "C2-001",
+    "module": 2,
+    "domain": "Tool Design & MCP Integration",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "Tool function error handling",
+    "difficulty": "medium",
+    "question": "A support agent exposes a lookup_order(order_id) tool. When Claude passes an ID in the wrong format, the function currently returns an empty dict, and Claude tells the customer the order does not exist. What is the best change to the tool function?",
+    "options": [
+      "Catch every exception inside the function and return a generic \"lookup failed\" string",
+      "Validate order_id and raise an error stating the expected format",
+      "Remove validation so the downstream database reports the problem instead",
+      "Add a system prompt line telling Claude to double-check order IDs before calling tools"
+    ],
+    "answer": 1,
+    "explanation": "The course recommends validating inputs and raising errors immediately with meaningful messages, because the error text is visible to Claude and lets it retry with corrected parameters. A generic failure string gives Claude nothing to correct, and silent empty results lead it to a confident wrong answer.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Tool Functions"
+  },
+  {
+    "id": "C2-002",
+    "module": 2,
+    "domain": "Tool Design & MCP Integration",
+    "topic": "Tool function naming",
+    "difficulty": "easy",
+    "question": "Which practice does the course identify as critical when writing a plain Python function that Claude will call as a tool?",
+    "options": [
+      "Keeping argument names short, such as a, b, c, to save tokens",
+      "Using descriptive function and argument names that convey their purpose",
+      "Returning raw Python objects rather than strings so Claude can inspect them",
+      "Wrapping every function in a class so Claude can discover its methods"
+    ],
+    "answer": 1,
+    "explanation": "Tool functions should have descriptive function and argument names, since Claude relies on them to understand how to call the tool. Short cryptic names save negligible tokens and make correct tool use less likely.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Tool Functions"
+  },
+  {
+    "id": "C2-003",
+    "module": 2,
+    "domain": "Tool Design & MCP Integration",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "Tool descriptions",
+    "difficulty": "medium",
+    "question": "A support agent has two tools, search_kb and get_ticket_history, each with a one-line description. Claude frequently calls search_kb when the customer asks about a previous ticket. Which change most directly addresses the tool-selection problem?",
+    "options": [
+      "Rename both tools to shorter identifiers so Claude can tell them apart more easily",
+      "Merge both tools into one generic lookup tool with a free-text query argument",
+      "Expand each description: what it does, when to use it, what it returns",
+      "Force tool_choice to get_ticket_history on every request that mentions tickets"
+    ],
+    "answer": 2,
+    "explanation": "The course specifies that a tool description should be 3-4 sentences explaining what the tool does, when to use it, and what data it returns; that guidance is exactly what Claude uses to choose between tools. Forcing tool_choice via keyword matching moves the decision into brittle application logic instead of fixing the ambiguous descriptions.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Tool Schemas"
+  },
+  {
+    "id": "C2-004",
+    "module": 2,
+    "domain": "Tool Design & MCP Integration",
+    "topic": "Tool schema structure",
+    "difficulty": "easy",
+    "question": "Besides the tool's name, which two top-level fields make up a tool schema sent to Claude? (Select TWO.)",
+    "options": [
+      "description",
+      "tool_use_id",
+      "input_schema",
+      "stop_reason",
+      "tool_choice"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "A tool schema consists of name, description, and input_schema (the JSON Schema describing the function's arguments). tool_use_id appears on tool_use/tool_result blocks, stop_reason on responses, and tool_choice is a request parameter, not part of the schema.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Tool Schemas"
+  },
+  {
+    "id": "C2-005",
+    "module": 2,
+    "domain": "Tool Design & MCP Integration",
+    "topic": "JSON Schema origin",
+    "difficulty": "easy",
+    "question": "A teammate claims that JSON Schema was invented by Anthropic specifically for tool calling. What is accurate?",
+    "options": [
+      "Correct; JSON Schema is the Anthropic-specific format for describing tools",
+      "It is a general data-validation spec that ML adopted for tools",
+      "JSON Schema is used only for tool results, while tool definitions are written in YAML",
+      "JSON Schema was created for embedding models and later reused for tools"
+    ],
+    "answer": 1,
+    "explanation": "The course notes that JSON Schema is a general data validation specification, not ML-specific, which the ML community adopted for describing tool arguments. It is not an Anthropic invention, and tool definitions use it for input_schema.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Tool Schemas"
+  },
+  {
+    "id": "C2-006",
+    "module": 2,
+    "domain": "Tool Design & MCP Integration",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "Follow-up request requirements",
+    "difficulty": "hard",
+    "question": "After running Claude's requested tool, a developer sends the follow-up request with the full message history but drops the tools parameter, reasoning that Claude will not call another tool. Responses become confused about the tool results. What should the developer do?",
+    "options": [
+      "Summarize the tool result as plain text in a new user message instead of a tool_result block",
+      "Move the tool result into the system prompt so it no longer depends on tool definitions",
+      "Include the original tool schemas in every follow-up request",
+      "Send only the latest tool_result message, since Claude already knows the earlier turns"
+    ],
+    "answer": 2,
+    "explanation": "Follow-up requests must include the original tool schemas even when no further tool use is expected; without them Claude cannot interpret the tool_use and tool_result blocks in the history. Sending only the latest message fails because Claude stores nothing between requests.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Sending Tool Results"
+  },
+  {
+    "id": "C2-007",
+    "module": 2,
+    "domain": "Tool Design & MCP Integration",
+    "topic": "Tool result placement",
+    "difficulty": "easy",
+    "question": "A developer appends the tool_result block to the same assistant message that contains Claude's tool_use block, then sends the conversation back. The API rejects it. What is the correct placement?",
+    "options": [
+      "Put it in a new user message after the assistant message",
+      "Put the tool_result in the system prompt for the next request",
+      "Replace the assistant's tool_use block with the tool_result block in place",
+      "Put the tool_result in a second assistant message after the first"
+    ],
+    "answer": 0,
+    "explanation": "Tool result blocks go in a user message that follows the assistant message containing the tool_use block. Replacing the tool_use block breaks the pairing, because each tool_result must reference a tool_use_id present in the history.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Sending Tool Results"
+  },
+  {
+    "id": "C2-008",
+    "module": 2,
+    "domain": "Tool Design & MCP Integration",
+    "scenario": "Multi-Agent Research System",
+    "topic": "tool_use_id pairing",
+    "difficulty": "medium",
+    "question": "A research subagent receives one assistant message containing two tool_use blocks: search_papers and fetch_citation_count. The orchestrator runs both concurrently, and the faster one finishes first. How does Claude know which result belongs to which request?",
+    "options": [
+      "Results must be returned in the same order as the tool_use blocks appeared",
+      "Each tool_result carries the tool_use_id of the tool_use block it answers",
+      "The tool name is repeated in each result, and Claude matches on that",
+      "Claude re-runs the tools internally to verify which output matches"
+    ],
+    "answer": 1,
+    "explanation": "Each tool_use block has a unique ID, and each tool_result must reference the matching tool_use_id; this exists precisely to pair results with requests when Claude makes simultaneous tool calls. Ordering alone is not the pairing mechanism, and Claude never executes your tools itself.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Sending Tool Results"
+  },
+  {
+    "id": "C2-009",
+    "module": 2,
+    "domain": "Tool Design & MCP Integration",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "is_error flag",
+    "difficulty": "medium",
+    "question": "A refund tool calls a payment API that times out. Currently the exception propagates and the whole agent request crashes. What is the recommended handling within the tool loop?",
+    "options": [
+      "Retry the payment call indefinitely until it succeeds before replying to Claude",
+      "Drop the tool_use block from history so Claude forgets it requested the refund",
+      "Return a tool_result with is_error set to true and the error message as content",
+      "Return a tool_result with is_error false and an empty content string"
+    ],
+    "answer": 2,
+    "explanation": "The course wraps tool execution in try/except: on failure, send a tool_result with is_error true and the error message as content, so Claude can reason about the failure and possibly retry. Returning an empty success hides the failure, and deleting the tool_use block corrupts the history.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Implementing Multiple Turns"
+  },
+  {
+    "id": "C2-010",
+    "module": 2,
+    "domain": "Tool Design & MCP Integration",
+    "topic": "Tool result content",
+    "difficulty": "easy",
+    "question": "A tool function returns a Python dict of order details. In what form should this be placed in the tool_result block's content?",
+    "options": [
+      "As the raw Python dict object passed through the SDK unchanged",
+      "As a string, typically the JSON-encoded output of the function",
+      "As a base64-encoded binary blob",
+      "As a list of separate text blocks, one per dict key"
+    ],
+    "answer": 1,
+    "explanation": "The course says the tool_result content is the tool function output converted to a string, usually JSON. The other formats are not what the course pattern uses.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Sending Tool Results"
+  },
+  {
+    "id": "C2-011",
+    "module": 2,
+    "domain": "Tool Design & MCP Integration",
+    "topic": "Fine-grained tool calling: default validation",
+    "difficulty": "hard",
+    "question": "With default (non-fine-grained) tool streaming, what happens if Claude generates tool arguments that are not valid JSON for the schema?",
+    "options": [
+      "The API automatically retries generation until valid JSON is produced for the schema",
+      "The request fails with an error and no tool_use block is returned",
+      "The value is wrapped as a string instead of the proper object",
+      "The invalid key is silently dropped from the tool input"
+    ],
+    "answer": 2,
+    "explanation": "The course notes that in default mode, invalid JSON is wrapped as a string instead of becoming the proper object structure. There is no automatic regeneration or silent key removal described.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Fine Grained Tool Calling"
+  },
+  {
+    "id": "C2-012",
+    "module": 2,
+    "domain": "Tool Design & MCP Integration",
+    "topic": "Adding a new tool",
+    "difficulty": "medium",
+    "question": "A developer adds a create_calendar_event schema to the tools list in run_conversation. Claude now requests the tool correctly, but the loop raises an \"unknown tool\" exception. What step was missed?",
+    "options": [
+      "Setting tool_choice to the new tool so Claude is allowed to use it",
+      "A run_tool dispatcher case and the function implementation",
+      "Restarting the conversation so Claude reloads its list of tools",
+      "Registering the schema a second time inside the system prompt as a backup copy"
+    ],
+    "answer": 1,
+    "explanation": "Adding a tool takes three steps: add the schema to the tools list, add a routing case in run_tool, and implement the function. Claude knows about the tool from the schema, so the failure is in the dispatcher; tool_choice is not required to make a tool usable.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Using Multiple Tools"
+  },
+  {
+    "id": "C2-013",
+    "module": 2,
+    "domain": "Tool Design & MCP Integration",
+    "scenario": "Multi-Agent Research System",
+    "topic": "Batch tool motivation",
+    "difficulty": "medium",
+    "question": "A research agent must look up five independent facts. Logs show Claude issuing one tool_use per assistant message, creating five sequential round trips, even though the API allows several tool_use blocks per message. What design does the course recommend?",
+    "options": [
+      "Prompt Claude to answer from its training data whenever the facts are independent of each other",
+      "Split the five lookups across five separate conversations run in parallel",
+      "Add a batch tool taking a list of tool-name-plus-arguments invocations",
+      "Raise max_tokens so Claude has room to emit several tool calls"
+    ],
+    "answer": 2,
+    "explanation": "Claude can send multiple tool_use blocks but rarely does in practice; the course's batch tool takes an invocations list so Claude requests several tool runs in a single call. Raising max_tokens does not change Claude's tendency to call tools one at a time.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#The Batch Tool"
+  },
+  {
+    "id": "C2-014",
+    "module": 2,
+    "domain": "Tool Design & MCP Integration",
+    "topic": "Batch tool implementation",
+    "difficulty": "hard",
+    "question": "You are implementing run_batch for a batch tool whose invocations each contain a tool name and a JSON-encoded arguments string. Which implementation follows the course pattern?",
+    "options": [
+      "Send each invocation back to Claude as a separate tool_use block so it can approve each one",
+      "Loop over invocations, json-parse arguments, delegate each to run_tool, collect outputs",
+      "Reject any invocation that references a tool Claude has not already called earlier in the conversation",
+      "Run only the first invocation and ask Claude to resend the rest"
+    ],
+    "answer": 1,
+    "explanation": "run_batch iterates the invocations, parses each arguments string as JSON, delegates to the existing run_tool function, and returns a combined batch_output list as one tool result. Sending invocations back to Claude would restore the very round trips the batch tool is meant to remove.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#The Batch Tool"
+  },
+  {
+    "id": "C2-015",
+    "module": 2,
+    "domain": "Tool Design & MCP Integration",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "Batch tool round trips",
+    "difficulty": "hard",
+    "question": "A support agent needs four independent account lookups before answering. Without a batch tool, Claude makes them sequentially, one per response. With a working batch tool that Claude uses, how many requests to Claude does the exchange need in total?",
+    "options": [
+      "2",
+      "4",
+      "5",
+      "8"
+    ],
+    "answer": 0,
+    "explanation": "Sequentially, there are four tool-use responses plus a final answer, so five requests (N+1). With the batch tool, Claude requests all four in one call and then answers after the combined result, so two requests in total.",
+    "source": "03-claude-with-google-vertex/_official-course-notes.md#The Batch Tool"
+  },
+  {
+    "id": "C2-016",
+    "module": 2,
+    "domain": "Tool Design & MCP Integration",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Text editor tool implementation",
+    "difficulty": "medium",
+    "question": "A team adds the built-in text editor tool to an internal coding assistant built on the API. Claude returns tool_use blocks such as str_replace, but no files on disk ever change. What explains this?",
+    "options": [
+      "The text editor tool only works when tool_choice is set to any",
+      "Only the schema is built in; the team must implement the file operations",
+      "The tool edits files in Anthropic's sandbox, and they must then be downloaded via the Files API",
+      "The tool requires allowed_domains to list the repository path"
+    ],
+    "answer": 1,
+    "explanation": "For the text editor tool only the JSON schema is built in; the developer must write code that performs view, str_replace, create, and similar operations, then send tool results back. Executing in an Anthropic sandbox describes the code execution tool, not the text editor.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#The Text Edit Tool"
+  },
+  {
+    "id": "C2-017",
+    "module": 2,
+    "domain": "Tool Design & MCP Integration",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Text editor schema stub",
+    "difficulty": "hard",
+    "question": "An internal refactoring tool sends the text editor tool as a minimal stub. After switching to a newer Claude model, the tool definition stops working. What is the most likely cause?",
+    "options": [
+      "The stub must now include the fully expanded schema for every command the tool supports",
+      "The text editor tool cannot be combined with custom tools on newer models",
+      "The stub's version-dated type string must match the new model",
+      "Newer models require the implementation to be uploaded through the Files API"
+    ],
+    "answer": 2,
+    "explanation": "The text editor stub is a name plus a version-dated type string that differs by model version, and Claude expands it to the full schema internally. You do not need to send the full schema, so the fix is to use the type string for the new model.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#The Text Edit Tool"
+  },
+  {
+    "id": "C2-018",
+    "module": 2,
+    "domain": "Tool Design & MCP Integration",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Text editor commands",
+    "difficulty": "medium",
+    "question": "Your custom handler for the built-in text editor tool must support the commands Claude can request. Which two are among them? (Select TWO.)",
+    "options": [
+      "view",
+      "run_tests",
+      "undo_edit",
+      "git_commit",
+      "http_get"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "The text editor tool's commands are view, str_replace, create, insert, and undo_edit, and the developer must implement handlers for them. Running tests, committing, and HTTP requests are not text editor commands.",
+    "source": "06-claude-in-amazon-bedrock/_official-course-notes.md#The Text Editor Tool"
+  },
+  {
+    "id": "C2-019",
+    "module": 2,
+    "domain": "Tool Design & MCP Integration",
+    "topic": "Web search tool setup",
+    "difficulty": "easy",
+    "question": "What does a developer need to provide to give Claude web search through the built-in web search tool?",
+    "options": [
+      "A schema with type web_search_20250305 and name web_search; Claude runs the searches",
+      "A search function that calls a search engine API and returns results as tool_result blocks",
+      "A vector database of crawled pages that Claude queries through embeddings",
+      "A Files API upload of the pages Claude is allowed to search"
+    ],
+    "answer": 0,
+    "explanation": "The web search tool needs no custom implementation: you include the schema (type web_search_20250305, name web_search, optional max_uses and allowed_domains) and Claude performs the searches. Writing your own search function describes a custom tool, not the built-in one.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#The Web Search Tool"
+  },
+  {
+    "id": "C2-020",
+    "module": 2,
+    "domain": "Tool Design & MCP Integration",
+    "scenario": "Multi-Agent Research System",
+    "topic": "Web search domain restriction",
+    "difficulty": "medium",
+    "question": "A health-research subagent uses the web search tool, but reviewers find answers citing fitness blogs instead of authoritative sources. Which configuration change best fixes this?",
+    "options": [
+      "Lower max_uses so Claude performs fewer, more careful searches",
+      "Set allowed_domains to authoritative sources such as nih.gov",
+      "Add a system prompt asking Claude to prefer reputable sites",
+      "Disable citations so unverified sources are not shown to users"
+    ],
+    "answer": 1,
+    "explanation": "allowed_domains restricts searches to specific domains; the course's example limits medical advice to NIH.gov to get scientifically backed information. A prompt preference is weaker than a hard restriction, and disabling citations hides the problem rather than fixing it.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#The Web Search Tool"
+  },
+  {
+    "id": "C2-021",
+    "module": 2,
+    "domain": "Tool Design & MCP Integration",
+    "topic": "Web search max_uses",
+    "difficulty": "easy",
+    "question": "A research agent's web search costs spike because Claude sometimes runs many searches for a single question. Which built-in setting caps this?",
+    "options": [
+      "max_uses on the web search tool schema",
+      "max_tokens on the request",
+      "allowed_domains on the web search tool schema",
+      "tool_choice set to auto"
+    ],
+    "answer": 0,
+    "explanation": "max_uses limits the total number of searches Claude can perform in a request (default 5). max_tokens limits output length, not search count, and allowed_domains limits where Claude searches, not how often.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#The Web Search Tool"
+  },
+  {
+    "id": "C2-022",
+    "module": 2,
+    "domain": "Tool Design & MCP Integration",
+    "scenario": "Multi-Agent Research System",
+    "topic": "Web search response rendering",
+    "difficulty": "medium",
+    "question": "You render web-search answers in a research UI and want users to see where each claim came from. Which two response block types carry the source information to display? (Select TWO.)",
+    "options": [
+      "Web search result blocks with page title and URL",
+      "Thinking blocks with their cryptographic signature",
+      "Citation blocks with the supporting cited text",
+      "tool_result blocks your server constructed",
+      "Redacted thinking blocks"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "A web search response contains text blocks, tool use blocks for the queries, web search result blocks (title, URL), and citation blocks with specific supporting text; the course renders results as a reference list and highlights citations with source attribution. Your server builds no tool_result for the built-in search, and thinking blocks are not source attribution.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#The Web Search Tool"
+  },
+  {
+    "id": "C2-023",
+    "module": 2,
+    "domain": "Tool Design & MCP Integration",
+    "scenario": "Structured Data Extraction",
+    "topic": "Code execution network constraints",
+    "difficulty": "medium",
+    "question": "A data pipeline asks Claude, via the code execution tool, to analyze a CSV hosted at a public URL. Claude's code fails when trying to download it. What is the right fix?",
+    "options": [
+      "Raise the code execution timeout so the download can finish",
+      "Upload the CSV via the Files API and reference its file ID",
+      "Add the URL's host to allowed_domains on the code execution tool definition",
+      "Paste the URL into the system prompt so the container can pre-fetch it"
+    ],
+    "answer": 1,
+    "explanation": "Code execution runs in isolated Docker containers with no network access, so data must come in through the Files API using a container upload block. allowed_domains belongs to the web search tool and does not grant the container network access.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Code Execution and the Files API"
+  },
+  {
+    "id": "C2-024",
+    "module": 2,
+    "domain": "Tool Design & MCP Integration",
+    "topic": "Files API purpose",
+    "difficulty": "easy",
+    "question": "What problem does the Files API solve?",
+    "options": [
+      "It lets Claude browse the user's local file system directly",
+      "Upload a file once and reference it by ID in later requests",
+      "It stores your conversation history on Anthropic's servers between requests",
+      "It caches prompt prefixes to reduce input token costs"
+    ],
+    "answer": 1,
+    "explanation": "The Files API lets you upload files ahead of time, receive a metadata object with an ID, and reference that ID in later requests. It does not store conversation history (you still resend messages), and caching prefixes is prompt caching.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Code Execution and the Files API"
+  },
+  {
+    "id": "C2-025",
+    "module": 2,
+    "domain": "Tool Design & MCP Integration",
+    "topic": "Code execution outputs",
+    "difficulty": "medium",
+    "question": "A reporting service asks Claude, using code execution, to generate a revenue chart from uploaded sales data. How does the service obtain the chart image?",
+    "options": [
+      "Claude returns the PNG bytes base64-encoded inside a text block",
+      "The service must re-run Claude's analysis code locally to reproduce the chart",
+      "Download it using the file ID returned in the response",
+      "Claude emails the generated file to the address in the system prompt"
+    ],
+    "answer": 2,
+    "explanation": "Files Claude generates inside the container, such as plots or reports, can be downloaded using the file IDs returned in the response. Re-running the code locally is unnecessary and duplicates work the container already did.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Code Execution and the Files API"
+  },
+  {
+    "id": "C2-026",
+    "module": 2,
+    "domain": "Tool Design & MCP Integration",
+    "topic": "Developer-implemented tools",
+    "difficulty": "hard",
+    "question": "Which two tools require the developer to write the code that actually performs the operation? (Select TWO.)",
+    "options": [
+      "The built-in web search tool",
+      "The built-in text editor tool",
+      "The code execution tool",
+      "A batch tool that runs other tools",
+      "The web search tool restricted with allowed_domains"
+    ],
+    "answer": [
+      1,
+      3
+    ],
+    "explanation": "Only the text editor's schema is built in, so you must implement the file operations; a batch tool is a custom tool whose run_batch you write. Web search and code execution run on Anthropic's side with no implementation, whatever their configuration.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Code Execution and the Files API"
+  },
+  {
+    "id": "C2-027",
+    "module": 2,
+    "domain": "Tool Design & MCP Integration",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Fine-grained tool calling",
+    "difficulty": "hard",
+    "question": "A developer tool streams tool arguments into the UI, but they arrive after a pause and then in a burst. The team enables fine-grained tool calling. Which two consequences should they expect? (Select TWO.)",
+    "options": [
+      "Argument chunks are sent as soon as they are generated",
+      "The API now validates JSON against the schema more strictly",
+      "The client must handle possibly invalid JSON, such as undefined instead of null",
+      "Tool calls can no longer be streamed",
+      "Claude stops buffering text blocks but still buffers tool arguments"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "By default the API buffers argument chunks until a complete top-level key-value pair is generated and validated, which causes the pause-then-burst pattern. Fine-grained mode disables that validation and sends chunks immediately, so the client must handle invalid JSON. It removes validation rather than tightening it.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Fine Grained Tool Calling"
+  },
+  {
+    "id": "C2-028",
+    "module": 2,
+    "domain": "Tool Design & MCP Integration",
+    "topic": "Tool streaming events",
+    "difficulty": "medium",
+    "question": "When streaming a response that contains a tool call, which event carries the incremental tool arguments?",
+    "options": [
+      "input_json_delta, carrying partial_json and a snapshot",
+      "content_block_delta events that contain only text deltas for the argument",
+      "tool_result_delta, with the result as it is produced",
+      "message_stop, which contains the complete argument object"
+    ],
+    "answer": 0,
+    "explanation": "Tool streaming adds input_json_delta events containing partial_json (the chunk) and a snapshot (the cumulative value). Text content arrives as content_block_delta text deltas, and tool results come from your code, not the stream.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Fine Grained Tool Calling"
+  },
+  {
+    "id": "C2-029",
+    "module": 2,
+    "domain": "Tool Design & MCP Integration",
+    "topic": "tool_choice for testing",
+    "difficulty": "medium",
+    "question": "During integration testing, you want to confirm that your set_reminder implementation handles Claude's arguments correctly, regardless of whether Claude would have chosen that tool. Which tool_choice setting fits?",
+    "options": [
+      "auto, so Claude decides naturally",
+      "any, so Claude must call some tool",
+      "A specific-tool setting naming set_reminder",
+      "Omit the tools list and describe the tool in the prompt"
+    ],
+    "answer": 2,
+    "explanation": "Forcing a specific tool guarantees Claude calls set_reminder, which the course notes is useful for testing. any guarantees some tool call but Claude might pick a different one, and auto leaves the decision to Claude.",
+    "source": "06-claude-in-amazon-bedrock/_official-course-notes.md#Handling Tool Use Responses"
+  },
+  {
+    "id": "C2-030",
+    "module": 2,
+    "domain": "Tool Design & MCP Integration",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "tool_choice any vs auto",
+    "difficulty": "hard",
+    "question": "A triage agent must always route each message by calling exactly one of three routing tools and should never reply with free text, but Claude must still choose which tool fits. Which tool_choice is appropriate?",
+    "options": [
+      "auto",
+      "any",
+      "A specific tool name",
+      "None, with routing rules in the system prompt"
+    ],
+    "answer": 1,
+    "explanation": "any forces Claude to use one of the available tools while leaving the choice to Claude. auto, the default, allows a plain text reply, and naming a specific tool removes the choice Claude needs to make.",
+    "source": "06-claude-in-amazon-bedrock/_official-course-notes.md#Handling Tool Use Responses"
+  },
+  {
+    "id": "C2-031",
+    "module": 2,
+    "domain": "Tool Design & MCP Integration",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Generating tool schemas",
+    "difficulty": "easy",
+    "question": "A team must write JSON schemas for 30 existing Python functions. What shortcut does the course suggest?",
+    "options": [
+      "Let Claude infer each function's arguments at runtime from the function's name alone",
+      "Ask Claude to write each schema, attaching the tool-use docs",
+      "Paste the functions into the system prompt instead of writing schemas",
+      "Use a single schema with one free-text argument for all functions"
+    ],
+    "answer": 1,
+    "explanation": "The course's trick is to give the function to Claude, attach Anthropic's tool-use documentation, and ask for a valid JSON schema following best practices. Putting functions in the system prompt does not register them as tools.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Tool Schemas"
+  },
+  {
+    "id": "C2-032",
+    "module": 2,
+    "domain": "Tool Design & MCP Integration",
+    "scenario": "Structured Data Extraction",
+    "topic": "Code execution workflow",
+    "difficulty": "medium",
+    "question": "You want Claude to analyze a large spreadsheet using the code execution tool. What is the correct order of operations?",
+    "options": [
+      "Include the code execution schema, ask for the analysis, then attach the file's base64 bytes to a tool result",
+      "Upload via Files API, put the file ID in a container upload block with the prompt, include the code execution tool",
+      "Ask Claude to write the analysis code, run that code locally, and send its output back as a tool result block",
+      "Create a container through the Files API and copy the spreadsheet into it using a shell command first"
+    ],
+    "answer": 1,
+    "explanation": "The combined workflow is: upload via the Files API, get the file ID, include it in a container upload block alongside the prompt, and let Claude write and execute code against the file. Running code locally describes a custom tool, not the server-based code execution tool.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Code Execution and the Files API"
+  },
+  {
+    "id": "C2-033",
+    "module": 2,
+    "domain": "Prompt Engineering & Structured Output",
+    "scenario": "Structured Data Extraction",
+    "topic": "Tool-based extraction: no tool result",
+    "difficulty": "medium",
+    "question": "An invoice pipeline extracts fields by having Claude call an extract_invoice tool. After receiving the tool_use block, the code runs a no-op function, sends a tool_result back, and waits for another reply, which doubles cost. What should the pipeline do instead?",
+    "options": [
+      "Keep the follow-up turn but lower max_tokens so the second reply is shorter",
+      "Read the arguments from the tool_use block and stop there",
+      "Send the tool_result with is_error true so Claude skips its closing message",
+      "Move the schema into the system prompt and parse Claude's free-text reply into JSON instead"
+    ],
+    "answer": 1,
+    "explanation": "When tools are used for structured data, the JSON lives in the tool_use block's input, and no tool result or further turn is needed. Shortening the second reply still pays for an unnecessary round trip.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Tools for Structured Data"
+  },
+  {
+    "id": "C2-034",
+    "module": 2,
+    "domain": "Prompt Engineering & Structured Output",
+    "scenario": "Structured Data Extraction",
+    "topic": "Forcing the extraction tool",
+    "difficulty": "medium",
+    "question": "A contract-extraction service defines a record_clauses tool, but about 5% of the time Claude answers in prose instead of calling it, breaking the parser. Which fix guarantees a tool call?",
+    "options": [
+      "Add \"You must call record_clauses\" to the end of the user prompt",
+      "Set tool_choice to {\"type\": \"tool\", \"name\": \"record_clauses\"}",
+      "Lower the temperature to 0 for more deterministic behavior",
+      "Add a stop sequence that cuts off any prose before it starts"
+    ],
+    "answer": 1,
+    "explanation": "The course names forcing the tool with tool_choice of type tool and the tool's name as the critical requirement for tool-based extraction, because it ensures Claude always calls that tool. Prompt instructions and temperature make a call more likely but do not guarantee it.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Tools for Structured Data"
+  },
+  {
+    "id": "C2-035",
+    "module": 2,
+    "domain": "Prompt Engineering & Structured Output",
+    "scenario": "Structured Data Extraction",
+    "topic": "Designing an extraction schema",
+    "difficulty": "medium",
+    "question": "You want Claude to return {\"balance\": <integer>, \"key_insights\": [<string>, ...]} from financial statements using the tool approach. How should the tool schema be designed?",
+    "options": [
+      "Make balance (integer) and key_insights (string array) the tool's input properties",
+      "Define a single string property named json and ask Claude to serialize the object into it",
+      "Leave input_schema empty and put the desired structure in the tool description only",
+      "Define the structure in the tool_result content so that Claude can see the target output format"
+    ],
+    "answer": 0,
+    "explanation": "In tool-based extraction, the tool's inputs are the desired data structure, such as balance as an integer and key_insights as a string array. A single serialized string loses the schema's structure, and tool_result is not used for extraction at all.",
+    "source": "06-claude-in-amazon-bedrock/_official-course-notes.md#Structured Data with Tools"
+  },
+  {
+    "id": "C2-036",
+    "module": 2,
+    "domain": "Prompt Engineering & Structured Output",
+    "scenario": "Structured Data Extraction",
+    "topic": "Tools vs prefill for extraction",
+    "difficulty": "medium",
+    "question": "A team is extracting about 40 nested fields from insurance claims, where malformed JSON causes costly downstream failures. They currently use assistant prefill plus stop sequences. What does the course suggest?",
+    "options": [
+      "Keep prefill, because tool-based extraction is less reliable for nested data",
+      "Switch to tool-based extraction with a JSON schema for reliability",
+      "Switch to extended thinking so that Claude can plan the JSON carefully before writing it",
+      "Split the claim into 40 requests, one per field, using prefill for each"
+    ],
+    "answer": 1,
+    "explanation": "The course positions tool-based extraction as more reliable but more complex to set up, and prefers it when reliability matters more than simplicity. Prefill and stop sequences suit quick, simple extractions, and nothing in the course suggests extended thinking for JSON validity.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Tools for Structured Data"
+  },
+  {
+    "id": "C2-037",
+    "module": 2,
+    "domain": "Prompt Engineering & Structured Output",
+    "topic": "When prompt-based extraction is enough",
+    "difficulty": "easy",
+    "question": "A developer needs to pull a title and date out of a few internal notes for a one-off script. Which approach does the course consider appropriate?",
+    "options": [
+      "A prompt-based method such as prefill with stop sequences",
+      "A dedicated tool schema with forced tool_choice, since tools are always required for JSON output",
+      "Contextual retrieval over the notes followed by reranking",
+      "Code execution with the notes uploaded via the Files API"
+    ],
+    "answer": 0,
+    "explanation": "The course says prompt-based methods are better for quick, simple extractions, while tools are better for complex or reliability-critical ones. Tools are not mandatory for JSON output; they trade extra setup for reliability.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Tools for Structured Data"
+  },
+  {
+    "id": "C2-038",
+    "module": 2,
+    "domain": "Prompt Engineering & Structured Output",
+    "scenario": "Structured Data Extraction",
+    "topic": "Flexible toJSON extraction",
+    "difficulty": "hard",
+    "question": "An analytics team changes its extraction fields almost weekly, and maintaining large JSON schemas has become a bottleneck. Field accuracy matters, but these are internal dashboards, not regulated filings. Which approach fits best?",
+    "options": [
+      "One toJSON tool with an open object input; properties listed in the prompt",
+      "Drop tools and ask for raw JSON in the response text with no prefill",
+      "A dedicated, fully specified schema for each field set, regenerated by hand every week",
+      "Extended thinking with a large budget so Claude infers the fields itself"
+    ],
+    "answer": 0,
+    "explanation": "Flexible tool extraction uses one toJSON tool with an open object input and specifies the structure in the prompt, so changes only need prompt edits. Its quality is slightly lower than dedicated schemas, which the course reserves for critical extraction, a trade that suits internal dashboards.",
+    "source": "06-claude-in-amazon-bedrock/_official-course-notes.md#Flexible Tool Extraction"
+  },
+  {
+    "id": "C2-039",
+    "module": 2,
+    "domain": "Prompt Engineering & Structured Output",
+    "scenario": "Structured Data Extraction",
+    "topic": "Flexible extraction trade-offs",
+    "difficulty": "hard",
+    "question": "Compared with a dedicated, fully specified extraction schema, which two statements about the flexible toJSON approach are accurate? (Select TWO.)",
+    "options": [
+      "The output structure can be changed by editing only the prompt text",
+      "It removes the need for a tool_choice setting",
+      "It guarantees field-level type validation through the schema",
+      "Result quality is slightly lower, though still high",
+      "Claude returns the data as plain text rather than a tool_use block"
+    ],
+    "answer": [
+      0,
+      3
+    ],
+    "explanation": "The flexible approach lets you iterate by editing the prompt, at the cost of slightly lower quality than dedicated schemas. The structure lives in the prompt, so the open object schema cannot enforce per-field types, and Claude still returns the data in a tool_use call.",
+    "source": "06-claude-in-amazon-bedrock/_official-course-notes.md#Flexible Tool Extraction"
+  },
+  {
+    "id": "C2-040",
+    "module": 2,
+    "domain": "Prompt Engineering & Structured Output",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "When to enable extended thinking",
+    "difficulty": "medium",
+    "question": "A support team sees 82% accuracy on complex warranty-eligibility decisions and proposes enabling extended thinking right away. What does the course recommend first?",
+    "options": [
+      "Enable extended thinking by default, since it always improves accuracy at very little extra cost",
+      "Optimize the prompt with evals first; enable thinking only if still short",
+      "Use extended thinking only for simple questions to keep latency predictable",
+      "Replace the prompt with few-shot examples and never use extended thinking"
+    ],
+    "answer": 1,
+    "explanation": "The course says to enable extended thinking only after prompt optimization fails to reach the target accuracy, using prompt evals to decide. It adds cost (thinking tokens are billed) and latency, so turning it on by default ignores those trade-offs.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Extended Thinking"
+  },
+  {
+    "id": "C2-041",
+    "module": 2,
+    "domain": "Prompt Engineering & Structured Output",
+    "topic": "Thinking budget and max_tokens",
+    "difficulty": "medium",
+    "question": "Which two request configurations satisfy the extended thinking constraints described in the course? (Select TWO.)",
+    "options": [
+      "Thinking budget 1024, max_tokens 2048",
+      "Thinking budget 512, max_tokens 2048",
+      "Thinking budget 4000, max_tokens 4000",
+      "Thinking budget 2000, max_tokens 4000",
+      "Thinking budget 3000, max_tokens 1500"
+    ],
+    "answer": [
+      0,
+      3
+    ],
+    "explanation": "The thinking budget must be at least 1024 tokens, and max_tokens must exceed the budget. A budget of 512 is below the minimum, and 4000/4000 or 3000/1500 leave max_tokens not greater than the budget.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Extended Thinking"
+  },
+  {
+    "id": "C2-042",
+    "module": 2,
+    "domain": "Prompt Engineering & Structured Output",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "Thinking block signatures",
+    "difficulty": "hard",
+    "question": "To save tokens, a support bot shortens the text of earlier thinking blocks before resending conversation history with extended thinking enabled. What does the course say about this?",
+    "options": [
+      "It is fine, because thinking text is ignored on later turns",
+      "It is fine as long as the redacted_thinking flag is set on each of the edited blocks",
+      "The signature on thinking blocks exists to prevent tampering with their text",
+      "Thinking blocks may be edited, but only by removing whole sentences"
+    ],
+    "answer": 2,
+    "explanation": "Each thinking block contains the reasoning text plus a cryptographic signature whose purpose is to prevent tampering with that text, so editing it is not a supported way to save tokens. Redacted thinking is something safety systems produce, not a flag you set on edited blocks.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Extended Thinking"
+  },
+  {
+    "id": "C2-043",
+    "module": 2,
+    "domain": "Prompt Engineering & Structured Output",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "Redacted thinking",
+    "difficulty": "hard",
+    "question": "Your support bot uses extended thinking. Which two statements about redacted thinking blocks are correct? (Select TWO.)",
+    "options": [
+      "They contain thinking text encrypted because safety systems flagged it",
+      "Your app can decrypt them using the block's signature",
+      "They should be dropped from history, since Claude cannot use them",
+      "They mean the request failed and should be retried",
+      "A special test string can force them so you can test your app's handling"
+    ],
+    "answer": [
+      0,
+      4
+    ],
+    "explanation": "Redacted thinking blocks hold encrypted thinking text flagged by safety systems; they are provided so the conversation continues without losing context, and a magic test string can trigger them for testing. Dropping them defeats that continuity, and the signature is for tamper protection, not decryption.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Extended Thinking"
+  },
+  {
+    "id": "C2-044",
+    "module": 2,
+    "domain": "Prompt Engineering & Structured Output",
+    "topic": "Extended thinking costs",
+    "difficulty": "easy",
+    "question": "What are the main costs of enabling extended thinking?",
+    "options": [
+      "Higher latency and charges for thinking tokens",
+      "Loss of tool use and image support",
+      "A smaller maximum context window for the conversation",
+      "Mandatory use of streaming responses"
+    ],
+    "answer": 0,
+    "explanation": "Extended thinking improves accuracy on complex tasks but adds latency and cost, since thinking tokens are billed. The course does not describe it removing tool or image support.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Extended Thinking"
+  },
+  {
+    "id": "C2-045",
+    "module": 2,
+    "domain": "Prompt Engineering & Structured Output",
+    "scenario": "Multi-Agent Research System",
+    "topic": "Enabling citations",
+    "difficulty": "medium",
+    "question": "A research assistant answers questions from uploaded reports, and users want to verify each claim against the source. Which two changes enable this with the citations feature? (Select TWO.)",
+    "options": [
+      "Add \"citations\": {\"enabled\": true} to the document in the request",
+      "Turn on extended thinking so the reasoning shows the sources",
+      "Give each source document a title field",
+      "Ask Claude in the prompt to append page numbers in brackets",
+      "Set tool_choice to force a cite_source tool"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "Citations are enabled with \"citations\": {\"enabled\": true}, and a title identifies each source document. Asking for bracketed page numbers produces unverifiable text, not structured citation data.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Citations"
+  },
+  {
+    "id": "C2-046",
+    "module": 2,
+    "domain": "Prompt Engineering & Structured Output",
+    "scenario": "Multi-Agent Research System",
+    "topic": "Citation location types",
+    "difficulty": "easy",
+    "question": "A research system cites both PDF reports and plain-text transcripts. How do the citation location types differ?",
+    "options": [
+      "PDFs use citation_page_location; plain text uses citation_char_location",
+      "Both use citation_page_location, with each plain-text source treated as a single page",
+      "PDFs use citation_char_location; plain text uses citation_page_location",
+      "Plain-text sources cannot produce citations"
+    ],
+    "answer": 0,
+    "explanation": "citation_page_location applies to PDFs and reports document index, title, start and end page, and the cited text; citation_char_location applies to plain text and reports character positions. Citations work for both PDFs and plain text.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Citations"
+  },
+  {
+    "id": "C2-047",
+    "module": 2,
+    "domain": "Prompt Engineering & Structured Output",
+    "scenario": "Structured Data Extraction",
+    "topic": "Prompting for image analysis",
+    "difficulty": "medium",
+    "question": "An insurer uses Claude to score wildfire risk from satellite images. A simple prompt like \"rate the fire risk 1-10\" gives inconsistent scores. What does the course recommend?",
+    "options": [
+      "Increase image resolution, since accuracy depends mainly on image quality",
+      "Step-by-step instructions with a rubric, plus example image-analysis pairs",
+      "Send the same image ten times in separate requests and average the scores that come back",
+      "Convert the image to a PDF so Claude reads it as a document"
+    ],
+    "answer": 1,
+    "explanation": "The course stresses that image accuracy depends on prompt sophistication: step-by-step instructions, verification steps, structured frameworks, and one-shot or multi-shot examples alternating images and text. Its key takeaway is that image quality alone does not decide accuracy.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Image Support"
+  },
+  {
+    "id": "C2-048",
+    "module": 2,
+    "domain": "Prompt Engineering & Structured Output",
+    "scenario": "Structured Data Extraction",
+    "topic": "PDF input",
+    "difficulty": "easy",
+    "question": "You already send images to Claude as base64 image blocks. What changes to send a PDF of a financial filing instead?",
+    "options": [
+      "Use block type \"document\" with media_type \"application/pdf\"",
+      "Convert each page to PNG first, since Claude cannot read PDFs directly",
+      "Upload it as a text block after extracting text with a separate library",
+      "Use block type \"image\" with media_type \"application/pdf\""
+    ],
+    "answer": 0,
+    "explanation": "Claude reads PDFs directly using nearly the same code as images: the block type becomes document and the media type becomes application/pdf. It extracts text, images, charts, and tables, so pre-converting pages or extracting text is unnecessary.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#PDF Support"
+  },
+  {
+    "id": "C2-049",
+    "module": 2,
+    "domain": "Context Management & Reliability",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "RAG vs full-document prompts",
+    "difficulty": "easy",
+    "question": "A support bot must answer from an 800-page product manual. Why does the course favor RAG over placing the whole manual in every prompt?",
+    "options": [
+      "Long prompts hit token limits, lose effectiveness, and cost more",
+      "Claude cannot read documents longer than one page",
+      "RAG guarantees that each retrieved chunk contains the complete context needed to answer",
+      "Full-document prompts cannot be combined with a system prompt"
+    ],
+    "answer": 0,
+    "explanation": "Putting the whole document in the prompt runs into hard token limits, lower effectiveness with longer prompts, higher cost, and slower processing. RAG does not guarantee complete context in chunks; the course lists that as one of its downsides.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Introducing Retrieval Augmented Generation"
+  },
+  {
+    "id": "C2-050",
+    "module": 2,
+    "domain": "Context Management & Reliability",
+    "topic": "RAG downsides",
+    "difficulty": "medium",
+    "question": "Which two are downsides of RAG compared with placing the full document in the prompt? (Select TWO.)",
+    "options": [
+      "It cannot scale to multiple documents",
+      "There is no guarantee retrieved chunks contain the complete context",
+      "It requires preprocessing and a search mechanism to find relevant chunks",
+      "It makes prompts larger and more expensive",
+      "It prevents Claude from following a system prompt"
+    ],
+    "answer": [
+      1,
+      2
+    ],
+    "explanation": "The course lists the downsides as added complexity, required preprocessing, the need for a search mechanism, and no guarantee that chunks contain complete context. RAG scales better to multiple documents and produces smaller, cheaper prompts.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Introducing Retrieval Augmented Generation"
+  },
+  {
+    "id": "C2-051",
+    "module": 2,
+    "domain": "Context Management & Reliability",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "Size-based chunking",
+    "difficulty": "medium",
+    "question": "A support knowledge base uses fixed-size chunks, and retrieved chunks often start mid-sentence and lack meaning. Which two statements about size-based chunking and the usual fix are accurate? (Select TWO.)",
+    "options": [
+      "Size-based chunking is easy to implement and the most common approach in production",
+      "Overlap between neighboring chunks removes all duplicated text",
+      "Adding overlap from neighboring chunks preserves context at the cost of some duplication",
+      "Size-based chunking requires documents with guaranteed headers",
+      "Size-based chunking groups sentences by semantic similarity"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "Size-based chunking is easy and common but cuts words and loses context; overlap adds characters from neighboring chunks to preserve meaning, at the cost of duplication. Guaranteed headers are a requirement of structure-based chunking, and grouping by similarity is semantic chunking.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Text Chunking Strategies"
+  },
+  {
+    "id": "C2-052",
+    "module": 2,
+    "domain": "Context Management & Reliability",
+    "scenario": "Multi-Agent Research System",
+    "topic": "Choosing a chunking strategy",
+    "difficulty": "hard",
+    "question": "A research system ingests documents from many sources: some clean Markdown, many scanned-and-OCR'd PDFs, and scraped HTML with inconsistent markup. The team must pick one default chunking strategy that will not break on any input. Which is most appropriate?",
+    "options": [
+      "Split on Markdown ## headers, since section-based chunks give the best retrieval results",
+      "Chunk by character with overlap, which works on any document type",
+      "Semantic chunking on all documents, since it is the most advanced technique",
+      "No chunking; store each document whole in the vector database"
+    ],
+    "answer": 1,
+    "explanation": "The course calls chunk-by-character the most reliable fallback for any document type, while chunk-by-section gives the best results only when structure is guaranteed. With inconsistent formatting, header splitting will misbehave, and semantic chunking adds complexity without guaranteeing robustness.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Text Chunking Strategies"
+  },
+  {
+    "id": "C2-053",
+    "module": 2,
+    "domain": "Context Management & Reliability",
+    "topic": "Query embedding model",
+    "difficulty": "hard",
+    "question": "After an upgrade, a RAG service embeds user queries with a new embedding model, while the stored chunks were embedded months ago with the old one. Retrieval quality collapses. What explains this?",
+    "options": [
+      "Queries must use the same embedding model as the stored chunks",
+      "Cosine similarity only works on vectors that are not normalized",
+      "The BM25 index must be rebuilt whenever the embedding model used for queries is changed",
+      "The vector database needs more dimensions for the new model"
+    ],
+    "answer": 0,
+    "explanation": "In the RAG flow, the user's question is converted to an embedding with the same model used for the chunks, so similarity scores are comparable. Normalization is handled by the embedding API and is not the issue, and BM25 does not use embeddings.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#The Full RAG Flow"
+  },
+  {
+    "id": "C2-054",
+    "module": 2,
+    "domain": "Context Management & Reliability",
+    "topic": "Storing chunk text with vectors",
+    "difficulty": "medium",
+    "question": "A team's vector search returns the nearest embeddings and their distances, but the app cannot show users any passages. What did the implementation miss?",
+    "options": [
+      "Storing the original chunk text as metadata alongside each embedding",
+      "Normalizing the query embedding to length 1.0 before searching",
+      "Switching from cosine distance to cosine similarity",
+      "Using BM25 instead of embeddings for the final lookup"
+    ],
+    "answer": 0,
+    "explanation": "The course stores each embedding with its original text, for example {content: chunk}, because that metadata is what makes results meaningful. Switching similarity metrics changes scoring, not whether text is available.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Implementing the Rag Flow"
+  },
+  {
+    "id": "C2-055",
+    "module": 2,
+    "domain": "Context Management & Reliability",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "Hybrid search with BM25",
+    "difficulty": "medium",
+    "question": "Agents search the KB for the exact error code \"ERR-4471\". Semantic search returns generally related troubleshooting articles but misses the one page that mentions the code repeatedly. What is the recommended improvement?",
+    "options": [
+      "Increase the number of results returned by the vector search",
+      "Run BM25 lexical search alongside semantic search and merge results",
+      "Switch to a larger embedding model so that error codes are embedded much more precisely",
+      "Add contextual retrieval to rewrite the user's query"
+    ],
+    "answer": 1,
+    "explanation": "Semantic search can miss exact term matches; BM25 favors documents containing rare, specific terms, and the course runs both in parallel and merges results (hybrid search). Returning more vector results may still rank the right page poorly, since the problem is the matching paradigm.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#BM25 Lexical Search"
+  },
+  {
+    "id": "C2-056",
+    "module": 2,
+    "domain": "Context Management & Reliability",
+    "topic": "Reciprocal Rank Fusion",
+    "difficulty": "hard",
+    "question": "A retriever merges two indexes with Reciprocal Rank Fusion, scoring each document as the sum of 1/(rank + 1) across methods. Vector search returns [X, Y, Z] and BM25 returns [Y, Z, X]. What is the final ranking?",
+    "options": [
+      "X, Y, Z",
+      "Y, X, Z",
+      "Y, Z, X",
+      "Z, Y, X"
+    ],
+    "answer": 1,
+    "explanation": "With ranks starting at 1: X = 1/2 + 1/4 = 0.75, Y = 1/3 + 1/2 ≈ 0.83, Z = 1/4 + 1/3 ≈ 0.58, so Y, X, Z (zero-based ranks give the same order). Y wins because it ranks high in both lists, while X's first place in one list is offset by last place in the other.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#A Multi-Index Rag Pipeline"
+  },
+  {
+    "id": "C2-057",
+    "module": 2,
+    "domain": "Context Management & Reliability",
+    "scenario": "Multi-Agent Research System",
+    "topic": "Reranking trade-offs",
+    "difficulty": "medium",
+    "question": "A research system adds an LLM reranking step after hybrid retrieval. Which two outcomes should the team expect? (Select TWO.)",
+    "options": [
+      "Better ordering when queries carry nuanced intent, such as \"ENG team\" meaning engineering",
+      "Lower overall cost because fewer documents are retrieved",
+      "Higher latency from the extra LLM call",
+      "BM25 is no longer needed in the pipeline",
+      "Reranking happens once at indexing time, so queries are not slowed"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "Reranking uses an LLM to reorder retrieved results by relevance, improving accuracy for nuanced intent but adding latency from the extra call. It runs per query after retrieval and complements hybrid search rather than replacing BM25.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Reranking Results"
+  },
+  {
+    "id": "C2-058",
+    "module": 2,
+    "domain": "Context Management & Reliability",
+    "scenario": "Multi-Agent Research System",
+    "topic": "Reranking implementation",
+    "difficulty": "hard",
+    "question": "You are implementing the reranking prompt for retrieved chunks. Which two implementation choices follow the course? (Select TWO.)",
+    "options": [
+      "Ask the LLM to return document IDs in order rather than repeating full text",
+      "Re-embed the candidates with a larger model before sending them to the LLM",
+      "Use assistant prefill plus a stop sequence to get the ranked IDs as JSON",
+      "Send only the top-ranked document so the LLM can confirm it",
+      "Rerank before running vector and BM25 search to narrow the corpus"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "The course gives documents IDs so the LLM returns an ordered ID list (more efficient than full text) and uses prefill plus a stop sequence for structured JSON output. Sending a single document leaves nothing to reorder, and reranking happens after retrieval, not before.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Reranking Results"
+  },
+  {
+    "id": "C2-059",
+    "module": 2,
+    "domain": "Context Management & Reliability",
+    "scenario": "Multi-Agent Research System",
+    "topic": "Contextual retrieval",
+    "difficulty": "medium",
+    "question": "A research corpus contains long reports where a chunk like \"Revenue grew 3% over the previous quarter\" is ambiguous on its own, since the company and period are named elsewhere. Which technique addresses this at indexing time?",
+    "options": [
+      "Reranking the retrieved chunks with an LLM at query time",
+      "Contextual retrieval: prepend LLM-written context to each chunk before indexing",
+      "Lowering the chunk size so each chunk holds a single sentence",
+      "Raising top-k so that more of the neighboring chunks are retrieved alongside each match"
+    ],
+    "answer": 1,
+    "explanation": "Contextual retrieval sends each chunk with its source document to an LLM, which generates brief situating context; the context plus chunk is then indexed in the vector and BM25 indexes. Reranking reorders results at query time but cannot restore context missing from the indexed chunks.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Contextual Retrieval"
+  },
+  {
+    "id": "C2-060",
+    "module": 2,
+    "domain": "Context Management & Reliability",
+    "scenario": "Multi-Agent Research System",
+    "topic": "Contextual retrieval for large documents",
+    "difficulty": "hard",
+    "question": "You are adding contextual retrieval, but a 900-page source document is too large to include in each context-generation prompt. Which context selection does the course recommend?",
+    "options": [
+      "Include only the target chunk and let the LLM guess its context",
+      "Include the first few chunks plus the chunks right before the target, skipping the middle",
+      "Include a random sample of chunks from across the document",
+      "Include the chunks right after the target and the last few chunks of the document"
+    ],
+    "answer": 1,
+    "explanation": "For oversized documents the course includes starter chunks (summary or abstract) and the chunks immediately before the target for local context, skipping middle chunks that add less relevant context. A random sample loses both the overview and the local continuity.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Contextual Retrieval"
+  },
+  {
+    "id": "C2-061",
+    "module": 2,
+    "domain": "Context Management & Reliability",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "Cache invalidation order",
+    "difficulty": "hard",
+    "question": "A support agent caches a long system prompt with a breakpoint on it. To personalize each request, the code adds a small get_customer_profile tool to the tools list, with a per-customer description. Cache reads drop to zero. Why?",
+    "options": [
+      "Tool definitions cannot be cached, so caching is disabled entirely whenever tools are present",
+      "Tools precede the system prompt, so changing them invalidates the cache",
+      "The cache only lasts for one request when tools are included",
+      "Breakpoints on the system prompt require exactly four breakpoints in total"
+    ],
+    "answer": 1,
+    "explanation": "Content is processed in the order tools, then system prompt, then messages, and any change before a breakpoint invalidates the cache. A per-customer tool description changes the prefix ahead of the system prompt on every request. Tool schemas can be cached; the problem is that they vary.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Rules of Prompt Caching"
+  },
+  {
+    "id": "C2-062",
+    "module": 2,
+    "domain": "Context Management & Reliability",
+    "scenario": "Claude Code for Continuous Integration",
+    "topic": "Minimum cacheable length",
+    "difficulty": "medium",
+    "question": "A PR-review pipeline calls the API thousands of times a day with an identical 400-token system prompt carrying a cache_control breakpoint. The usage field never shows cache reads. What is the most likely reason?",
+    "options": [
+      "Content below the 1024-token minimum is not cached",
+      "System prompts cannot hold cache breakpoints",
+      "The breakpoint must be on the user message, not the system prompt",
+      "Caching only works when tools are also cached"
+    ],
+    "answer": 0,
+    "explanation": "Content must be at least 1024 tokens to be cached, so a 400-token prefix never produces a cache entry. System prompts are a valid breakpoint location, and tool caching is not a prerequisite.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Rules of Prompt Caching"
+  },
+  {
+    "id": "C2-063",
+    "module": 2,
+    "domain": "Context Management & Reliability",
+    "topic": "Verifying cache behavior",
+    "difficulty": "easy",
+    "question": "You enabled prompt caching for a support agent's tools and system prompt. Which usage fields confirm caching is working on repeat requests?",
+    "options": [
+      "cache_creation_input_tokens first, then cache_read_input_tokens on repeats",
+      "output_tokens decreasing on each request after the first",
+      "cache_read_input_tokens on the first request, then cache_creation_input_tokens on later ones",
+      "stop_reason changing from end_turn to cache_hit"
+    ],
+    "answer": 0,
+    "explanation": "The first request writes to the cache (cache_creation_input_tokens), and later requests with identical prefixes read from it (cache_read_input_tokens). Caching affects input processing, not output token counts, and there is no cache_hit stop reason.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Prompt Caching in Action"
+  },
+  {
+    "id": "C2-064",
+    "module": 2,
+    "domain": "Context Management & Reliability",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Caching tool schemas safely",
+    "difficulty": "hard",
+    "question": "A shared chat helper should cache the tools list by default. The first version sets cache_control directly on tools[-1], and other parts of the app now see that field on the shared schema. What is the recommended approach?",
+    "options": [
+      "Put cache_control on every tool schema in the shared list so the change looks intentional",
+      "Clone the list and last schema, add ephemeral cache_control to the clone",
+      "Put cache_control on the first tool so later tools can change freely",
+      "Move the tool schemas into the system prompt and cache that instead"
+    ],
+    "answer": 1,
+    "explanation": "The course adds cache_control of type ephemeral to the last tool, and recommends copying the list and cloning the last schema so the originals are not modified. A breakpoint on the first tool would cache only that tool, since the cache covers content up to and including the breakpoint.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Prompt Caching in Action"
+  },
+  {
+    "id": "C2-065",
+    "module": 2,
+    "domain": "Context Management & Reliability",
+    "topic": "Partial cache hits with multiple breakpoints",
+    "difficulty": "hard",
+    "question": "A support agent sends a request with a breakpoint on the last tool schema and another on the system prompt. Which two changes on the next request still allow at least part of the prefix to be read from cache? (Select TWO.)",
+    "options": [
+      "Appending a new user message after the system prompt",
+      "Inserting a new tool at the start of the tools list",
+      "Editing the system prompt text while leaving the tools unchanged",
+      "Rewording the description of the first tool",
+      "Reordering the tools list"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "Multiple breakpoints create cache layers, so a change after a breakpoint leaves the earlier layers usable: new messages leave both layers intact, and a system prompt edit still allows a read of the tools layer. Any change to the tools, which come first in processing order, invalidates everything after it.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Rules of Prompt Caching"
+  },
+  {
+    "id": "C2-066",
+    "module": 2,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "stop_reason-driven loop",
+    "difficulty": "easy",
+    "question": "In a support agent's tool loop, which signal should decide whether to execute tools and call Claude again?",
+    "options": [
+      "Whether the response's stop_reason is \"tool_use\"",
+      "Whether the response text contains the word \"tool\"",
+      "Whether the response exceeds a fixed token length",
+      "Whether the user's message mentions an order number"
+    ],
+    "answer": 0,
+    "explanation": "The course's run_conversation loop checks stop_reason: if it is \"tool_use\", run the tools and continue; otherwise break. Searching response text is unreliable, since Claude's text may mention tools without requesting one.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Implementing Multiple Turns"
+  },
+  {
+    "id": "C2-067",
+    "module": 2,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "Appending assistant content",
+    "difficulty": "medium",
+    "question": "Which two actions must a tool loop take after each response with stop_reason \"tool_use\" so the next request is valid? (Select TWO.)",
+    "options": [
+      "Append only the assistant's text block, to keep history small",
+      "Append the entire response content, including all tool_use blocks, as an assistant message",
+      "Append the tool results as a new user message containing tool_result blocks",
+      "Replace the original user message with the tool results",
+      "Start a fresh conversation containing only the tool results"
+    ],
+    "answer": [
+      1,
+      2
+    ],
+    "explanation": "Assistant messages can contain text plus tool_use blocks, and the whole response.content must be appended so each later tool_result has a matching tool_use_id; the results then go back as a user message. Keeping only text orphans the results, and replacing or discarding history fails because Claude stores nothing between requests.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Handling Message Blocks"
+  },
+  {
+    "id": "C2-068",
+    "module": 2,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Multi-Agent Research System",
+    "topic": "Unbounded tool chains",
+    "difficulty": "medium",
+    "question": "A research orchestrator was written to call Claude exactly twice: once to get a tool request and once with its result. Queries needing three or four chained lookups now end with unanswered tool requests. What design does the course prescribe?",
+    "options": [
+      "Raise the fixed call count to five to cover most queries",
+      "A loop that runs until Claude stops requesting tools",
+      "Ask Claude in the prompt to request all tools in its first response",
+      "Run every possible tool once up front and put all of their results into the first prompt"
+    ],
+    "answer": 1,
+    "explanation": "Since you cannot predict how many tool calls a query will need, the course uses a loop that continues until Claude stops requesting tools. A higher fixed count still fails on longer chains and wastes calls on shorter ones.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Multi-Turn Conversations with Tools"
+  },
+  {
+    "id": "C2-069",
+    "module": 2,
+    "domain": "Agentic Architecture & Orchestration",
+    "topic": "Stateless conversation history",
+    "difficulty": "easy",
+    "question": "Why must a tool-using application resend the original user message and earlier assistant tool_use messages on each follow-up request?",
+    "options": [
+      "Claude stores nothing between requests, so the full history must be sent each time",
+      "The API rejects requests that contain only one message",
+      "Resending history is optional but improves caching",
+      "Tool schemas are attached to the first user message, not the request"
+    ],
+    "answer": 0,
+    "explanation": "The course stresses that Claude stores nothing, so the app must maintain and resend the full conversation, including the user message, assistant tool_use message, and tool results. Tool schemas go in the tools parameter, not the first message.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Handling Message Blocks"
+  },
+  {
+    "id": "C2-070",
+    "module": 2,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Guarding the loop with stop_reason",
+    "difficulty": "medium",
+    "question": "A developer assistant's loop always runs run_tools on each response and appends the result as a user message. On simple questions with no tool use, the API errors on the next turn because of an empty user message. What is the fix?",
+    "options": [
+      "Catch the error and retry with a higher temperature",
+      "Process tools only when stop_reason is \"tool_use\"; otherwise break",
+      "Always force tool_choice to any so there is a tool result to append",
+      "Append a placeholder tool_result with is_error true whenever no tools were requested by Claude"
+    ],
+    "answer": 1,
+    "explanation": "The course's loop processes tools only when stop_reason indicates tool use, which prevents adding empty tool-result messages when none were requested. Forcing tool calls just to fill the message changes agent behavior to hide a control-flow bug.",
+    "source": "06-claude-in-amazon-bedrock/_official-course-notes.md#Multi-Turn Conversations with Tools"
+  },
+  {
+    "id": "C2-071",
+    "module": 2,
+    "domain": "Agentic Architecture & Orchestration",
+    "topic": "Why the reminder project needs tools",
+    "difficulty": "easy",
+    "question": "In the course's reminder project, why does Claude need tools to answer \"what day is 103 days from today?\" reliably?",
+    "options": [
+      "It lacks the exact current time and can miscalculate date arithmetic",
+      "It cannot produce dates in any standard format",
+      "It refuses date questions without a system prompt",
+      "It must call a tool for every question involving numbers"
+    ],
+    "answer": 0,
+    "explanation": "The project identifies gaps that tools fill: Claude does not know the exact current time and sometimes miscalculates time-based addition, so it chains get_current_datetime and add_duration_to_datetime. Claude does not need tools for every numeric question.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Project Overview"
+  },
+  {
+    "id": "C2-072",
+    "module": 2,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Extracting text from multi-block responses",
+    "difficulty": "medium",
+    "question": "A developer bot displays response.content[0].text as Claude's answer. Sometimes users see only a short preamble and miss the rest of the answer. What is the best fix?",
+    "options": [
+      "Raise max_tokens so the first block holds the whole answer",
+      "Use a helper that joins the text from every text block in the message",
+      "Set tool_choice to auto to prevent multiple blocks",
+      "Display the last block only, since it holds the final answer"
+    ],
+    "answer": 1,
+    "explanation": "Messages can contain several content blocks, so the course adds a text_from_message helper that extracts all text blocks. Showing only the last block has the same flaw in reverse, and max_tokens does not control how content is split into blocks.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Multi-Turn Conversations with Tools"
+  },
+  {
+    "id": "C2-073",
+    "module": 2,
+    "domain": "Agentic Architecture & Orchestration",
+    "topic": "Who executes tools",
+    "difficulty": "easy",
+    "question": "In the tool use flow, what happens after Claude decides it needs external data, for example current weather?",
+    "options": [
+      "Claude calls the weather API directly from Anthropic's servers",
+      "Claude requests a tool; your server fetches the data and sends it back",
+      "Claude waits for the user to paste the weather into the chat",
+      "Claude estimates the weather from its training data and flags the answer as approximate"
+    ],
+    "answer": 1,
+    "explanation": "In the course's tool use flow, Claude requests specific information, your server runs code to fetch it, and a follow-up request delivers the data so Claude can answer. For custom tools, Claude never calls external APIs itself.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Introducing Tool Use"
+  },
+  {
+    "id": "C2-074",
+    "module": 2,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Multi-Agent Research System",
+    "topic": "Loop termination bug",
+    "difficulty": "hard",
+    "question": "A research subagent's loop exits when response.content[0].type == \"text\". It often stops before running any tool, and the final message to the orchestrator is just \"Let me look that up.\" What is the root cause and fix?",
+    "options": [
+      "Responses often begin with a text block; loop on stop_reason == \"tool_use\"",
+      "Claude is refusing tools; set tool_choice to any on every turn",
+      "The tools list is too long; split tools across subagents",
+      "The text block signals an error; retry the same request until a tool_use block comes first"
+    ],
+    "answer": 0,
+    "explanation": "An assistant tool-use response usually contains a text block for the user followed by tool_use blocks, so checking the first block's type exits too early. The loop should be driven by stop_reason. Forcing tool_choice any would stop Claude from ever giving a final text answer.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Implementing Multiple Turns"
+  },
+  {
+    "id": "C2-075",
+    "module": 2,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "Handling every tool_use block",
+    "difficulty": "hard",
+    "question": "A support agent's run_tools reads only the first tool_use block from each assistant message. When Claude requests get_order and get_shipping_status together, the next request fails. What change fixes this?",
+    "options": [
+      "Run every tool_use block; return one tool_result each in one user message",
+      "Set the system prompt to tell Claude to request only one tool at a time",
+      "Return the get_order result twice, once for each tool_use_id",
+      "Send each tool_result in its own separate user message, one per request round to Claude"
+    ],
+    "answer": 0,
+    "explanation": "The course's run_tools filters message.content for every tool_use block, runs each, and returns one tool_result per block, all in the user message that follows. Duplicating one result gives Claude wrong data, and a prompt restriction leaves the code fragile and slower.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Implementing Multiple Turns"
+  }
+]

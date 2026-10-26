@@ -1,0 +1,1381 @@
+[
+  {
+    "id": "C3-001",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "Choosing a workflow",
+    "difficulty": "medium",
+    "question": "A support team is automating refund requests. Every request is handled the same way: look up the order, check it against the refund policy, calculate the refund amount, then draft a reply to the customer. The team wants the most reliable design. What should the architect recommend?",
+    "options": [
+      "Implement a workflow: a fixed series of Claude calls, one per known step, wired together in code",
+      "Build an agent with generic lookup and messaging tools and let Claude plan the steps for each request",
+      "Send one large prompt containing the policy, the order data and every instruction, then parse the reply",
+      "Add a routing step that sends every refund request to a general-purpose agent pipeline"
+    ],
+    "answer": 0,
+    "explanation": "The steps are known exactly, which is when the course says to use a workflow; workflows complete tasks more reliably and are easier to test. An agent would add flexibility this task doesn't need and would lower the completion rate.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Workflows vs Agents"
+  },
+  {
+    "id": "C3-002",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "topic": "Workflow vs agent decision rule",
+    "difficulty": "easy",
+    "question": "According to the course's decision rule, when is an agent a better choice than a workflow?",
+    "options": [
+      "When the task has to be split across several Claude calls instead of a single request",
+      "When task details are unclear and the exact steps can't be known ahead of time",
+      "When the team needs the highest possible task completion rate from the system",
+      "When each step needs its own specialized prompt template and its own tools"
+    ],
+    "answer": 1,
+    "explanation": "Use workflows when you know the exact steps, and agents when task details are unclear. Both approaches handle tasks that take more than one request, so needing several calls doesn't favor agents. Workflows, not agents, have the higher completion rates.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Agents and Workflows"
+  },
+  {
+    "id": "C3-003",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Multi-Agent Research System",
+    "topic": "Agent trade-offs",
+    "difficulty": "hard",
+    "question": "A product owner wants a research assistant that answers open-ended questions where the sources and steps differ for nearly every request. They add: 'It must be as dependable and easy to regression-test as our existing report pipeline.' Which statement should the architect give them?",
+    "options": [
+      "An agent will match the pipeline's reliability, since dynamic planning lets it recover from any failed step it encounters",
+      "A workflow can handle these requests if the prompt lists every possible source, so an agent is never needed here",
+      "An agent fits the unpredictable requests, but expect a lower completion rate and harder testing than the pipeline",
+      "Agents and workflows are equally easy to test once they share the same set of tools"
+    ],
+    "answer": 2,
+    "explanation": "Unknown steps justify an agent, but the course is clear that agents have lower completion rates and are harder to test because their execution path is unpredictable. Saying an agent matches pipeline reliability is the tempting mistake; the guidance is to use agents only when the flexibility is truly needed.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Workflows vs Agents"
+  },
+  {
+    "id": "C3-004",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Structured Data Extraction",
+    "topic": "Evaluator-optimizer pattern",
+    "difficulty": "medium",
+    "question": "An extraction pipeline sends a scanned purchase order to Claude to produce JSON. A second Claude call compares the JSON with the original document. If fields are wrong, the first step runs again with the comparison notes, and this repeats until the comparison passes. How does this design map to the course's patterns?",
+    "options": [
+      "It is a routing workflow: the comparison call picks which extraction pipeline runs next",
+      "It is an agent, because the number of iterations isn't known in advance",
+      "It is a parallelization workflow: extraction and comparison run as independent subtasks",
+      "It is an evaluator-optimizer workflow: extraction is the producer and the comparison is the evaluator"
+    ],
+    "answer": 3,
+    "explanation": "This matches the image-to-3D example: a producer generates output and an evaluator judges it, looping until the evaluator accepts. A loop with a variable number of iterations is still a workflow because the steps themselves are predetermined, so 'agent' is the wrong label.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Agents and Workflows"
+  },
+  {
+    "id": "C3-005",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "topic": "Implementing workflow patterns",
+    "difficulty": "easy",
+    "question": "A team lead says: 'We've established that our problem fits the chaining pattern, so the sequencing is taken care of for us.' What is the accurate correction?",
+    "options": [
+      "Patterns are proven approaches from other engineers; you still write the code that implements them",
+      "Chaining is only handled automatically when Claude is given a separate tool for each step in the sequence",
+      "Only routing is built into the SDK; chaining has to be requested with a special system prompt",
+      "Patterns are applied automatically, but only for tasks that fit within a single request"
+    ],
+    "answer": 0,
+    "explanation": "The course stresses that spotting a workflow pattern doesn't implement it. Patterns describe approaches that have worked for other engineers, and your application code still makes and connects the calls. No pattern is built in or applied automatically.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Agents and Workflows"
+  },
+  {
+    "id": "C3-006",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Parallelization workflow",
+    "difficulty": "medium",
+    "question": "An internal tool asks Claude, in a single prompt, to choose between four candidate databases for a new service, weighing each one on latency, cost, operational burden and team experience. The answers are muddled and mix up which criteria applied to which database. Which redesign follows the course's guidance?",
+    "options": [
+      "Keep the single prompt but repeat the full list of evaluation criteria at both the beginning and the end",
+      "One request per database judging only its suitability, then a final call comparing those results",
+      "Route the request to whichever database Claude thinks is most likely and evaluate only that one",
+      "Give an agent a web search tool and let it decide how many of the databases to research"
+    ],
+    "answer": 1,
+    "explanation": "This mirrors the material-selection example: split the decision into parallel subtasks that each analyze one option, then aggregate the results. Each call can focus instead of juggling every consideration. Repeating criteria leaves the overloaded single prompt in place.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Parallelization Workflows"
+  },
+  {
+    "id": "C3-007",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "topic": "Parallelization benefits",
+    "difficulty": "medium",
+    "question": "Which TWO benefits does the course attribute to splitting a complex decision into parallel subtasks followed by an aggregation step? (Select TWO.)",
+    "options": [
+      "Each subtask prompt can be improved and evaluated on its own",
+      "It removes the need for a final step that combines results",
+      "Each call focuses on one analysis instead of juggling every consideration",
+      "Claude sees every option and criterion together in one context",
+      "It guarantees the task finishes within a single API request"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "The course lists modularity (each prompt can be improved and evaluated separately) and focus/quality (each subtask handles one analysis) among the benefits. Parallelization still needs an aggregator, and the point is to avoid putting everything into one context.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Parallelization Workflows"
+  },
+  {
+    "id": "C3-008",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Multi-Agent Research System",
+    "topic": "Subtask focus in fan-out designs",
+    "difficulty": "hard",
+    "question": "A coordinator sends a question to parallel subagents, one per candidate approach, and an aggregator writes the final recommendation. Each subagent prompt says: 'Assess approach X and explain why it beats the other approaches.' The outputs contradict each other and make claims about approaches the subagent never analyzed. What is the best fix?",
+    "options": [
+      "Give every subagent the full text of the other subagents' prompts so their comparisons are consistent",
+      "Replace the fan-out with a chain in which each subagent receives the previous subagent's verdict",
+      "Limit each subagent to assessing its own approach and move all cross-approach comparison into the aggregator",
+      "Remove the aggregator and return all subagent outputs directly so the user can compare them"
+    ],
+    "answer": 2,
+    "explanation": "In parallelization, each subtask handles one specific analysis and the aggregator synthesizes the results. Asking each branch to compare against options it can't see puts the comparison in the wrong place. Sharing all the prompts undoes the focus that makes the pattern work.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Parallelization Workflows"
+  },
+  {
+    "id": "C3-009",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Chaining for ignored constraints",
+    "difficulty": "medium",
+    "question": "A tool writes release announcements from a long prompt with many rules: professional tone, no emojis, never mention that AI wrote it, no internal ticket IDs. Even with the rules repeated several times, some drafts still break one or two of them. What does the course recommend?",
+    "options": [
+      "Repeat each rule again in capital letters at the end of the prompt, and once more in the system prompt",
+      "Convert the task into an agent that can choose its own tools for checking tone and wording",
+      "Split the rules across parallel requests and merge the drafts they return into one announcement",
+      "Accept the first draft, then ask Claude in a follow-up call to rewrite it fixing the violations found"
+    ],
+    "answer": 3,
+    "explanation": "The course presents chaining as the fix when Claude keeps ignoring constraints in a long prompt even after they are repeated. Generate first, then make a targeted rewrite request for the violations you found. More repetition is the approach the course says already fails.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Chaining Workflows"
+  },
+  {
+    "id": "C3-010",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Claude Code for Continuous Integration",
+    "topic": "Identifying chaining",
+    "difficulty": "medium",
+    "question": "A CI job uses Claude to review pull requests in three steps: summarize the diff, use that summary to pick the riskiest changes, then write review comments for only those changes. Which workflow pattern is this, and why does it fit?",
+    "options": [
+      "Chaining, because each step depends on the previous step's output",
+      "Parallelization, because the three steps can all run at the same time and then be aggregated",
+      "Routing, because the first step decides which reviewer pipeline should handle the PR",
+      "Evaluator-optimizer, because the final step grades the summary produced by the first step"
+    ],
+    "answer": 0,
+    "explanation": "Chaining splits a large task into distinct sequential steps, and each call focuses on one subtask. Each step here needs the previous step's output, so the steps can't run in parallel and parallelization doesn't fit.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Chaining Workflows"
+  },
+  {
+    "id": "C3-011",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "Routing workflow",
+    "difficulty": "easy",
+    "question": "Incoming support messages are billing questions, technical faults or account-security concerns, and each kind needs a different prompt and different tools. Which workflow pattern fits best?",
+    "options": [
+      "Parallelization: every message is processed by all three pipelines and the answers are merged together",
+      "Routing: a first call categorizes the message, which then goes to that category's specialized pipeline",
+      "Chaining: every message passes through the billing, technical and security pipelines in order",
+      "A single prompt that contains the instructions and the tools for all three categories at once"
+    ],
+    "answer": 1,
+    "explanation": "Routing uses an initial categorization call to pick one specialized pipeline with its own prompts and tools. Running every pipeline on every message, whether in parallel or in sequence, wastes work and mixes up instructions meant for different categories.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Routing Workflows"
+  },
+  {
+    "id": "C3-012",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "Router output categories",
+    "difficulty": "hard",
+    "question": "In a routing workflow, the categorization call sometimes returns labels such as 'probably billing, maybe account' or 'refund-ish'. The dispatch code can't map these to a pipeline, so the messages go unanswered. What is the best fix?",
+    "options": [
+      "Send ambiguous messages to every pipeline in parallel and keep whichever pipeline's answer is longest",
+      "Let each specialized pipeline decide for itself whether the incoming message really belongs to it",
+      "Make the router pick exactly one label from a fixed list of predefined categories mapped to pipelines",
+      "Drop the routing step and merge all the pipeline prompts into one combined prompt"
+    ],
+    "answer": 2,
+    "explanation": "In the course's routing pattern, Claude categorizes input into predefined categories, and each category maps to a pipeline. Restricting the output to that fixed list makes dispatch deterministic. Sending messages to every pipeline turns routing into an unaggregated fan-out.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Routing Workflows"
+  },
+  {
+    "id": "C3-013",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "topic": "Routing vs parallelization",
+    "difficulty": "medium",
+    "question": "What most clearly distinguishes a routing workflow from a parallelization workflow?",
+    "options": [
+      "Routing always relies on tool calls, while parallelization only ever uses plain text prompts",
+      "Routing is an agent pattern in which Claude plans, while parallelization is a fixed workflow pattern",
+      "Routing needs an aggregator step, while parallelization chooses a single best subtask to run",
+      "Routing sends input down one chosen pipeline; parallelization runs several subtasks and aggregates"
+    ],
+    "answer": 3,
+    "explanation": "Routing has one categorization step followed by one chosen specialized pipeline. Parallelization runs several subtasks at once and then synthesizes them with an aggregator. The distractor that reverses the aggregator's role describes the two patterns backwards.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Routing Workflows"
+  },
+  {
+    "id": "C3-014",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "topic": "Combining tools",
+    "difficulty": "hard",
+    "question": "A personal-assistant agent has three tools: get_current_datetime, add_duration and set_reminder. Which user request would most likely need a NEW tool rather than a combination of these three?",
+    "options": [
+      "Remind me when my flight's gate changes",
+      "Remind me in 90 minutes to stretch",
+      "Set a reminder for exactly two weeks from today",
+      "Remind me 3 days from now, and again 2 days after that"
+    ],
+    "answer": 0,
+    "explanation": "The course uses these three tools to show how agents combine abstract tools to handle many time-based requests. A gate change, however, is an external event none of the tools can observe. The other requests are all combinations of current time, adding a duration and setting a reminder.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Agents and Tools"
+  },
+  {
+    "id": "C3-015",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "topic": "Agent advantages",
+    "difficulty": "easy",
+    "question": "Which TWO advantages of agents over workflows does the course describe? (Select TWO.)",
+    "options": [
+      "The same toolset can handle a wide variety of tasks",
+      "Higher task completion rates because of dynamic planning",
+      "Tools can be combined in ways the developer didn't anticipate",
+      "Easier testing because the execution path is known in advance",
+      "Inputs always arrive in a fixed, validated format"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "Agents are flexible: one toolset covers many tasks, and Claude can combine tools in unexpected ways. Higher completion rates and easier testing are advantages of workflows, which the course contrasts with agents.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Agents and Tools"
+  },
+  {
+    "id": "C3-016",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "Agent vs workflow inputs",
+    "difficulty": "medium",
+    "question": "Customers type free-form requests such as 'change my plan' without saying which plan or when. The current workflow requires a structured form with a plan ID and an effective date and rejects anything else. Product wants a conversational experience. Which difference between agents and workflows matters most here?",
+    "options": [
+      "Workflows can ask follow-up questions when details are missing, while agents need every input up front",
+      "Agents derive inputs from the user's query and can ask for more; workflows need specific inputs",
+      "Agents and workflows both require structured inputs, so the existing form has to stay in place",
+      "Workflows have higher completion rates, so an agent would also need the form in order to work"
+    ],
+    "answer": 1,
+    "explanation": "The course's user-experience comparison says workflows require specific inputs, while agents create their own inputs from user queries and can request more when needed. The claim that workflows ask follow-up questions while agents need every input up front reverses this.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Workflows vs Agents"
+  },
+  {
+    "id": "C3-017",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "topic": "Screenshots in computer use",
+    "difficulty": "easy",
+    "question": "When using computer use, why does Claude take a screenshot after every action, such as a click or a keystroke?",
+    "options": [
+      "Screenshots are required to keep the Docker container session from timing out",
+      "The tool schema allows only one action per screenshot in order to limit costs",
+      "It can't predict how an action changes the screen, so it checks the new state",
+      "Screenshots form the audit trail that the final QA report is generated from"
+    ],
+    "answer": 2,
+    "explanation": "A click might navigate, open a menu or do nothing, and Claude can't predict which. The screenshot is environment inspection that shows the new state. It has nothing to do with keeping the session alive or with cost limits.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Environment Inspection"
+  },
+  {
+    "id": "C3-018",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "topic": "Verifying agent output",
+    "difficulty": "medium",
+    "question": "An agent produces short social media videos and has bash access to local tools. Before posting, it should confirm the output actually matches the request. Which TWO practices from the course achieve this? (Select TWO.)",
+    "options": [
+      "Generate timestamped captions with Whisper CPP to check where the dialogue lands",
+      "Treat a zero exit code from the render command as proof the video is correct",
+      "Ask Claude to predict what the video looks like from the script it wrote",
+      "Extract frames at intervals with FFmpeg and inspect the visual result",
+      "Add more detail to the system prompt so the first render is always correct"
+    ],
+    "answer": [
+      0,
+      3
+    ],
+    "explanation": "The course's video agent inspects its environment by using Whisper CPP for timestamped captions and FFmpeg to pull frames, so it can check the result before posting. A successful exit code only says the command ran, and agents need feedback beyond basic tool returns.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Environment Inspection"
+  },
+  {
+    "id": "C3-019",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Recognizing an agent loop",
+    "difficulty": "medium",
+    "question": "Consider this loop:\n\nwhile True:\n    resp = call_claude(messages, tools)\n    messages.append(resp)\n    if resp.stop_reason != \"tool_use\":\n        break\n    messages.append(run_requested_tools(resp))\n\nWhich description best fits this code?",
+    "options": [
+      "A chaining workflow, because each Claude call depends on the previous one",
+      "A routing workflow, because the stop reason decides which pipeline runs",
+      "A parallelization workflow, because several tools can be requested in one turn",
+      "An agent: a model with tool access called repeatedly until it decides the goal is met"
+    ],
+    "answer": 3,
+    "explanation": "The course defines an agent as a language model with tool access, run repeatedly until the goal is reached. Claude decides which tools to use and when to stop. In a chain, the application code fixes the steps ahead of time, so this is not chaining.",
+    "source": "06-claude-in-amazon-bedrock/_official-course-notes.md#Qualities of Agents"
+  },
+  {
+    "id": "C3-020",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Code Generation with Claude Code",
+    "topic": "Information-gathering tool calls",
+    "difficulty": "hard",
+    "question": "You review the tool-call trace of a well-performing coding agent that fixed a bug in a large repository. Based on the course's qualities of agents, which pattern would you most expect to see?",
+    "options": [
+      "Mostly information gathering, such as reading files and running tests, with few changes",
+      "Most tool calls write or modify files, with only a handful of reads at the very start",
+      "A single tool call that applied the whole fix, because the prompt already contained the repository",
+      "Tool calls that alternate strictly between one read and one write until the task ends"
+    ],
+    "answer": 0,
+    "explanation": "The course notes that most of an agent's tool calls gather information about the environment rather than change it. Claude Code reads files and runs tests far more often than it writes. Agents also rely on tools, not a prompt preloaded with the repository, for context.",
+    "source": "06-claude-in-amazon-bedrock/_official-course-notes.md#Qualities of Agents"
+  },
+  {
+    "id": "C3-021",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "topic": "Selecting tasks for agents",
+    "difficulty": "hard",
+    "question": "The course says agents suit high-value tasks where mistakes don't cause major economic or safety damage. Which TWO candidate projects fit that guidance best? (Select TWO.)",
+    "options": [
+      "Running exploratory test cases against a staging web app and reporting failures",
+      "Autonomously executing wire transfers between customer accounts",
+      "Approving insurance claims with no human review step",
+      "Investigating a bug on a dev branch by reading code and running tests, with the fix reviewed before merge",
+      "Pushing configuration changes directly to production network routers"
+    ],
+    "answer": [
+      0,
+      3
+    ],
+    "explanation": "QA on staging and bug investigation with review before merge are both valuable, and a mistake there is cheap to catch. Money movement, unreviewed claim approval and direct production changes can cause serious economic or safety damage, which the course says makes them poor fits for agents.",
+    "source": "06-claude-in-amazon-bedrock/_official-course-notes.md#Qualities of Agents"
+  },
+  {
+    "id": "C3-022",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Claude Code for Continuous Integration",
+    "topic": "Computer use execution environment",
+    "difficulty": "hard",
+    "question": "A team adds computer use to a CI job so Claude can click through the staging site after each deploy. They send the computer use tool schema with the request, and Claude replies with tool use requests such as a left click at given coordinates, but nothing happens in any browser. What is missing?",
+    "options": [
+      "A higher max_tokens setting so that Claude can finish emitting the whole click sequence",
+      "A computing environment, such as a Docker container, that performs the actions",
+      "Permission for Claude to connect directly to the CI runner's display and input devices",
+      "An MCP server that converts Claude's text replies into browser automation scripts"
+    ],
+    "answer": 1,
+    "explanation": "Claude doesn't operate computers directly. Computer use is the tool system plus a computing environment, provided by the developer, that performs the key presses and mouse movements and returns the results. Without that environment, the tool use requests are never carried out.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#How Computer Use Works"
+  },
+  {
+    "id": "C3-023",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "topic": "Computer use request cycle",
+    "difficulty": "hard",
+    "question": "Which sequence correctly describes one turn of computer use?",
+    "options": [
+      "App sends a screenshot → Claude moves the mouse itself over a remote desktop link → Claude reports back what it did on the screen",
+      "App sends an action list it wrote itself → Claude picks one action → Anthropic's servers perform it inside a hosted browser session",
+      "Tool schema sent → Claude returns a tool use request → developer's environment executes the action → result returns as a tool result",
+      "Claude writes a script of every click up front → the app runs the whole script → Claude receives one screenshot at the very end"
+    ],
+    "answer": 2,
+    "explanation": "Computer use follows the normal tool use flow. Claude emits a tool use request (ID, name, input), the developer's environment performs it, and the outcome goes back as a tool result. Claude never moves the mouse itself, and the actions aren't run on Anthropic's side.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#How Computer Use Works"
+  },
+  {
+    "id": "C3-024",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "topic": "Computer use applications",
+    "difficulty": "easy",
+    "question": "Which use case does the course highlight as a primary application of computer use?",
+    "options": [
+      "Training new Claude models on screenshots of user desktops",
+      "Replacing MCP servers when integrating with third-party APIs",
+      "Speeding up text generation by rendering prompts as images",
+      "Automated QA testing of web applications, with reports of pass/fail results"
+    ],
+    "answer": 3,
+    "explanation": "The course demo has Claude navigate a web app, run test cases and report pass/fail findings, and it names automated QA testing as a primary use case. The other options aren't uses the course describes.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Computer Use"
+  },
+  {
+    "id": "C3-025",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Computer use reference implementation",
+    "difficulty": "easy",
+    "question": "A developer wants to try Claude's computer use locally today without writing any mouse and keyboard execution code. What does the course suggest?",
+    "options": [
+      "Run Anthropic's reference implementation: a Docker container with pre-built input-handling code",
+      "Install the MCP Inspector and run the computer use tool from the Tools section of its interface",
+      "Enable computer use in the API so that Claude can take control of the developer's own desktop",
+      "Write a routing workflow that turns Claude's replies into keyboard macros for the local machine"
+    ],
+    "answer": 0,
+    "explanation": "Anthropic provides a reference implementation: a Docker container with the mouse and keyboard execution code already written, which you start with a simple command. The MCP Inspector tests MCP servers and has nothing to do with computer use.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#How Computer Use Works"
+  },
+  {
+    "id": "C3-026",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "topic": "Anthropic apps as agent examples",
+    "difficulty": "easy",
+    "question": "Which TWO Anthropic applications does the course present as examples of agent architecture? (Select TWO.)",
+    "options": [
+      "The MCP Inspector",
+      "Claude Code",
+      "The Files API",
+      "Computer Use",
+      "The CLI_project document chatbot"
+    ],
+    "answer": [
+      1,
+      3
+    ],
+    "explanation": "The course introduces Claude Code and Computer Use as Anthropic's deployed applications that show how agents work. The Inspector is a debugging tool, and the CLI chatbot is a teaching project for MCP.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Anthropic Apps"
+  },
+  {
+    "id": "C3-027",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "topic": "Computer use as tool use",
+    "difficulty": "medium",
+    "question": "How does computer use relate to ordinary tool use?",
+    "options": [
+      "It is a separate API that bypasses tool use entirely and streams mouse events from Claude",
+      "It uses the normal tool use flow; a small schema expands into actions like click and screenshot",
+      "It replaces tool results with screenshots, so tool use IDs are no longer needed in the exchange",
+      "It only works through MCP, with an MCP server providing the computer that Claude controls"
+    ],
+    "answer": 1,
+    "explanation": "Computer use is a special case of tool use. A small schema expands behind the scenes into an action function with arguments such as mouse move, left click and screenshot, and the request/result cycle is the same as for any other tool. It isn't a separate mouse-streaming API.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#How Computer Use Works"
+  },
+  {
+    "id": "C3-028",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Multi-Agent Research System",
+    "topic": "Agent toolset design",
+    "difficulty": "hard",
+    "question": "A research agent has 60 narrowly scoped tools (search_pubmed_by_author, search_pubmed_by_year, summarize_pdf_section_3 and so on). It often picks the wrong tool or chains odd combinations. Which TWO changes match the course's guidance on agent tools? (Select TWO.)",
+    "options": [
+      "Consolidate into a small set of tools, each with a clear purpose",
+      "Add a tool for every remaining edge case so nothing is missing",
+      "Prefer general tools, such as one search tool with parameters, that Claude can combine",
+      "Paste all source documents into the system prompt so tools aren't needed",
+      "Give each tool a longer name that lists every case it covers"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "Agents work best with a small, focused set of abstract tools that Claude can piece together, like Claude Code's bash and file tools, rather than hyper-specialized ones. Adding more edge-case tools makes the problem worse, and agents should get context from tools, not from stuffed prompts.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Agents and Tools"
+  },
+  {
+    "id": "C3-029",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Structured Data Extraction",
+    "topic": "Agent vs workflow reliability",
+    "difficulty": "hard",
+    "question": "A team built an agent with bash and file tools to pull 12 fixed fields from supplier invoices that always share the same layout. It plans differently on each run, completes about 80% of documents, and its failures are hard to reproduce. What should the architect recommend?",
+    "options": [
+      "Give the agent more tools and a longer system prompt so it has more ways to recover from failures",
+      "Raise the temperature so the agent explores more extraction strategies for each document",
+      "Replace it with a workflow of predetermined steps, which is more reliable and easier to test",
+      "Add a router that sends each invoice to one of several agents that share identical tools"
+    ],
+    "answer": 2,
+    "explanation": "The steps are fully known, so this is a workflow problem. The course says workflows have higher completion rates and are easier to test, and recommends using agents only when flexibility is truly needed. Adding tools to an agent that doesn't need to be an agent leaves the cause unaddressed.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Workflows vs Agents"
+  },
+  {
+    "id": "C3-030",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Structured Data Extraction",
+    "topic": "Composing workflow patterns",
+    "difficulty": "hard",
+    "question": "A document pipeline receives invoices, receipts and contracts, and each type needs its own extraction prompt. For contracts, four independent clauses (liability, termination, payment, IP) must each be risk-assessed and combined into one rating. Which design fits best?",
+    "options": [
+      "Chain the four clause checks in a fixed order for every incoming document regardless of its type",
+      "Run all three document-type prompts in parallel on every input and keep the most confident output",
+      "Use one agent with every extraction prompt as a tool and let it decide which order to use",
+      "Route by type; in the contract pipeline, assess the clauses in parallel and aggregate"
+    ],
+    "answer": 3,
+    "explanation": "Type-specific handling is a routing problem: categorize first, then use the specialized pipeline. Independent clause analyses that must be combined fit parallelization with an aggregator. Running every type's prompt on every document wastes work and turns the routing decision into a guess.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Routing Workflows"
+  },
+  {
+    "id": "C3-031",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "topic": "Evaluator inputs",
+    "difficulty": "medium",
+    "question": "In the image-to-3D-model workflow, after Claude writes CADQuery code, the system renders the model to an image before the next Claude call. Why is the rendering step needed?",
+    "options": [
+      "It gives the evaluator an image to compare with the original when deciding to accept or retry",
+      "CADQuery can only export models as rendered images, not as step files, so rendering is mandatory",
+      "Rendering lets the routing step choose which modeling library to use for the next attempt",
+      "It turns the workflow into an agent by giving Claude a new tool to call when it wants"
+    ],
+    "answer": 0,
+    "explanation": "In this evaluator-optimizer workflow, Claude compares the rendering with the original photo, and that comparison decides whether to accept the output or loop back with feedback. The rendering doesn't add tools or make the workflow an agent; the steps are still predetermined.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Agents and Workflows"
+  },
+  {
+    "id": "C3-032",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "topic": "Parallelization vs chaining signals",
+    "difficulty": "medium",
+    "question": "Which TWO characteristics of a task point toward a parallelization workflow rather than chaining? (Select TWO.)",
+    "options": [
+      "Each step needs the output of the step before it",
+      "The subtasks are independent analyses of the same input",
+      "Claude ignores some constraints when everything is done in one pass",
+      "The separate analyses must be combined into one final comparison",
+      "The input's category decides which single pipeline runs"
+    ],
+    "answer": [
+      1,
+      3
+    ],
+    "explanation": "Parallelization is input → independent subtasks → aggregator → output. Dependence between steps and constraint-heavy prompts that need a rewrite pass point to chaining, and choosing a single pipeline by category is routing.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Parallelization Workflows"
+  },
+  {
+    "id": "C3-033",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "Conditions that favor agents",
+    "difficulty": "medium",
+    "question": "A support organization is deciding whether a new capability should be an agent or a workflow. Which TWO conditions favor an agent? (Select TWO.)",
+    "options": [
+      "The exact steps can't be known ahead of time and vary by request",
+      "Leadership requires the highest possible completion rate",
+      "Solving requests means combining a small set of tools differently each time",
+      "Each request must pass a fixed, easily testable sequence of checks",
+      "Every request arrives as a structured form with the same fields"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "Agents are for cases where the steps are unknown, and they solve problems by combining flexible tools in different ways. High completion rates, a fixed testable sequence and uniform structured input all point to a workflow.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Agents and Tools"
+  },
+  {
+    "id": "C3-034",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Claude Code for Continuous Integration",
+    "topic": "Testing and success rates",
+    "difficulty": "hard",
+    "question": "A CI team must sign off on a Claude-based component and asks how workflows and agents compare. Which TWO statements match the course? (Select TWO.)",
+    "options": [
+      "Workflows are easier to test because the execution sequence is known",
+      "Agents are easier to test because they explain their plan before acting",
+      "Agents tend to have lower completion rates because complexity is delegated to the model",
+      "Workflows have lower completion rates because each step is another point of failure",
+      "Both are equally testable when they use the same model"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "Workflows have a known execution path, which makes them easier to test, and they achieve higher completion rates. Agents follow unpredictable paths and delegate complexity to the model, which lowers completion rates. The 'more steps, more failures' argument reverses what the course says.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Workflows vs Agents"
+  },
+  {
+    "id": "C3-035",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "Pipeline-specific tools",
+    "difficulty": "medium",
+    "question": "A routed support system has billing, technical and account-security pipelines. Only the security pipeline should be able to lock an account. Where should the lock_account tool be provided?",
+    "options": [
+      "In the routing call itself, so suspicious accounts can be locked before any routing happens",
+      "Only in the account-security pipeline, whose tools are tailored to that category",
+      "In all three pipelines, so that any of them can act if a message happens to be misrouted",
+      "In a final aggregation step that merges the outputs of all three pipelines together"
+    ],
+    "answer": 1,
+    "explanation": "In routing, each pipeline has prompts and tools customized for its category. Putting the tool in the routing call or in every pipeline gives a high-impact action to steps that shouldn't have it.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Routing Workflows"
+  },
+  {
+    "id": "C3-036",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "topic": "Purpose of workflows and agents",
+    "difficulty": "easy",
+    "question": "Workflows and agents are both strategies for which kind of task?",
+    "options": [
+      "Tasks that need no tool access at all",
+      "Tasks that have only one correct output",
+      "Tasks that Claude can't complete in a single request",
+      "Tasks that must run without any application code"
+    ],
+    "answer": 2,
+    "explanation": "The course introduces workflows and agents as two ways to handle tasks that can't be finished in one request to Claude. Both usually involve tools and application code, so the other options are wrong.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Agents and Workflows"
+  },
+  {
+    "id": "C3-037",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "topic": "Core agent loop",
+    "difficulty": "medium",
+    "question": "Which ordering best describes the core agent loop in the course?",
+    "options": [
+      "Plan every step up front → execute all the tools → inspect the environment once at the end",
+      "Retrieve documents with RAG → write the answer → call tools to format the final response",
+      "Inspect the environment once → execute tools repeatedly until the token limit is reached",
+      "Run a tool → inspect the environment → check progress → repeat until success or failure"
+    ],
+    "answer": 3,
+    "explanation": "The course's core loop is tool execution, then environment inspection, then a check on progress toward the goal, repeated until the task succeeds or fails. Inspecting only once ignores that agents need feedback after each action.",
+    "source": "06-claude-in-amazon-bedrock/_official-course-notes.md#Qualities of Agents"
+  },
+  {
+    "id": "C3-038",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "topic": "Routing rationale",
+    "difficulty": "easy",
+    "question": "A video-script generator routes 'Python functions' to an educational template and 'celebrity gossip' to an entertainment template. What benefit does this routing provide?",
+    "options": [
+      "Each script fits its topic: explanations for programming, engaging hooks for entertainment",
+      "It lowers cost by skipping the script-generation call entirely for some kinds of topics",
+      "Both templates run in parallel for every topic and the better of the two scripts is kept",
+      "Claude no longer needs to see the topic itself during the script-generation step"
+    ],
+    "answer": 0,
+    "explanation": "Routing makes each output fit its topic by sending each category to a pipeline with a tailored prompt. It doesn't skip generation, and running both templates at once would be parallelization, not routing.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Routing Workflows"
+  },
+  {
+    "id": "C3-039",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Multi-Agent Research System",
+    "topic": "Applying agents selectively",
+    "difficulty": "hard",
+    "question": "A research product must find sources for any question (which sources and how many searches vary every time), then produce a report in a fixed template that has to pass the same checks every time. Following the guidance to use agents only where flexibility is truly required, which architecture is best?",
+    "options": [
+      "A single agent handles both search and report writing, so it can adapt the template per question",
+      "An agent for the open-ended research step, feeding a predefined workflow that writes and checks the report",
+      "A fixed workflow handles both parts, with the prompt listing every source that might ever be needed",
+      "Parallel agents each write a complete report and an aggregator keeps the longest one"
+    ],
+    "answer": 1,
+    "explanation": "Only the research step has unpredictable steps, so only that part needs an agent's flexibility. Report generation has known steps, so a workflow keeps it reliable and testable. Making the whole system an agent gives up reliability where it isn't necessary.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Workflows vs Agents"
+  },
+  {
+    "id": "C3-040",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Claude Code for Continuous Integration",
+    "topic": "Computer use isolation",
+    "difficulty": "easy",
+    "question": "A security reviewer objects to letting Claude operate a computer during automated UI tests. In the course's computer use setup, where do those actions happen?",
+    "options": [
+      "On the reviewer's own workstation, with every action logged",
+      "On Anthropic's servers, against the production website",
+      "In an isolated Docker container environment that the developer runs",
+      "Nowhere: Claude only reads screenshots and never clicks or types"
+    ],
+    "answer": 2,
+    "explanation": "Computer use runs inside an isolated Docker container that executes Claude's requested actions. Claude really does click and type, but only inside that sandbox, not on a personal workstation or against production.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Computer Use"
+  },
+  {
+    "id": "C3-041",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "topic": "Passing data along a chain",
+    "difficulty": "medium",
+    "question": "A content chain does the following: (1) search trending topics, (2) Claude picks the most interesting one, (3) Claude researches it, (4) Claude writes a script. The scripts come out generic and ignore the research. The code shows that step 4's prompt contains only the chosen topic. What's wrong?",
+    "options": [
+      "Chains can't contain research steps, so steps 3 and 4 should be merged into a single larger prompt",
+      "The chain should be replaced by parallel calls so that research and writing happen together",
+      "Step 4 needs a higher temperature so that it draws on more of its own background knowledge",
+      "Step 4 should receive step 3's research output, since each chain step builds on the last"
+    ],
+    "answer": 3,
+    "explanation": "A chain is a series of sequential steps, and each focused call works on what the previous step produced. Leaving out the research output makes step 3 pointless. Running the steps in parallel isn't possible because writing depends on research.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Chaining Workflows"
+  },
+  {
+    "id": "C3-042",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Extending a router",
+    "difficulty": "medium",
+    "question": "genre = ask_claude(\"Classify this topic as one of: educational, entertainment. Reply with the label only.\\n\" + topic)\nscript = ask_claude(TEMPLATES[genre].format(topic=topic))\n\nThe team wants news topics to get a neutral, factual style. What change is needed?",
+    "options": [
+      "Add 'news' to the routing prompt's category list and add a news template for that pipeline",
+      "Add 'be factual for news' to the entertainment template, since that is where news ends up",
+      "Run both templates in parallel and let an aggregator choose between them",
+      "Remove the classification step and let the script prompt infer the style"
+    ],
+    "answer": 0,
+    "explanation": "Routing has one categorization step plus a set of specialized pipelines. A new kind of output needs a new category for the router and a pipeline with its own prompt. Adding news rules to another template undoes the specialization that routing provides.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Routing Workflows"
+  },
+  {
+    "id": "C3-043",
+    "module": 3,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "Adding a parallel subtask",
+    "difficulty": "medium",
+    "question": "A ticket-escalation workflow runs three parallel Claude checks (fraud risk, SLA breach, customer tier), and then an aggregation call decides whether to escalate. Compliance now wants a fourth check for regulatory complaints. What is the least disruptive change?",
+    "options": [
+      "Rewrite the three existing check prompts so each one also covers regulatory complaints",
+      "Add a fourth parallel check and include its result in the aggregation step",
+      "Turn the workflow into a chain so the new check runs after the others",
+      "Replace the checks with one agent that decides which checks to run"
+    ],
+    "answer": 1,
+    "explanation": "The course lists scalability as a benefit of parallelization: new subtasks can be added without affecting existing ones. Spreading the new concern across the existing prompts loses that focus and modularity.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Parallelization Workflows"
+  },
+  {
+    "id": "C3-044",
+    "module": 3,
+    "domain": "Tool Design & MCP Integration",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Value of MCP",
+    "difficulty": "easy",
+    "question": "A team building a GitHub-aware chatbot expects weeks of work to write and maintain tool schemas and functions for repositories, pull requests, issues and projects. What does MCP change?",
+    "options": [
+      "Claude already knows the GitHub API from its training data, so no tool definitions are needed",
+      "MCP compresses tool schemas so that many more of them fit into a single request to Claude",
+      "A GitHub MCP server supplies and runs ready-made tools, so the team doesn't write them",
+      "MCP replaces tool use with direct API calls that Claude makes to GitHub on its own"
+    ],
+    "answer": 2,
+    "explanation": "MCP moves the work of defining and running tools from your application to an MCP server, which wraps the service's features as ready-to-use tools. Claude still uses tools, and it doesn't call GitHub directly.",
+    "source": "07-introduction-to-model-context-protocol/_official-course-notes.md#Introducing MCP"
+  },
+  {
+    "id": "C3-045",
+    "module": 3,
+    "domain": "Tool Design & MCP Integration",
+    "topic": "Who authors MCP servers",
+    "difficulty": "easy",
+    "question": "Who creates MCP servers?",
+    "options": [
+      "Only Anthropic, which certifies every server",
+      "Only the developer of the client application that uses the server",
+      "Only cloud platforms such as AWS",
+      "Anyone, although service providers often publish official implementations"
+    ],
+    "answer": 3,
+    "explanation": "Anyone can write an MCP server, and service providers such as AWS often publish official ones. AWS is an example of a provider, not the only one allowed to build servers.",
+    "source": "07-introduction-to-model-context-protocol/_official-course-notes.md#Introducing MCP"
+  },
+  {
+    "id": "C3-046",
+    "module": 3,
+    "domain": "Tool Design & MCP Integration",
+    "topic": "MCP and tool use",
+    "difficulty": "medium",
+    "question": "A colleague says: 'Now that we use MCP, we're not doing tool use anymore.' What is the accurate response?",
+    "options": [
+      "They're complementary: Claude still uses tools; MCP changes who defines and runs them",
+      "Correct: MCP replaces tool use with a protocol in which servers only expose resources to Claude",
+      "It is correct for remote servers; tool use is still needed only with the stdio transport",
+      "MCP is simply a newer name for tool use, with exactly the same responsibilities as before"
+    ],
+    "answer": 0,
+    "explanation": "The course calls MCP and tool use complementary. MCP is about who does the work (an MCP server rather than your code), and Claude still makes tool calls. Calling MCP just a new name for tool use misses that responsibility moves to the server.",
+    "source": "07-introduction-to-model-context-protocol/_official-course-notes.md#Introducing MCP"
+  },
+  {
+    "id": "C3-047",
+    "module": 3,
+    "domain": "Tool Design & MCP Integration",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "MCP transports",
+    "difficulty": "easy",
+    "question": "A team assumes its MCP server must run on the same machine as the client because the tutorial used standard input/output. They now want to host the server remotely. What is correct?",
+    "options": [
+      "MCP only supports stdio, so the server has to stay on the same machine as the client",
+      "MCP is transport agnostic; HTTP or WebSockets work as well as local stdio",
+      "A remote server means replacing MCP with direct REST calls from the application to the service",
+      "Moving the server to a remote host means converting all of its tools into resources"
+    ],
+    "answer": 1,
+    "explanation": "MCP is transport agnostic. Client and server can talk over stdio, HTTP, WebSockets and other protocols. Running both on one machine over stdio is common, but MCP doesn't require it.",
+    "source": "07-introduction-to-model-context-protocol/_official-course-notes.md#MCP Clients"
+  },
+  {
+    "id": "C3-048",
+    "module": 3,
+    "domain": "Tool Design & MCP Integration",
+    "topic": "MCP message types",
+    "difficulty": "medium",
+    "question": "In the typical flow, which TWO messages does the MCP client send to the MCP server? (Select TWO.)",
+    "options": [
+      "List tools request",
+      "List tools result",
+      "Call tool request",
+      "Call tool result",
+      "Tool use block for Claude"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "The client sends list tools requests and call tool requests. The server answers with list tools results and call tool results. Tool use blocks pass between your application and Claude, not between the MCP client and server.",
+    "source": "07-introduction-to-model-context-protocol/_official-course-notes.md#MCP Clients"
+  },
+  {
+    "id": "C3-049",
+    "module": 3,
+    "domain": "Tool Design & MCP Integration",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "End-to-end MCP flow",
+    "difficulty": "hard",
+    "question": "A support chatbot uses an MCP server for its ticketing system. A customer asks about a ticket's status. Which sequence is correct?",
+    "options": [
+      "App sends the query to Claude → Claude sends a list tools request straight to the MCP server → the server picks and runs the matching tool → Claude answers the user",
+      "MCP client forwards the user's query to Claude → Claude calls the ticketing API itself with its own credentials → the MCP server formats the reply → the app shows it",
+      "App gets tools via MCP client → sends query + tools to Claude → Claude asks for a tool → client sends call tool request → server runs it → result goes to Claude",
+      "App sends a call tool request first → MCP server asks Claude which tool to run → the client then lists the tools → Claude answers the user"
+    ],
+    "answer": 2,
+    "explanation": "Your application uses the MCP client to list tools, sends the query and tools to Claude, and when Claude asks for a tool, the client sends a call tool request so the MCP server can run it. Results then flow back to Claude. Claude never talks to the MCP server directly.",
+    "source": "07-introduction-to-model-context-protocol/_official-course-notes.md#MCP Clients"
+  },
+  {
+    "id": "C3-050",
+    "module": 3,
+    "domain": "Tool Design & MCP Integration",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Tool argument descriptions",
+    "difficulty": "hard",
+    "question": "@mcp.tool(name=\"read_doc_contents\", description=\"Read a document\")\ndef read_document(doc_id: str):\n    return docs[doc_id]\n\nThe generated schema has no description for doc_id, and Claude sometimes passes file names instead of IDs. What is the course's way to fix this?",
+    "options": [
+      "Hand-write a JSON schema and pass it to the decorator so it replaces the generated schema",
+      "Rename the function so that its name explains exactly what kind of ID the argument expects",
+      "Turn the tool into a templated resource so that the URI itself documents the argument",
+      "Annotate it with pydantic's Field(description=...) so the SDK adds it to the schema"
+    ],
+    "answer": 3,
+    "explanation": "The MCP Python SDK builds the JSON schema from the function signature, and Field() from pydantic adds descriptions for arguments. Writing the schema by hand is exactly the work the SDK is meant to remove.",
+    "source": "07-introduction-to-model-context-protocol/_official-course-notes.md#Defining Tools with MCP"
+  },
+  {
+    "id": "C3-051",
+    "module": 3,
+    "domain": "Tool Design & MCP Integration",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "MCP Inspector",
+    "difficulty": "easy",
+    "question": "You've added a tool to your Python MCP server and want to try it by hand before wiring it into any application. What should you do?",
+    "options": [
+      "Run `mcp dev server.py` and use the in-browser Inspector to connect and run the tool",
+      "Deploy the server and watch Claude's responses in the production logs",
+      "Write a routing workflow that calls the tool from a test prompt",
+      "Call the tool from Claude with a special debug flag"
+    ],
+    "answer": 0,
+    "explanation": "The MCP Inspector is an in-browser debugger, started with `mcp dev`, that lets you connect, pick a tool, enter parameters and run it without any application. Testing in production is what the Inspector lets you avoid.",
+    "source": "07-introduction-to-model-context-protocol/_official-course-notes.md#The Server Inspector"
+  },
+  {
+    "id": "C3-052",
+    "module": 3,
+    "domain": "Tool Design & MCP Integration",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Debugging with the Inspector",
+    "difficulty": "hard",
+    "question": "Claude reports that an MCP-backed edit tool 'did nothing'. In the MCP Inspector, running edit_document and then read_doc_contents with the same document ID shows the change applied correctly. What does this tell you?",
+    "options": [
+      "The server is broken, because the Inspector talks to it over a different transport than the app",
+      "The server tools work, so check how the client app calls them or relays results",
+      "The tool has to be redefined as a resource before Claude is able to see the changes it makes",
+      "Inspector results don't reflect the real server, so nothing can be concluded from this test"
+    ],
+    "answer": 1,
+    "explanation": "The Inspector tests the server on its own, without your application, and chaining operations in it is how the course checks that edits stick. If the tools work there, the fault is most likely in the client integration. Redefining the tool as a resource confuses actions with data reads.",
+    "source": "07-introduction-to-model-context-protocol/_official-course-notes.md#The Server Inspector"
+  },
+  {
+    "id": "C3-053",
+    "module": 3,
+    "domain": "Tool Design & MCP Integration",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "MCP client wrapper",
+    "difficulty": "medium",
+    "question": "Why does the course wrap the SDK's ClientSession in a larger MCP client class instead of using the session directly throughout the code?",
+    "options": [
+      "The session can only list tools, so the wrapper is needed to add a call_tool capability",
+      "Sessions can't be awaited, so the wrapper converts every call into a synchronous one",
+      "It manages connection and resource cleanup and exposes server functions to the codebase",
+      "The wrapper turns the client into an MCP server that other applications can connect to"
+    ],
+    "answer": 2,
+    "explanation": "The client session needs cleanup when it closes, so the common pattern is a wrapper class that manages the connection lifecycle and offers list_tools and call_tool to the rest of the codebase. The session itself already supports both calls.",
+    "source": "07-introduction-to-model-context-protocol/_official-course-notes.md#Implementing a Client"
+  },
+  {
+    "id": "C3-054",
+    "module": 3,
+    "domain": "Tool Design & MCP Integration",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "list_tools vs call_tool",
+    "difficulty": "medium",
+    "question": "class MCPClient:\n    async def list_tools(self):\n        result = await self.session.list_tools()\n        return result.tools\n\n    async def call_tool(self, name, tool_input):\n        return await self.session.call_tool(name, tool_input)\n\nIn the chatbot, when is each method used?",
+    "options": [
+      "list_tools runs before every tool call to check the tool exists; call_tool sends the user query to Claude",
+      "Claude calls list_tools itself; the app uses call_tool only for resources",
+      "list_tools fetches prompts for slash commands; call_tool reads resources by URI",
+      "list_tools gets the definitions to send to Claude; call_tool runs a tool when Claude requests it"
+    ],
+    "answer": 3,
+    "explanation": "The application uses list_tools to get tool definitions to include in the request to Claude, then calls call_tool when Claude's response asks for a tool. Prompts and resources have their own methods (list_prompts/get_prompt and read_resource).",
+    "source": "07-introduction-to-model-context-protocol/_official-course-notes.md#Implementing a Client"
+  },
+  {
+    "id": "C3-055",
+    "module": 3,
+    "domain": "Tool Design & MCP Integration",
+    "topic": "Templated resources",
+    "difficulty": "medium",
+    "question": "@mcp.resource(\"docs://documents/{doc_id}\", mime_type=\"text/plain\")\ndef fetch_doc(doc_id: str) -> str:\n    return docs[doc_id]\n\nA client requests docs://documents/plan.md. What happens?",
+    "options": [
+      "The SDK parses doc_id='plan.md' from the URI and passes it as a keyword argument",
+      "Claude decides whether to call fetch_doc during the conversation, as it would with a tool",
+      "The request fails, because templated resources only respond to list resources requests",
+      "The client must also send doc_id separately in an accompanying call tool request"
+    ],
+    "answer": 0,
+    "explanation": "For templated resources, the SDK pulls parameters out of the URI and passes them to the handler as keyword arguments. Resources are read by the application, and Claude doesn't decide when to read them.",
+    "source": "07-introduction-to-model-context-protocol/_official-course-notes.md#Defining Resources"
+  },
+  {
+    "id": "C3-056",
+    "module": 3,
+    "domain": "Tool Design & MCP Integration",
+    "topic": "Resource serialization",
+    "difficulty": "hard",
+    "question": "Which TWO statements about data returned from MCP resources are accurate? (Select TWO.)",
+    "options": [
+      "The Python SDK serializes the returned value to a string",
+      "The server guarantees that returned objects arrive as native client objects",
+      "The MIME type tells the client how to deserialize the data",
+      "MIME types are used only for the Inspector's display",
+      "Resources must return JSON; plain text isn't supported"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "The SDK turns returned data into strings, and the client deserializes it using the MIME type as a hint (for example application/json or text/plain). That is why the client, not the server, has to parse JSON.",
+    "source": "07-introduction-to-model-context-protocol/_official-course-notes.md#Defining Resources"
+  },
+  {
+    "id": "C3-057",
+    "module": 3,
+    "domain": "Tool Design & MCP Integration",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Parsing resource contents",
+    "difficulty": "hard",
+    "question": "async def read_resource(self, uri):\n    result = await self.session.read_resource(AnyUrl(uri))\n    resource = result.contents[0]\n    return json.loads(resource.text)\n\nThis works for docs://documents (application/json) but crashes on text/plain documents. What is the fix?",
+    "options": [
+      "Wrap the call in a retry loop that keeps requesting the resource until json.loads succeeds",
+      "Check resource.mime_type and only call json.loads for application/json",
+      "Read result.contents[-1] instead, because plain-text content is always placed last in the list",
+      "Change every resource on the server so that it returns application/json, even for documents"
+    ],
+    "answer": 1,
+    "explanation": "The course's client checks the MIME type of the first content item: it parses JSON when the type is application/json and returns the raw text otherwise. Retrying won't fix a format mismatch, and forcing every resource to JSON ignores that MIME types exist to describe different formats.",
+    "source": "07-introduction-to-model-context-protocol/_official-course-notes.md#Accessing Resources"
+  },
+  {
+    "id": "C3-058",
+    "module": 3,
+    "domain": "Tool Design & MCP Integration",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Resources vs tools",
+    "difficulty": "medium",
+    "question": "In a document chatbot, when a user @-mentions a document, its contents should be in Claude's prompt right away, without an extra round trip in which Claude decides to fetch it. Which MCP feature fits?",
+    "options": [
+      "A tool, because Claude should be the one deciding when to read the mentioned document",
+      "A prompt, because a reusable template should contain the document text",
+      "A resource the app reads on mention and adds to the prompt",
+      "A second MCP client dedicated solely to reading documents"
+    ],
+    "answer": 2,
+    "explanation": "Resources give the application data up front: the app fetches the mentioned document and puts it in the prompt, so Claude doesn't need a tool call. Tools are model-controlled, which would add exactly the round trip the requirement rules out.",
+    "source": "07-introduction-to-model-context-protocol/_official-course-notes.md#Accessing Resources"
+  },
+  {
+    "id": "C3-059",
+    "module": 3,
+    "domain": "Tool Design & MCP Integration",
+    "topic": "Value of MCP prompts",
+    "difficulty": "medium",
+    "question": "Why would an MCP server author expose prompts? (Select TWO.)",
+    "options": [
+      "They capture the server author's domain expertise as tested, high-quality instructions",
+      "Prompts run on the server without involving Claude",
+      "The same prompt can be reused across different client applications",
+      "Prompts let Claude decide when to run a workflow, as tools do",
+      "Prompts replace tools, so the server needs no tool definitions"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "MCP prompts are pre-built, evaluated templates written by the people who know the server's domain, and any client can reuse them. They return messages that are sent to Claude, they are triggered by the user rather than the model, and they work alongside tools.",
+    "source": "07-introduction-to-model-context-protocol/_official-course-notes.md#Defining Prompts"
+  },
+  {
+    "id": "C3-060",
+    "module": 3,
+    "domain": "Tool Design & MCP Integration",
+    "topic": "Getting a prompt",
+    "difficulty": "medium",
+    "question": "A client calls `await session.get_prompt(\"format\", {\"doc_id\": \"report.pdf\"})`. What comes back, and what should the client do with it?",
+    "options": [
+      "A tool schema that the client must add to its tools list",
+      "The formatted document, because the server has already run Claude",
+      "A URI that the client must pass to read_resource",
+      "A list of messages with doc_id filled in, ready to send to Claude"
+    ],
+    "answer": 3,
+    "explanation": "get_prompt passes the arguments to the server's prompt function as keyword arguments, fills them into the template and returns result.messages for the client to send to the model. The server doesn't run Claude itself.",
+    "source": "07-introduction-to-model-context-protocol/_official-course-notes.md#Prompts in the Client"
+  },
+  {
+    "id": "C3-061",
+    "module": 3,
+    "domain": "Tool Design & MCP Integration",
+    "topic": "Primitive control model",
+    "difficulty": "hard",
+    "question": "Which TWO statements correctly describe who controls MCP primitives? (Select TWO.)",
+    "options": [
+      "Tools are model-controlled: Claude decides when to run them",
+      "Resources are user-controlled: users trigger them with slash commands",
+      "Prompts are app-controlled: application code decides when to fetch them",
+      "Resources are app-controlled: application code decides when to fetch data",
+      "Tools are user-controlled: users click a button to run each one"
+    ],
+    "answer": [
+      0,
+      3
+    ],
+    "explanation": "Tools serve the model, resources serve the app and prompts serve users. The distractors swap the controllers; slash commands and buttons trigger prompts, not resources or tools.",
+    "source": "07-introduction-to-model-context-protocol/_official-course-notes.md#MCP Review"
+  },
+  {
+    "id": "C3-062",
+    "module": 3,
+    "domain": "Tool Design & MCP Integration",
+    "topic": "Mapping features to primitives",
+    "difficulty": "easy",
+    "question": "In the Claude interface, the starter buttons below the chat input launch predefined workflows. Which MCP primitive does this correspond to?",
+    "options": [
+      "Prompts",
+      "Tools",
+      "Resources",
+      "Transports"
+    ],
+    "answer": 0,
+    "explanation": "The course uses Claude's chat starter buttons as its example of prompts: user-triggered, predefined workflows. Resources correspond to things like the Google Drive document list, and tools to automatic code execution.",
+    "source": "07-introduction-to-model-context-protocol/_official-course-notes.md#MCP Review"
+  },
+  {
+    "id": "C3-063",
+    "module": 3,
+    "domain": "Tool Design & MCP Integration",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "Choosing resources for UI data",
+    "difficulty": "medium",
+    "question": "A support console needs a dropdown that autocompletes customer account names from the CRM's MCP server as agents type. Claude isn't involved. Which primitive should the server expose?",
+    "options": [
+      "A tool, so that Claude can look up names when it decides to",
+      "A resource that the app reads to populate the UI",
+      "A prompt that is triggered whenever the agent types",
+      "Nothing; the app should bypass MCP and scrape the CRM instead"
+    ],
+    "answer": 1,
+    "explanation": "Resources are app-controlled and meant for getting data into the application, and autocomplete options are one of the course's examples. A tool would wait for Claude to decide to call it, but Claude isn't part of this interaction.",
+    "source": "07-introduction-to-model-context-protocol/_official-course-notes.md#MCP Review"
+  },
+  {
+    "id": "C3-064",
+    "module": 3,
+    "domain": "Tool Design & MCP Integration",
+    "topic": "Client vs server in real projects",
+    "difficulty": "easy",
+    "question": "The course project builds both an MCP client and an MCP server. How does this compare with typical real-world projects?",
+    "options": [
+      "Real projects always build both, because a client can only work with its own matching server",
+      "Real projects build neither side, because Claude provides both the client and the server",
+      "Usually only one side, client or server, is built; doing both here is for learning",
+      "Real projects build only servers, because MCP clients are already built into Claude itself"
+    ],
+    "answer": 2,
+    "explanation": "The course notes that a normal project implements either a client or a server, and that the CLI project does both only for teaching. Any MCP client can talk to any compliant server, so the client doesn't need its own matching server.",
+    "source": "07-introduction-to-model-context-protocol/_official-course-notes.md#Project Setup"
+  },
+  {
+    "id": "C3-065",
+    "module": 3,
+    "domain": "Tool Design & MCP Integration",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Designing resources",
+    "difficulty": "medium",
+    "question": "A document app needs (1) a picker that lists all document IDs and (2) the contents of one chosen document. Following the course, which TWO resources should the server define? (Select TWO.)",
+    "options": [
+      "A direct resource at docs://documents that returns the list of IDs",
+      "A tool named list_docs that Claude calls before every answer",
+      "A templated resource at docs://documents/{doc_id} that returns one document",
+      "A prompt named /docs that returns every document's text",
+      "One resource at docs://documents that returns the full contents of all documents"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "The course pattern is one resource per distinct read operation: a direct resource with a static URI for the list, and a templated resource with a parameterized URI for a single document. A tool would leave a UI data need up to Claude's decisions.",
+    "source": "07-introduction-to-model-context-protocol/_official-course-notes.md#Defining Resources"
+  },
+  {
+    "id": "C3-066",
+    "module": 3,
+    "domain": "Tool Design & MCP Integration",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "Roles in an MCP architecture",
+    "difficulty": "hard",
+    "question": "In a support bot that uses an MCP server for order lookups, which TWO statements are accurate? (Select TWO.)",
+    "options": [
+      "Claude connects to the MCP server directly to fetch order data",
+      "The application sends the user's query plus the server's tool list to Claude",
+      "The MCP client runs the order lookup logic itself",
+      "The MCP server runs the tool, for example by calling the order API",
+      "The MCP server sends prompts to Claude on the application's behalf"
+    ],
+    "answer": [
+      1,
+      3
+    ],
+    "explanation": "Your server sends Claude the query together with the tools listed through the MCP client, and the MCP server actually runs the tools. The MCP client only passes messages along and runs no tool logic, and Claude never connects to the MCP server.",
+    "source": "07-introduction-to-model-context-protocol/_official-course-notes.md#MCP Clients"
+  },
+  {
+    "id": "C3-067",
+    "module": 3,
+    "domain": "Tool Design & MCP Integration",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "Delivering slash-command workflows",
+    "difficulty": "medium",
+    "question": "A team wants support agents to type /summarize-ticket, pick a ticket and get a summary produced by carefully tested instructions that the ticketing team owns. How should this be delivered?",
+    "options": [
+      "As a tool that Claude calls whenever a ticket comes up in the chat",
+      "As a resource that the app fetches on every keystroke",
+      "As a system prompt that each agent pastes in before asking",
+      "As an MCP prompt that takes a ticket ID and returns messages for Claude"
+    ],
+    "answer": 3,
+    "explanation": "A user-triggered slash command running instructions written by the server's owners is what MCP prompts are for: the client fills in the argument and sends the returned messages to Claude. Making it a tool would leave Claude to decide when it runs, which isn't what users asked for.",
+    "source": "07-introduction-to-model-context-protocol/_official-course-notes.md#Defining Prompts"
+  },
+  {
+    "id": "C3-068",
+    "module": 3,
+    "domain": "Tool Design & MCP Integration",
+    "topic": "MCP server components",
+    "difficulty": "easy",
+    "question": "According to the course's MCP architecture, which three components does an MCP server contain?",
+    "options": [
+      "Tools, resources and prompts",
+      "Clients, sessions and transports",
+      "Models, embeddings and indexes",
+      "Routers, chains and aggregators"
+    ],
+    "answer": 0,
+    "explanation": "An MCP client connects to an MCP server, and the server exposes three primitives: tools, resources and prompts. Clients, sessions and transports belong to the connection side, not to what the server offers.",
+    "source": "07-introduction-to-model-context-protocol/_official-course-notes.md#MCP Review"
+  },
+  {
+    "id": "C3-069",
+    "module": 3,
+    "domain": "Tool Design & MCP Integration",
+    "topic": "Prompts that use tools",
+    "difficulty": "medium",
+    "question": "An MCP server's 'format' prompt returns a message telling Claude to read a given document, rewrite it in markdown and save the changes. The user runs /format on report.pdf. How does the document actually get updated?",
+    "options": [
+      "The prompt function edits the document on the server before returning its messages",
+      "Claude receives the messages and calls the server's read and edit tools to update it",
+      "The client parses the prompt text and performs the edit itself without involving Claude",
+      "The resource system updates documents automatically whenever a prompt mentions one"
+    ],
+    "answer": 1,
+    "explanation": "The prompt only provides expert instructions as messages. Claude then uses the server's tools to read, reformat and save the document. The prompt function returns text and has no side effects.",
+    "source": "07-introduction-to-model-context-protocol/_official-course-notes.md#Defining Prompts"
+  },
+  {
+    "id": "C3-070",
+    "module": 3,
+    "domain": "Tool Design & MCP Integration",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Listing prompts for autocomplete",
+    "difficulty": "easy",
+    "question": "A CLI client should show the server's available prompts as slash-command autocomplete options. Which client call supplies them?",
+    "options": [
+      "await session.list_tools()",
+      "await session.read_resource(AnyUrl(\"prompts://all\"))",
+      "await session.list_prompts()",
+      "await session.call_tool(\"list_prompts\", {})"
+    ],
+    "answer": 2,
+    "explanation": "The client discovers prompts with session.list_prompts() and then runs one with get_prompt(name, arguments). list_tools returns tools, and nothing in the course defines a prompts:// resource or a list_prompts tool.",
+    "source": "07-introduction-to-model-context-protocol/_official-course-notes.md#Prompts in the Client"
+  },
+  {
+    "id": "C3-071",
+    "module": 3,
+    "domain": "Context Management & Reliability",
+    "scenario": "Structured Data Extraction",
+    "topic": "Feedback in retry loops",
+    "difficulty": "hard",
+    "question": "An extraction workflow runs extract → verify against the source → if verification fails, re-run extraction with the original prompt. Retries usually repeat the same mistake until the retry limit is hit. What is the best fix?",
+    "options": [
+      "Raise the temperature on retries so each attempt differs from the last",
+      "Increase the retry limit so the loop has more chances to succeed",
+      "Skip verification and keep the first extraction to save cost",
+      "Pass the evaluator's specific findings into the retried extraction call"
+    ],
+    "answer": 3,
+    "explanation": "In the course's evaluator-optimizer example, a failed check sends the work back to the producer with feedback. Without the evaluator's findings, each retry is just a new random attempt. More retries or more randomness don't fix that.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Agents and Workflows"
+  },
+  {
+    "id": "C3-072",
+    "module": 3,
+    "domain": "Context Management & Reliability",
+    "scenario": "Code Generation with Claude Code",
+    "topic": "Read before modify",
+    "difficulty": "medium",
+    "question": "A coding agent updates a shared configuration file by writing the full contents it believes should be there. Teammates' settings keep disappearing. Which practice from the course addresses this?",
+    "options": [
+      "Have the agent read the file's current contents before modifying it",
+      "Give the agent a dedicated update_config tool for each setting",
+      "Rely on the write tool's success message to confirm the change",
+      "Tell the agent in the system prompt to be careful with config files"
+    ],
+    "answer": 0,
+    "explanation": "Environment inspection says agents must read a file's current state before changing it, instead of acting on assumptions. A success message from the write tool only confirms that the write happened, not that existing content was preserved.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Environment Inspection"
+  },
+  {
+    "id": "C3-073",
+    "module": 3,
+    "domain": "Context Management & Reliability",
+    "scenario": "Multi-Agent Research System",
+    "topic": "Context from tools, not preloading",
+    "difficulty": "hard",
+    "question": "At startup, a research agent's system prompt is loaded with a large snapshot of the team's knowledge base, retrieved by RAG. Over long sessions it keeps acting on outdated facts that have since changed. Which change best follows the course's qualities of agents?",
+    "options": [
+      "Make the startup snapshot bigger so that it covers more of the knowledge base at once",
+      "Give it tools to inspect the current state on demand instead of preloaded context",
+      "Repeat the full snapshot in every user turn so that it stays prominent in context",
+      "Tell the agent in its system prompt to assume that the snapshot may be out of date"
+    ],
+    "answer": 1,
+    "explanation": "The course says agents depend on tools, not RAG or detailed prompts, to inspect their environment, and that 'context is king' because the model knows nothing beyond what tools provide. A bigger or repeated snapshot is still a stale snapshot.",
+    "source": "06-claude-in-amazon-bedrock/_official-course-notes.md#Qualities of Agents"
+  },
+  {
+    "id": "C3-074",
+    "module": 3,
+    "domain": "Context Management & Reliability",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Surfacing tool errors",
+    "difficulty": "medium",
+    "question": "An MCP edit tool looks up a document with docs.get(doc_id, \"\") and replaces text in it. When Claude passes a mistyped ID, the tool returns quietly and Claude tells the user 'document updated'. What does the course's implementation do instead?",
+    "options": [
+      "Create a new empty document under the mistyped ID",
+      "Return an empty string so Claude can infer the failure",
+      "Check that doc_id exists and raise a ValueError if it doesn't",
+      "Log a warning on the server and report success to the client"
+    ],
+    "answer": 2,
+    "explanation": "The course's tools check that the document exists and raise a ValueError when it doesn't, so the failure is reported instead of silently looking like success. An empty string is easy for Claude to mistake for a successful edit.",
+    "source": "07-introduction-to-model-context-protocol/_official-course-notes.md#Defining Tools with MCP"
+  },
+  {
+    "id": "C3-075",
+    "module": 3,
+    "domain": "Context Management & Reliability",
+    "scenario": "Claude Code for Continuous Integration",
+    "topic": "Evaluating agents",
+    "difficulty": "medium",
+    "question": "A team wants to add an agent to its CI pipeline after a few successful manual demos. Given that an agent's execution path is unpredictable, what does the course stress before relying on it?",
+    "options": [
+      "Successful demos are enough, because agents adapt to new cases on their own",
+      "Lowering the temperature makes the agent's path predictable enough to skip testing",
+      "Logging every tool call removes the need for any evaluation",
+      "Evals are necessary to confirm the agent is effective before relying on it"
+    ],
+    "answer": 3,
+    "explanation": "The course calls evaluation critical for agents because their paths are hard to predict and test, so evals are needed to confirm they work. A few good demos don't show reliability across varied inputs.",
+    "source": "06-claude-in-amazon-bedrock/_official-course-notes.md#Qualities of Agents"
+  }
+]

@@ -1,0 +1,26 @@
+{
+  "code": "CCDV-F",
+  "title": "Claude Certified Developer – Foundations",
+  "storagePrefix": "ccdf",
+  "setSize": 53,
+  "minutes": 120,
+  "passPercent": 72,
+  "seed": 20261016,
+  "domains": [
+    ["Applications and Integration", 33.1],
+    ["Model Selection and Optimization", 16.8],
+    ["Agents and Workflows", 14.7],
+    ["Prompt and Context Engineering", 11.0],
+    ["Tools and MCPs", 10.6],
+    ["Security and Safety", 8.1],
+    ["Claude Code", 3.1],
+    ["Eval, Testing, and Debugging", 2.6]
+  ],
+  "modules": {
+    "1": "MSO Foundations",
+    "2": "Production-Grade Prompting, Agents & Tool Use",
+    "3": "Claude Code & MCP Integration",
+    "4": "Production Engineering: Evals & Security",
+    "5": "Accelerators & IP Contribution"
+  }
+}

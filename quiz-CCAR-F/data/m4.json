@@ -1,0 +1,1428 @@
+[
+  {
+    "id": "C4-001",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Code Generation with Claude Code",
+    "topic": "Hard rules belong in hooks",
+    "difficulty": "medium",
+    "question": "A team's project CLAUDE.md contains the line \"Never push to main.\" During a long autonomous refactor, Claude still pushed directly to main once. The team needs this to be impossible, not merely unlikely. What should they change?",
+    "options": [
+      "Package the rule as a skill whose description mentions git pushes so it loads when relevant",
+      "Add a PreToolUse hook that inspects git push commands in Bash and denies any push targeting main",
+      "Rewrite the line as \"IMPORTANT: YOU MUST NEVER push to main\" and move it to the top of the file",
+      "Move the rule into the user-level CLAUDE.md so it applies across every project on the machine"
+    ],
+    "answer": 1,
+    "explanation": "CLAUDE.md and skills are guidance that Claude usually follows. A PreToolUse hook is code that runs before the tool call and can actually block it. Adding emphasis raises the rule's priority, but it still depends on Claude following an instruction, so a push can still happen.",
+    "source": "04-claude-code-in-action/02-a-claude-md-that-follows.md"
+  },
+  {
+    "id": "C4-002",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Keeping CLAUDE.md lean",
+    "difficulty": "hard",
+    "question": "A platform team's project CLAUDE.md has grown to about 700 lines of accumulated rules, and developers report Claude increasingly ignores parts of it. Which TWO changes best address the root cause? (Select TWO.)",
+    "options": [
+      "Delete lines nobody can justify and keep the remaining rules specific and checkable",
+      "Split the file into several @-imported files under .claude/conventions/ so less context loads at launch",
+      "Move task-specific procedures into skills so they load only when they apply",
+      "Mark every remaining rule IMPORTANT so each one stands out to Claude",
+      "Duplicate the most-ignored rules into both the project and local CLAUDE.md files"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "Every line competes with every other line for attention, so a leaner file gets followed more reliably. Pruning unjustified lines and moving task-specific material into skills (where only descriptions load until needed) both shrink it. Imports are expanded inline at launch, so they organize the file without reducing what loads. Marking everything IMPORTANT uses up the emphasis budget until nothing stands out.",
+    "source": "04-claude-code-in-action/02-a-claude-md-that-follows.md"
+  },
+  {
+    "id": "C4-003",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Code Generation with Claude Code",
+    "topic": "CLAUDE.md locations: local",
+    "difficulty": "easy",
+    "question": "A developer is refactoring on a personal branch and wants Claude to keep several of their own architectural decisions in mind for this repository only, without affecting teammates or their other projects. Where should these notes go?",
+    "options": [
+      "The project CLAUDE.md checked into the repository",
+      "The user-level CLAUDE.md that applies on their machine",
+      "The local CLAUDE.md for this project, which git ignores",
+      "The managed policy CLAUDE.md controlled by the platform team"
+    ],
+    "answer": 2,
+    "explanation": "The local file is ignored by git and personal to one repository, which is exactly the course's refactor example. The project file is shared with the whole team. The user file would carry the notes into every project on the machine.",
+    "source": "04-claude-code-in-action/02-a-claude-md-that-follows.md"
+  },
+  {
+    "id": "C4-004",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "topic": "How CLAUDE.md locations combine",
+    "difficulty": "medium",
+    "question": "Which TWO statements correctly describe how Claude Code handles the four CLAUDE.md locations (managed policy, user, project, local)? (Select TWO.)",
+    "options": [
+      "User-level preferences override managed policy whenever the two conflict",
+      "All four are loaded together at launch and their contents stack",
+      "Managed policy cannot be excluded, so organization policy is always in play",
+      "The most specific file wins, so local content replaces project and user content",
+      "The local file is checked into the repository so the whole team shares it"
+    ],
+    "answer": [
+      1,
+      2
+    ],
+    "explanation": "Claude loads all four locations together at launch and nothing is dropped. Managed policy is controlled by the organization and cannot be excluded. A common mistake is to treat the files as an override chain where the most specific one wins, but they stack rather than replace each other.",
+    "source": "04-claude-code-in-action/02-a-claude-md-that-follows.md"
+  },
+  {
+    "id": "C4-005",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Code Generation with Claude Code",
+    "topic": "Specific, checkable rules",
+    "difficulty": "medium",
+    "question": "Code reviews show Claude scattering new API route handlers across the codebase, even though CLAUDE.md says \"Follow best practices for API routes.\" What is the best rewrite of that line?",
+    "options": [
+      "IMPORTANT: API routes must follow our established best practices",
+      "Keep API routes organized and consistent with existing code",
+      "Always follow industry best practices for REST API route design",
+      "Put new API routes in src/api/handlers, one per file"
+    ],
+    "answer": 3,
+    "explanation": "A rule sticks when it is specific and checkable, meaning you can look at the result and tell whether it was followed. Adding emphasis to a vague rule raises its priority, but Claude still has to guess what \"best practices\" means.",
+    "source": "04-claude-code-in-action/02-a-claude-md-that-follows.md"
+  },
+  {
+    "id": "C4-006",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "topic": "Name the replacement",
+    "difficulty": "medium",
+    "question": "A CLAUDE.md contains \"Don't use default exports.\" Claude stops using default exports but starts producing an inconsistent mix of alternatives across modules. Based on the course's phrasing guidance, what is the fix?",
+    "options": [
+      "Add a second line listing every other export pattern that is also forbidden",
+      "Rephrase it as \"Use named exports, not default exports\" so the replacement is named",
+      "Move the rule into a PostToolUse hook that rejects any file containing exports",
+      "Prefix the rule with YOU MUST so Claude treats it as a higher priority"
+    ],
+    "answer": 1,
+    "explanation": "Banning something without saying what to use instead leaves the door open. Naming the replacement closes it. Adding more bans or more emphasis still doesn't tell Claude what it should do.",
+    "source": "04-claude-code-in-action/02-a-claude-md-that-follows.md"
+  },
+  {
+    "id": "C4-007",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Emphasis is a budget",
+    "difficulty": "hard",
+    "question": "To reduce rule violations, a team prefixed 30 of the 40 lines in their CLAUDE.md with \"IMPORTANT\" or \"YOU MUST.\" Compliance did not improve. What explains this, and what should they do?",
+    "options": [
+      "The keywords need stronger variants such as CRITICAL so they outrank the existing emphasized lines",
+      "Emphasis only takes effect in managed policy files, so the emphasized rules should be moved there",
+      "Claude ignores capitalized keywords entirely, so the emphasized rules should be rewritten as lowercase prose",
+      "Emphasis is relative, so spend it only on the two or three rules that hurt most when broken"
+    ],
+    "answer": 3,
+    "explanation": "Emphasis works only relative to the rules around it. When every rule shouts, nothing stands out. The course treats emphasis as a budget to spend on a few high-impact rules. Switching to stronger words just repeats the same inflation.",
+    "source": "04-claude-code-in-action/02-a-claude-md-that-follows.md"
+  },
+  {
+    "id": "C4-008",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "topic": "Revising CLAUDE.md",
+    "difficulty": "easy",
+    "question": "Claude repeatedly puts test fixtures in the wrong folder, and the developer fixes the files by hand each time. What does the course recommend instead?",
+    "options": [
+      "Start a fresh session each time so the mistake is not carried forward",
+      "Rerun the work in plan mode so Claude can no longer write fixtures at all",
+      "Keep fixing them by hand, since CLAUDE.md should only hold rules written up front",
+      "Treat it as a bug report against CLAUDE.md and tell Claude to add the rule to the file"
+    ],
+    "answer": 3,
+    "explanation": "CLAUDE.md is never finished. When Claude does the wrong thing, treat it as a bug report against the file. You can tell Claude to \"add that to the CLAUDE.md file\" and it writes the rule. Fixing things by hand means the same mistake comes back.",
+    "source": "04-claude-code-in-action/02-a-claude-md-that-follows.md"
+  },
+  {
+    "id": "C4-009",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Choosing the instruction surface",
+    "difficulty": "medium",
+    "question": "A team is sorting its instructions into CLAUDE.md, skills, and hooks. Which TWO of the following belong in hooks? (Select TWO.)",
+    "options": [
+      "The step-by-step release checklist used before tagging a version",
+      "The naming convention for React components",
+      "Never run a DROP statement against the production database from Bash",
+      "Refuse to end the turn on an unattended run unless the test suite passes",
+      "The folder where new database migration files should be placed"
+    ],
+    "answer": [
+      2,
+      3
+    ],
+    "explanation": "Rules that Claude must not be able to skip belong in hooks, because hooks are code that runs. A PreToolUse hook can block the DROP, and a Stop hook can refuse to end the turn. Conventions that always apply, like naming and file locations, belong in CLAUDE.md. A procedure tied to one kind of task, like a release checklist, belongs in a skill.",
+    "source": "04-claude-code-in-action/03-verification-skills.md"
+  },
+  {
+    "id": "C4-010",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Code Generation with Claude Code",
+    "topic": "Verification skill procedure",
+    "difficulty": "hard",
+    "question": "After a refactor, Claude reports \"all tests pass.\" A reviewer later finds that Claude loosened an assertion so a failing test would go green. The team wants a verification skill that catches this automatically. Which procedure fits the course's verification-skill shape?",
+    "options": [
+      "Read the diff and confirm the code looks right before declaring the work done",
+      "Run the tests, read the diff, check that no test was weakened, and report pass/fail with evidence",
+      "Run the full test suite and report success to the user whenever the test runner's exit code is zero",
+      "Ask Claude to summarize its own changes and flag anything it considers risky"
+    ],
+    "answer": 1,
+    "explanation": "Green tests alone are not enough, because a test can be quietly loosened until it passes. Reading the diff alone is not enough either. Done means the gates were run and observed, and the results were stated. A check based only on the exit code would miss the weakened assertion.",
+    "source": "04-claude-code-in-action/03-verification-skills.md"
+  },
+  {
+    "id": "C4-011",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Skill folder structure",
+    "difficulty": "medium",
+    "question": "A team's verification skill.md has grown to 900 lines: the procedure, long background explanations, and an inline shell script that runs all the quality gates. Which TWO restructurings follow the course's guidance? (Select TWO.)",
+    "options": [
+      "Move the background into a reference.md linked from skill.md, which Claude reads only when needed",
+      "Put the gate script in the skill folder as check.sh so Claude executes it instead of loading it",
+      "Split skill.md into several @-imports so it loads into context in smaller pieces",
+      "Convert the whole procedure into a PostToolUse hook and delete the skill",
+      "Move the background into CLAUDE.md so it is always available when the skill runs"
+    ],
+    "answer": [
+      0,
+      1
+    ],
+    "explanation": "Keep skill.md lean and push depth into side files. A linked reference.md is read only when Claude needs that detail, and scripts in the folder are executed rather than loaded into context. Moving the material into CLAUDE.md would make it load all the time, and imports are expanded at launch, so neither one reduces the load.",
+    "source": "04-claude-code-in-action/03-verification-skills.md"
+  },
+  {
+    "id": "C4-012",
+    "module": 4,
+    "domain": "Context Management & Reliability",
+    "scenario": "Claude Code for Continuous Integration",
+    "topic": "Diff first, not the summary",
+    "difficulty": "medium",
+    "question": "A Claude run executed unattended in CI and produced a tidy summary saying it updated three service files as planned. What should the reviewer examine first?",
+    "options": [
+      "The CI job duration, since unexpected extra work shows up as a longer run",
+      "The summary, followed by a spot-check of the three files it names",
+      "The auto-mode classifier log, since it confirms that each action was correct",
+      "The diff, via /code-review and git diff, checking for files outside the plan"
+    ],
+    "answer": 3,
+    "explanation": "Start with the diff, not the summary. A clean write-up can read perfectly well while the diff touched files nobody expected, and the summary won't mention them. The classifier only flags dangerous actions and never judges correctness.",
+    "source": "04-claude-code-in-action/08-trust-it-verifying-unsupervised-runs.md"
+  },
+  {
+    "id": "C4-013",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "topic": "Skill context cost",
+    "difficulty": "medium",
+    "question": "An engineering lead hesitates to add 40 skills to the repository, worried that they will crowd Claude's context window on every request. What should the lead know?",
+    "options": [
+      "Each skill's full skill.md loads at launch, so only the ten most-used skills should be kept",
+      "Skills share one context budget with CLAUDE.md, so each skill should be imported from CLAUDE.md",
+      "Only skill descriptions load until a skill is needed, so packaging procedures is cheap",
+      "Skills load only when invoked by slash command, so their descriptions never use any context"
+    ],
+    "answer": 2,
+    "explanation": "Until a skill is actually needed, only its description is in context. That is why the course says there is no cost to packaging every procedure you repeat. The description does load, though, and it is what triggers the skill, so saying descriptions use no context is wrong.",
+    "source": "04-claude-code-in-action/03-verification-skills.md"
+  },
+  {
+    "id": "C4-014",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Code Generation with Claude Code",
+    "topic": "Skill triggering",
+    "difficulty": "hard",
+    "question": "A team checked a verification skill into .claude/skills. It works when someone invokes it directly, but it never fires on its own after Claude finishes a refactor, which was the whole point. What is the most likely cause?",
+    "options": [
+      "Skills fire automatically only when CLAUDE.md references them with an @-import",
+      "Skills never trigger on their own, so a PostToolUse hook has to invoke each one after every edit",
+      "The skill folder lacks a reference.md file, which automatic triggering requires",
+      "Its description doesn't match that kind of change, and descriptions are what trigger skills"
+    ],
+    "answer": 3,
+    "explanation": "A skill fires when the work matches its description. That is how a verification skill runs after a refactor without anyone asking. If the description doesn't describe the change, the skill won't trigger. Skills don't need imports, hooks, or a reference.md to fire.",
+    "source": "04-claude-code-in-action/03-verification-skills.md"
+  },
+  {
+    "id": "C4-015",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Claude Code for Continuous Integration",
+    "topic": "Don't ask mode for unattended runs",
+    "difficulty": "medium",
+    "question": "An overnight batch job runs Claude Code with no one watching, and it keeps stalling for hours on approval prompts. The team wants only an explicit set of tools to run, with everything else refused immediately. Which permission mode fits?",
+    "options": [
+      "Plan, so Claude proposes the actions for someone to review in the morning",
+      "Accept edits, so file changes no longer need any approval",
+      "Auto, so the classifier approves the actions that were stalling",
+      "Don't ask, so pre-approved tools run and everything else is auto-denied"
+    ],
+    "answer": 3,
+    "explanation": "Don't ask allows only pre-approved tools and auto-denies everything else without prompting. That is why it suits CI, scheduled jobs, and overnight batches where nobody is there to approve. Auto mode accepts any action its classifier doesn't flag, which is broader than an explicit tool list.",
+    "source": "04-claude-code-in-action/04-permission-modes.md"
+  },
+  {
+    "id": "C4-016",
+    "module": 4,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Code Generation with Claude Code",
+    "topic": "Auto mode plus stop hook",
+    "difficulty": "hard",
+    "question": "A developer runs a hands-off session in auto mode and asks Claude to refactor authentication. The classifier allows every action, yet the resulting login flow is broken. What best explains this, and what should be added?",
+    "options": [
+      "The classifier guards intent, not correctness, so pair auto mode with a Stop hook that runs the tests",
+      "The classifier only checks Bash commands, so switch to accept edits to have file edits reviewed",
+      "Auto mode skips review for auth code, so add a CLAUDE.md rule requiring careful auth changes",
+      "The classifier was too permissive, so switch to bypass permissions with a stricter allow list"
+    ],
+    "answer": 0,
+    "explanation": "Auto mode's classifier checks each action for intent that goes beyond what you asked for. Broken code isn't dangerous, so it gets waved through. A Stop hook that runs the tests confirms correctness after Claude finishes. Bypass permissions removes checks instead of adding them.",
+    "source": "04-claude-code-in-action/04-permission-modes.md"
+  },
+  {
+    "id": "C4-017",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "topic": "Bypass permissions",
+    "difficulty": "easy",
+    "question": "When does the course say bypass permissions mode (the equivalent of the dangerously-skip-permissions flag) is appropriate?",
+    "options": [
+      "Whenever a CI pipeline would otherwise hang on prompts",
+      "For senior developers working on their own branches",
+      "Only inside an isolated container or virtual machine",
+      "Once a stop hook already runs the full test suite"
+    ],
+    "answer": 2,
+    "explanation": "Bypass permissions skips all checks, so the course limits it to isolated containers or VMs. For CI pipelines that would otherwise hang, the recommended mode is don't ask, which runs only pre-approved tools.",
+    "source": "04-claude-code-in-action/04-permission-modes.md"
+  },
+  {
+    "id": "C4-018",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Code Generation with Claude Code",
+    "topic": "Accept edits mode",
+    "difficulty": "easy",
+    "question": "A developer wants to iterate quickly on a feature. Claude should read files, edit code, and run common file-system commands without asking, and the developer will review the diff afterward. Other commands should still prompt. Which mode fits?",
+    "options": [
+      "Manual",
+      "Accept edits",
+      "Bypass permissions",
+      "Plan"
+    ],
+    "answer": 1,
+    "explanation": "Accept edits runs reads, file edits, and common file-system bash commands without asking, and everything else still prompts. It is meant for iterating on code you review afterward. Manual asks before every non-read action, and bypass skips all checks.",
+    "source": "04-claude-code-in-action/04-permission-modes.md"
+  },
+  {
+    "id": "C4-019",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "topic": "Auto mode classifier scope",
+    "difficulty": "medium",
+    "question": "A team is evaluating auto mode for hands-off sessions. Which TWO actions is its classifier designed to block? (Select TWO.)",
+    "options": [
+      "Installing dependencies from the project's lock file",
+      "Editing local source files inside the project",
+      "Sending sensitive data to an external endpoint",
+      "Force pushing to a shared branch",
+      "Pushing commits to the developer's own branch"
+    ],
+    "answer": [
+      2,
+      3
+    ],
+    "explanation": "The classifier watches for actions that go beyond what you asked for, such as force pushes, production deploys, piping downloaded code into a shell, and sending sensitive data to external endpoints. Local edits, lock-file installs, read-only requests, and pushes to your own branch count as everyday work, and the classifier lets them through.",
+    "source": "04-claude-code-in-action/04-permission-modes.md"
+  },
+  {
+    "id": "C4-020",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Code Generation with Claude Code",
+    "topic": "Plan mode before long tasks",
+    "difficulty": "medium",
+    "question": "Before a refactor that touches a dozen files, a developer wants Claude to read the code and work out what must change without modifying anything, then refine the approach before any execution. What is the recommended approach?",
+    "options": [
+      "Use plan mode, read the plan carefully, and ask Claude to add what's missing",
+      "Start in auto mode so the classifier stops any edit outside the intended scope",
+      "Run in accept edits mode and use rewind if the changes go wrong",
+      "Set a /goal describing the finished refactor and let Claude work toward it"
+    ],
+    "answer": 0,
+    "explanation": "Plan mode researches without editing anything and hands you a plan to review. Reading that plan closely and iterating on it is much faster than letting Claude run and cleaning up afterward. Rewinding after bad edits is a recovery tool, not a way to scope the work up front.",
+    "source": "04-claude-code-in-action/01-steering-long-sessions.md"
+  },
+  {
+    "id": "C4-021",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Code Generation with Claude Code",
+    "topic": "Test-driven workflow",
+    "difficulty": "medium",
+    "question": "A developer wants Claude Code to build a feature using a test-driven workflow. Which sequence matches the approach taught in the course?",
+    "options": [
+      "Ask Claude to write every possible test and the implementation in one prompt, then review the diff",
+      "Ask Claude to implement the feature first, then ask it to write tests covering what it built",
+      "Have Claude plan the feature, implement it, and then generate tests from the written plan",
+      "Give context, have Claude suggest tests, implement the chosen ones, then code until they pass"
+    ],
+    "answer": 3,
+    "explanation": "In the test-driven workflow you provide context, ask Claude to suggest tests, pick and implement the relevant ones, and then have Claude write code until they pass. Writing tests after the implementation means they only describe what was built, not what was required.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md"
+  },
+  {
+    "id": "C4-022",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Code Generation with Claude Code",
+    "topic": "Hook exit codes",
+    "difficulty": "hard",
+    "question": "A PreToolUse hook script detects a dangerous rm -rf command, prints a warning to stderr, and exits with code 1. In testing, the command still runs. What should be changed?",
+    "options": [
+      "Exit with code 2, which blocks the call and feeds stderr back to Claude",
+      "Move the check into a PostToolUse hook, which is where blocking happens",
+      "Print the warning to stdout instead of stderr so that Claude reads it",
+      "Exit with code 0 and print plain text explaining why the call is unsafe"
+    ],
+    "answer": 0,
+    "explanation": "Exit code 2 is the blocking error almost everywhere, and its stderr is fed back to Claude. Any other non-zero code, including 1, is non-blocking: stderr is logged and the command runs anyway. PostToolUse fires after the tool has already run, so it can't prevent the call.",
+    "source": "04-claude-code-in-action/05-hooks.md"
+  },
+  {
+    "id": "C4-023",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "topic": "permissionDecision values",
+    "difficulty": "easy",
+    "question": "A PreToolUse hook should neither silently allow nor flatly refuse certain database commands. Instead, the developer should decide each time. Which permissionDecision value should the hook return in its JSON output?",
+    "options": [
+      "allow",
+      "ask",
+      "deny",
+      "defer"
+    ],
+    "answer": 1,
+    "explanation": "The value ask hands the decision back to the user. The value defer may look similar, but it applies only to non-interactive -p runs, where a calling process pauses the tool and resumes it later.",
+    "source": "04-claude-code-in-action/05-hooks.md"
+  },
+  {
+    "id": "C4-024",
+    "module": 4,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Claude Code for Continuous Integration",
+    "topic": "updatedInput replaces input",
+    "difficulty": "hard",
+    "question": "A PreToolUse hook on Bash redacts secrets by printing this and exiting 0:\n{\"hookSpecificOutput\": {\"hookEventName\": \"PreToolUse\", \"permissionDecision\": \"allow\", \"updatedInput\": {\"command\": \"<redacted command>\"}}}\nAfter deploying it, the team finds that other parameters Claude passed alongside the command are lost on those calls. Why?",
+    "options": [
+      "updatedInput is only merged on PostToolUse, and on PreToolUse it resets inputs to defaults",
+      "Redaction requires exit code 2, and exit 0 discards every field except the command",
+      "permissionDecision must be ask whenever updatedInput is present, or extra fields are dropped",
+      "updatedInput replaces the whole input object, so the unchanged fields must be echoed back"
+    ],
+    "answer": 3,
+    "explanation": "updatedInput doesn't merge. It replaces the entire tool input, so any field you aren't changing has to be echoed back or it is lost. Exit 0 with JSON on stdout is the correct way to return the decision, so the exit code isn't the problem.",
+    "source": "04-claude-code-in-action/05-hooks.md"
+  },
+  {
+    "id": "C4-025",
+    "module": 4,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Claude Code for Continuous Integration",
+    "topic": "Redact instead of block",
+    "difficulty": "medium",
+    "question": "A CI agent sometimes runs Bash commands that include a live API key (sk_live_...). The team wants these commands to still execute so the job completes, but the secret must never reach the shell. What should the PreToolUse hook do?",
+    "options": [
+      "Use a PostToolUse hook instead to scrub the key from the command's output",
+      "Return permissionDecision deny with a reason asking Claude to retry without the key",
+      "Return updatedInput with the key replaced by a placeholder so the rewritten command runs",
+      "Exit with code 1 so the call is logged for audit and then allowed to continue"
+    ],
+    "answer": 2,
+    "explanation": "Rewriting the call with updatedInput strips the secret and still lets the command run, which is the course's redact-instead-of-block pattern. Deny stops the work entirely. A PostToolUse hook runs after the secret has already reached the shell.",
+    "source": "04-claude-code-in-action/05-hooks.md"
+  },
+  {
+    "id": "C4-026",
+    "module": 4,
+    "domain": "Context Management & Reliability",
+    "scenario": "Code Generation with Claude Code",
+    "topic": "Re-injecting context after compaction",
+    "difficulty": "hard",
+    "question": "After each compaction in long sessions, Claude loses track of which files it was editing. A developer writes a PostCompact hook that prints a summary of the working files, but Claude still starts cold. What should they do instead?",
+    "options": [
+      "Add the working-file list to CLAUDE.md manually before every compaction",
+      "Use a PreCompact hook so the summary is captured before the details are dropped",
+      "Make the PostCompact hook exit with code 2 so its stderr reaches Claude",
+      "Use a SessionStart hook with the compact matcher to print the summary back into context"
+    ],
+    "answer": 3,
+    "explanation": "To re-inject context after compaction, the course says to use SessionStart with the compact matcher, not PostCompact. On SessionStart, plain-text stdout is added to the conversation. PostCompact output doesn't get back into context, so changing its exit code doesn't help.",
+    "source": "04-claude-code-in-action/05-hooks.md"
+  },
+  {
+    "id": "C4-027",
+    "module": 4,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Code Generation with Claude Code",
+    "topic": "PreToolUse vs PostToolUse",
+    "difficulty": "hard",
+    "question": "A team wanted to stop Claude from writing to the migrations/ folder. They added a PostToolUse hook on the Write tool that exits 2 with an error when the path matches, yet files still land in migrations/. What is wrong?",
+    "options": [
+      "PostToolUse fires after the tool has run, so it can only feed text back; the check belongs in PreToolUse",
+      "Exit 2 is ignored on PostToolUse; the hook should print permissionDecision deny on stdout instead",
+      "The hook needs the compact matcher so that it reloads after every context summary",
+      "PostToolUse hooks only fire for Bash calls, so a Stop hook is needed to catch Write calls"
+    ],
+    "answer": 0,
+    "explanation": "PostToolUse fires after a tool call succeeds, so blocking there is too late. It can only feed text back to Claude. PreToolUse is the enforcement primitive that stops a call before it happens.",
+    "source": "04-claude-code-in-action/05-hooks.md"
+  },
+  {
+    "id": "C4-028",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "topic": "Plain-text hook output",
+    "difficulty": "medium",
+    "question": "A hook exits 0 and prints plain text (not JSON) to stdout. On which TWO events is that text added to Claude's context? (Select TWO.)",
+    "options": [
+      "PostToolUse",
+      "Stop",
+      "PreToolUse",
+      "UserPromptSubmit",
+      "SessionStart"
+    ],
+    "answer": [
+      3,
+      4
+    ],
+    "explanation": "With exit 0, plain text is ignored on most events but added to context on SessionStart, UserPromptSubmit, and prompt expansion. That is what makes state-preserving hooks work. On tool and Stop events you need JSON or exit 2 to talk back to Claude.",
+    "source": "04-claude-code-in-action/05-hooks.md"
+  },
+  {
+    "id": "C4-029",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "topic": "InstructionsLoaded hook",
+    "difficulty": "easy",
+    "question": "A developer suspects that one of the team's rule files is not reaching Claude's context in some sessions. Which hook event is designed for auditing which instruction files were loaded?",
+    "options": [
+      "InstructionsLoaded",
+      "SessionStart",
+      "PreCompact",
+      "UserPromptSubmit"
+    ],
+    "answer": 0,
+    "explanation": "InstructionsLoaded fires when a CLAUDE.md or rule file loads, which makes it the event for auditing what actually made it into context. SessionStart is for priming the environment and doesn't report each file that loads.",
+    "source": "04-claude-code-in-action/05-hooks.md"
+  },
+  {
+    "id": "C4-030",
+    "module": 4,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Multi-Agent Research System",
+    "topic": "SubagentStop gating",
+    "difficulty": "medium",
+    "question": "In a research system built on Claude Code, a literature-search subagent sometimes finishes and returns findings without source citations. The team wants a deterministic check that runs whenever that subagent finishes and refuses output that lacks citations. Which hook event fits?",
+    "options": [
+      "PostToolUse",
+      "SubagentStop",
+      "SessionStart",
+      "Notification"
+    ],
+    "answer": 1,
+    "explanation": "SubagentStop is the subagent version of Stop. It fires when a subagent finishes, so a hook there can refuse output that fails the check. PostToolUse fires after individual tool calls, not when the subagent's work ends.",
+    "source": "04-claude-code-in-action/05-hooks.md"
+  },
+  {
+    "id": "C4-031",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Events that ignore blocking",
+    "difficulty": "hard",
+    "question": "A team wrote a SessionStart hook that exits 2 when required environment variables are missing, expecting it to stop the session from proceeding. Sessions continue anyway. Why?",
+    "options": [
+      "On SessionStart the hook must exit 1, because exit 2 is reserved for tool events",
+      "SessionStart only fires on resumed sessions, so fresh starts skip the check entirely",
+      "Exit 2 only blocks when the hook also prints JSON with permissionDecision set to deny",
+      "SessionStart ignores blocking, so stderr is shown and execution carries on"
+    ],
+    "answer": 3,
+    "explanation": "A few events, including SessionStart and Notification, ignore blocking. They show stderr and carry on whatever the exit code. Exit 1 is non-blocking everywhere, so switching to it would not help either.",
+    "source": "04-claude-code-in-action/05-hooks.md"
+  },
+  {
+    "id": "C4-032",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Claude Code for Continuous Integration",
+    "topic": "Routines for recurring work",
+    "difficulty": "easy",
+    "question": "A team wants a dependency audit to run against its repository every morning at 9am. Nobody wants to host a server, keep a machine on, or maintain a workflow file. What does the course recommend?",
+    "options": [
+      "A routine on Anthropic's managed infrastructure with a cron schedule",
+      "An Agent SDK service deployed to the team's own cluster",
+      "A headless claude -p call scheduled from a developer's laptop",
+      "A loop running inside a long-lived interactive session"
+    ],
+    "answer": 0,
+    "explanation": "A routine bundles a prompt, a repository, and connectors, and runs on Anthropic's infrastructure on a trigger such as a cron schedule. There's nothing to host. The headless and SDK options both need your own machine or service.",
+    "source": "04-claude-code-in-action/06-routines-and-headless.md"
+  },
+  {
+    "id": "C4-033",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "topic": "Routine schedule limits",
+    "difficulty": "easy",
+    "question": "An operations team wants Claude to check a service every 15 minutes, unattended, and act on changes. They first try a routine with a recurring schedule. What constraint makes this a poor fit?",
+    "options": [
+      "Recurring routine schedules run at most once an hour",
+      "Routines cannot use connectors to reach external services",
+      "Routines need a machine of yours to stay on between runs",
+      "Routines can only be triggered by GitHub events, not by schedules"
+    ],
+    "answer": 0,
+    "explanation": "Recurring routine schedules run at most hourly, so a 15-minute cadence needs a different tool. Routines do support cron, HTTP, and GitHub triggers, they run on Anthropic's infrastructure, and they can bundle connectors.",
+    "source": "04-claude-code-in-action/06-routines-and-headless.md"
+  },
+  {
+    "id": "C4-034",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Claude Code for Continuous Integration",
+    "topic": "Routine branch guardrails",
+    "difficulty": "hard",
+    "question": "A routine is set up to fix lint issues each morning. The team is surprised that it can't see work on their long-running feature branch, and that its attempt to push straight to main fails. Which TWO routine behaviors explain this? (Select TWO.)",
+    "options": [
+      "Routines are read-only and can never push commits to any branch at all",
+      "Each run starts from a fresh clone of the repository's default branch",
+      "By default, runs can only push to claude/-prefixed branches unless that is loosened per repo",
+      "Routines check out whichever branch received the most recent commit",
+      "Routines run against the working copy on the last machine that edited the repo"
+    ],
+    "answer": [
+      1,
+      2
+    ],
+    "explanation": "Every routine run starts from a fresh clone of the default branch and can push only to claude/-prefixed branches unless you loosen that per repository. That guardrail keeps an autonomous run from rewriting main. Routines can push, but only to those allowed branches.",
+    "source": "04-claude-code-in-action/06-routines-and-headless.md"
+  },
+  {
+    "id": "C4-035",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "Routine HTTP trigger",
+    "difficulty": "medium",
+    "question": "Whenever a support ticket is escalated to engineering, the support team's ticketing system should start a Claude routine that investigates the codebase for the root cause. Which routine trigger fits?",
+    "options": [
+      "A loop in a developer's session that polls the ticket queue",
+      "An HTTP POST from the ticketing system to the routine's API endpoint",
+      "A cron schedule that checks for escalated tickets every minute",
+      "A GitHub event fired at the moment the ticket is escalated"
+    ],
+    "answer": 1,
+    "explanation": "Routines can be triggered by an HTTP POST to their API endpoint, so your own systems can start them. A per-minute cron isn't possible because recurring schedules run at most hourly. Escalating a ticket is not a GitHub event.",
+    "source": "04-claude-code-in-action/06-routines-and-headless.md"
+  },
+  {
+    "id": "C4-036",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Structured Data Extraction",
+    "topic": "Headless structured output",
+    "difficulty": "medium",
+    "question": "A pipeline needs Claude Code to extract exported function names from source files and load them into a database as a clean JSON array with no prose. Which headless invocation pattern fits?",
+    "options": [
+      "claude --resume on an earlier session that listed the function names in prose",
+      "claude -p with --output-format json and --json-schema, then read .structured_output with jq",
+      "claude -p with --max-turns 1 so that the response contains only the array",
+      "claude -p with an instruction to answer only in JSON, then parse stdout with a regex"
+    ],
+    "answer": 1,
+    "explanation": "Pairing a JSON schema with the JSON output format makes Claude constrain its output to that schema. The matching object lands in the structured_output field, where jq can pull it out. Asking for JSON in the prompt is not a constraint, and parsing stdout with a regex is fragile.",
+    "source": "04-claude-code-in-action/06-routines-and-headless.md"
+  },
+  {
+    "id": "C4-037",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Claude Code for Continuous Integration",
+    "topic": "Resuming headless sessions",
+    "difficulty": "medium",
+    "question": "A CI job runs Claude headlessly to produce a migration plan. A separate job later must carry out that plan with the full context of the planning run. How should the two jobs be connected?",
+    "options": [
+      "Pass the session_id from the first run's JSON output to claude --resume",
+      "Pipe the first run's stdout into the second run's stdin as its prompt",
+      "Run both steps in one claude -p call with a very large --max-turns value",
+      "Write the plan into CLAUDE.md so that the second run loads it automatically"
+    ],
+    "answer": 0,
+    "explanation": "For multi-step automation, capture the session ID from the JSON output and resume it later. The second run then has the planning session's full context. Piping stdout passes along only the final text, not the context behind it.",
+    "source": "04-claude-code-in-action/06-routines-and-headless.md"
+  },
+  {
+    "id": "C4-038",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "topic": "Deterministic CI runs",
+    "difficulty": "easy",
+    "question": "A CI pipeline needs Claude Code to give repeatable, predictable results on every run. Which flag does the course recommend for this?",
+    "options": [
+      "--bare",
+      "--print",
+      "--resume",
+      "--output-format json"
+    ],
+    "answer": 0,
+    "explanation": "The course presents --bare as the mode for CI runs that need the same results every time. --print (-p) only makes a run one-shot and non-interactive. --resume continues an existing session.",
+    "source": "04-claude-code-in-action/06-routines-and-headless.md"
+  },
+  {
+    "id": "C4-039",
+    "module": 4,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Agent SDK",
+    "difficulty": "medium",
+    "question": "A product team wants Claude Code's agent loop embedded inside its own Python application. The app should control which tools Claude may use, set a system prompt, and choose a permission mode in code. What fits?",
+    "options": [
+      "A routine that the application triggers with an HTTP POST to the routine's API endpoint",
+      "Shelling out to claude -p from the app and parsing its plain-text stdout line by line",
+      "The Agent SDK query function with allowedTools, system prompt, and permission mode",
+      "The managed Code Review service with a custom trigger phrase"
+    ],
+    "answer": 2,
+    "explanation": "The Agent SDK embeds Claude Code in TypeScript or Python apps. It exposes a query function that takes the same options as the CLI and streams messages back. A routine runs on Anthropic's infrastructure, not inside your product.",
+    "source": "04-claude-code-in-action/06-routines-and-headless.md"
+  },
+  {
+    "id": "C4-040",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Claude Code for Continuous Integration",
+    "topic": "Routines vs headless",
+    "difficulty": "hard",
+    "question": "A team automates a nightly job with Claude. It must read build artifacts that exist only on their internal CI runners and feed its results into the next script in their pipeline. Following the course's advice to start with routines and drop down only when needed, what should they use?",
+    "options": [
+      "A routine, because the course makes routines the default for all repeat work",
+      "The managed Code Review service, configured to run on every push",
+      "Bypass permissions mode in a developer's interactive session",
+      "Headless claude -p in their pipeline, since the job needs their environment"
+    ],
+    "answer": 3,
+    "explanation": "Routines are the default, but they run from a fresh clone on Anthropic's infrastructure. When a job needs your own environment or logic around the run, you drop to headless mode. Treating \"start with routines\" as an absolute rule is the trap here.",
+    "source": "04-claude-code-in-action/06-routines-and-headless.md"
+  },
+  {
+    "id": "C4-041",
+    "module": 4,
+    "domain": "Context Management & Reliability",
+    "scenario": "Claude Code for Continuous Integration",
+    "topic": "Verifying headless runs",
+    "difficulty": "medium",
+    "question": "A nightly headless Claude run in CI ends with text saying the migration \"completed successfully.\" How should an automated check verify that run?",
+    "options": [
+      "Check the run's JSON result and its process exit code",
+      "Parse the final prose for words like \"successfully\" or \"failed\"",
+      "Trust the summary, since auto mode's classifier reviewed every action",
+      "Ask a second headless run whether the first one succeeded"
+    ],
+    "answer": 0,
+    "explanation": "Headless runs should be verified by their JSON result and exit code, not by the wording of a summary. The auto-mode classifier only flags dangerous actions and never judges whether the work succeeded.",
+    "source": "04-claude-code-in-action/08-trust-it-verifying-unsupervised-runs.md"
+  },
+  {
+    "id": "C4-042",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Claude Code for Continuous Integration",
+    "topic": "Managed Code Review behavior",
+    "difficulty": "medium",
+    "question": "An org admin enables Anthropic's managed Code Review on several repositories. Which TWO statements describe how it behaves? (Select TWO.)",
+    "options": [
+      "It approves PRs with no findings and blocks PRs that have severe ones",
+      "It posts findings as inline comments on specific lines, tagged by severity",
+      "It reviews only the changed lines, without looking at the rest of the codebase",
+      "It automatically pushes a fix commit for each finding that it posts",
+      "It never approves or blocks a PR, leaving the judgment call to a human"
+    ],
+    "answer": [
+      1,
+      4
+    ],
+    "explanation": "Code Review posts deduplicated inline findings tagged by severity, plus a summary table in the check run. It never approves or blocks, so a human makes the call. It analyzes the diff against the full codebase, and there is no managed autofix.",
+    "source": "04-claude-code-in-action/07-github-actions-and-code-review.md"
+  },
+  {
+    "id": "C4-043",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Claude Code for Continuous Integration",
+    "topic": "Applying review findings",
+    "difficulty": "medium",
+    "question": "Managed Code Review flagged several issues on a developer's pull request, and the developer wants those findings applied to the code. What is the course's recommended flow?",
+    "options": [
+      "Approve the Code Review check run so it commits its suggestions",
+      "Pull the branch and run /code-review --fix locally to apply the findings",
+      "Enable managed autofix in the Code Review section of admin settings",
+      "Comment @claude review again so the service pushes fixes to the PR"
+    ],
+    "answer": 1,
+    "explanation": "The managed service only posts findings and has no autofix. You apply findings locally: /code-review reviews a diff, and its --fix flag applies the findings to your working tree.",
+    "source": "04-claude-code-in-action/07-github-actions-and-code-review.md"
+  },
+  {
+    "id": "C4-044",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "topic": "Code Review run timing",
+    "difficulty": "easy",
+    "question": "To control cost, a team wants managed Code Review to run only when a reviewer explicitly asks for it on a pull request. Which run setting fits?",
+    "options": [
+      "Only on an @claude review comment",
+      "On a nightly cron schedule",
+      "Once automatically when each PR opens",
+      "Automatically on every push to the PR"
+    ],
+    "answer": 0,
+    "explanation": "The admin can set Code Review to run when a PR opens, on every push, or only when someone comments @claude review. The last option runs only on explicit request. A cron schedule is not one of its run settings.",
+    "source": "04-claude-code-in-action/07-github-actions-and-code-review.md"
+  },
+  {
+    "id": "C4-045",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "topic": "Installing the GitHub Action",
+    "difficulty": "easy",
+    "question": "A developer wants to set up the Claude Code GitHub Action on a repository, which includes installing the GitHub app and setting the API key secret. What is the starting point?",
+    "options": [
+      "Ask an org admin to click Configure in the Code review settings",
+      "Run /install-github-app inside Claude Code with repo admin access",
+      "Run /schedule and choose a GitHub event as the trigger",
+      "Run /plugin install claude-code-action from any GitHub account"
+    ],
+    "answer": 1,
+    "explanation": "/install-github-app walks you through installing the GitHub app and setting the Anthropic API key secret, and it requires repo admin. The Configure button in admin settings sets up the separate managed Code Review service.",
+    "source": "04-claude-code-in-action/07-github-actions-and-code-review.md"
+  },
+  {
+    "id": "C4-046",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Claude Code for Continuous Integration",
+    "topic": "Code Review vs GitHub Action",
+    "difficulty": "medium",
+    "question": "A team wants to comment \"@claude implement the spec in the linked issue\" on a pull request and have Claude push commits and post comments describing what it did. Which path fits?",
+    "options": [
+      "A routine triggered whenever a pull request is opened",
+      "Running /code-review --fix on behalf of the PR author",
+      "Managed Code Review configured to run whenever someone comments @claude review",
+      "A claude-code-action@v1 workflow listening for the @claude trigger phrase"
+    ],
+    "answer": 3,
+    "explanation": "Managed Code Review only reviews and posts findings. When the job goes beyond review, such as implementing changes from a comment, you use the GitHub Action, which can push commits and post comments.",
+    "source": "04-claude-code-in-action/07-github-actions-and-code-review.md"
+  },
+  {
+    "id": "C4-047",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Claude Code for Continuous Integration",
+    "topic": "Tuning claude_args",
+    "difficulty": "hard",
+    "question": "A scheduled GitHub workflow uses anthropics/claude-code-action@v1 to post a daily read-only report, and nobody watches it run. Which TWO claude_args adjustments does the course recommend? (Select TWO.)",
+    "options": [
+      "Add --max-turns to put a hard cap on the agent loop",
+      "Set trigger_phrase to the cron expression for the schedule",
+      "Restrict allowed tools to the read-only ones the report needs",
+      "Use bypass permissions so that the job never stops to ask",
+      "Pass --resume so each day continues the previous day's session"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "claude_args is where you tune the run. A max-turns cap stops the loop from running forever, and allowed tools should be exactly what the job needs, which means read-only for a report. For a run with no one watching, the course recommends a permission mode that doesn't stop to ask, not bypass permissions, which belongs only in isolated containers or VMs.",
+    "source": "04-claude-code-in-action/07-github-actions-and-code-review.md"
+  },
+  {
+    "id": "C4-048",
+    "module": 4,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Claude Code for Continuous Integration",
+    "topic": "Tests as a hook-enforced gate",
+    "difficulty": "medium",
+    "question": "A team runs Claude unattended in CI and wants test and lint results to be an actual gate, not something Claude merely claims to have checked. Which TWO hook setups does the course recommend? (Select TWO.)",
+    "options": [
+      "A PostToolUse hook that lints and type-checks after every edit",
+      "A Stop hook that runs the tests and exits 2 on failure so Claude can't end the turn",
+      "A Notification hook that exits 2 when tests fail to halt the run",
+      "A CLAUDE.md rule reading IMPORTANT: always run the tests before finishing",
+      "A SessionStart hook that runs the full test suite once at startup"
+    ],
+    "answer": [
+      0,
+      1
+    ],
+    "explanation": "A Stop hook that refuses to end the turn on failure and a PostToolUse hook that lints and type-checks after each edit both run on every run, and exit 2 feeds failures back to Claude to fix. A CLAUDE.md rule is only a request. Notification ignores blocking, and a startup test run checks the code before any changes exist.",
+    "source": "04-claude-code-in-action/08-trust-it-verifying-unsupervised-runs.md"
+  },
+  {
+    "id": "C4-049",
+    "module": 4,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Claude Code for Continuous Integration",
+    "topic": "Automated debugging pipeline",
+    "difficulty": "hard",
+    "question": "An app works locally but fails silently in production. The team wants Claude to find and fix production-only errors every day without anyone hunting through logs, while humans stay in control of what ships. Which design matches the automated-debugging workflow in the course?",
+    "options": [
+      "Claude runs in bypass permissions on the production host and patches code in place as errors appear",
+      "Managed Code Review is enabled on main so it can detect and autofix runtime errors as they occur",
+      "A loop session polls CloudWatch every minute and pushes each fix straight to the main branch",
+      "A daily GitHub Action pulls CloudWatch logs; Claude dedupes errors, writes fixes, and opens a PR"
+    ],
+    "answer": 3,
+    "explanation": "In the course's workflow, a scheduled GitHub Action fetches recent CloudWatch logs, Claude deduplicates and analyzes the errors, and the proposed fixes arrive as a pull request for human review. Pushing directly to main or patching production removes that review step. Code Review has no autofix and doesn't read runtime logs.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md"
+  },
+  {
+    "id": "C4-050",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Sharing setups with plugins",
+    "difficulty": "medium",
+    "question": "A team has a polished .claude directory of skills, subagents, and hooks. Developers copy the files between machines, and the copies drift out of sync. What does the course recommend?",
+    "options": [
+      "Move all of its content into the organization's managed policy CLAUDE.md",
+      "Convert each component into a routine so that it runs in the cloud",
+      "Package it as a plugin and publish it through a private team marketplace",
+      "Commit the directory to every repository and ask developers to pull it weekly"
+    ],
+    "answer": 2,
+    "explanation": "A plugin packages skills, subagents, hooks, and MCP configs as one versioned installable unit. A private marketplace gives the team central discovery, version tracking, and updates. Moving everything into CLAUDE.md turns enforceable hooks into mere guidance and bloats the always-loaded file.",
+    "source": "04-claude-code-in-action/09-plugins.md"
+  },
+  {
+    "id": "C4-051",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Plugin components run alongside yours",
+    "difficulty": "hard",
+    "question": "A developer installs a community plugin for its skills. They already have their own PreToolUse hooks and a skill named review. Which TWO statements describe the result? (Select TWO.)",
+    "options": [
+      "The plugin's hooks replace the developer's hooks for the same event",
+      "The plugin's skills are namespaced under the plugin name, so none clashes with review",
+      "Only the plugin's skills are enabled, and its hooks stay off until approved one by one",
+      "The developer's review skill is overwritten by any plugin skill with the same name",
+      "The plugin's PreToolUse hooks and the developer's own both fire on matching tool calls"
+    ],
+    "answer": [
+      1,
+      4
+    ],
+    "explanation": "Plugin components run alongside yours. Hooks stack, so both sets fire, and skills, agents, and commands are namespaced so they never clash. Installing a plugin for its skills also brings in its hooks, whether or not you read them.",
+    "source": "04-claude-code-in-action/09-plugins.md"
+  },
+  {
+    "id": "C4-052",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Plugin agent key",
+    "difficulty": "hard",
+    "question": "After enabling a plugin, a developer notices that Claude Code's main thread now runs with a different system prompt, different tool restrictions, and a different model. What most likely caused this?",
+    "options": [
+      "The plugin's settings.json agent key promoted one of its subagents to the main thread",
+      "The plugin shipped a CLAUDE.md that overrode the user and project CLAUDE.md files",
+      "The plugin's PreToolUse hook rewrote the model name in every tool call's input",
+      "Enabling any plugin replaces the user's settings.json with the plugin's own bundled copy"
+    ],
+    "answer": 0,
+    "explanation": "A plugin's settings.json is honored only narrowly: the agent key and the subagent status line key. The agent key promotes one of the plugin's subagents, with its system prompt, tool restrictions, and model, to the main thread. That is why the course says to look before you enable a plugin.",
+    "source": "04-claude-code-in-action/09-plugins.md"
+  },
+  {
+    "id": "C4-053",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "topic": "Reviewed is not trusted",
+    "difficulty": "medium",
+    "question": "A plugin on the community marketplace passed Anthropic's automated review. A security-minded lead asks whether the team can install it without any further checks. What is the course's position?",
+    "options": [
+      "No: community plugins can never be installed, only official ones",
+      "Yes, as long as the team uses only its skills and ignores its hooks",
+      "Yes, because automated review guarantees that the plugin's hooks are safe",
+      "No: reviewed isn't trusted, so inspect its hooks, agents, and MCP servers first"
+    ],
+    "answer": 3,
+    "explanation": "Automated review catches some problems, not all of them. A plugin runs code with your privileges, and its hooks fire whether or not you use them. You can't install a plugin for its skills and leave its hooks out.",
+    "source": "04-claude-code-in-action/09-plugins.md"
+  },
+  {
+    "id": "C4-054",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "topic": "Plugin manifest",
+    "difficulty": "medium",
+    "question": "A team is packaging its .claude setup as a plugin. Which TWO statements about the .claude-plugin/plugin.json manifest are correct? (Select TWO.)",
+    "options": [
+      "Name is its only required field, and the name namespaces the plugin's skills",
+      "Version is required, and installs fail whenever the version is omitted",
+      "It is optional, because components are discovered by directory convention without it",
+      "Every skill and hook must be listed in it, or Claude Code won't find them",
+      "It must live at .claude/settings.json inside the plugin's folder"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "The manifest is optional, because Claude Code discovers components by directory convention. When it is present, name is the only required field, and the name namespaces the plugin's skills. Versioning is recommended so updates can be tracked, but it isn't required.",
+    "source": "04-claude-code-in-action/09-plugins.md"
+  },
+  {
+    "id": "C4-055",
+    "module": 4,
+    "domain": "Context Management & Reliability",
+    "scenario": "Code Generation with Claude Code",
+    "topic": "Directed compaction",
+    "difficulty": "easy",
+    "question": "Hours into a session, a developer has finished a long debugging detour and now only cares about the --version flag implementation. The context window is filling up. What is the best move?",
+    "options": [
+      "Add the --version flag details to CLAUDE.md and keep going",
+      "Run /compact with no arguments and let Claude decide what to keep",
+      "Run /clear and re-explain the --version flag work from scratch",
+      "Run /compact Focus on the --version flag implementation"
+    ],
+    "answer": 3,
+    "explanation": "Compaction can drop something important. Text added after the command shapes what the summary keeps, which is your steering wheel for context. A bare /compact leaves that choice to the summary.",
+    "source": "04-claude-code-in-action/01-steering-long-sessions.md"
+  },
+  {
+    "id": "C4-056",
+    "module": 4,
+    "domain": "Context Management & Reliability",
+    "scenario": "Code Generation with Claude Code",
+    "topic": "Rewind: restore code",
+    "difficulty": "easy",
+    "question": "Claude spent several turns on a wrong approach and edited files badly. The discussion along the way was useful and the developer wants to keep it, but the file changes must be undone. Which rewind option fits?",
+    "options": [
+      "Summarize from here",
+      "Restore code",
+      "Restore conversation",
+      "Restore code and conversation"
+    ],
+    "answer": 1,
+    "explanation": "Restore code rolls back only the files to the checkpoint and keeps the conversation. Restore code and conversation would also throw away the discussion the developer wants to keep.",
+    "source": "04-claude-code-in-action/01-steering-long-sessions.md"
+  },
+  {
+    "id": "C4-057",
+    "module": 4,
+    "domain": "Context Management & Reliability",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Summarize up to here",
+    "difficulty": "hard",
+    "question": "A session began with a very long setup phase (environment wrangling and exploratory reads), followed by implementation work that the developer wants to keep in full detail. They need to free context space. Which rewind option should they choose at the checkpoint between the two phases?",
+    "options": [
+      "Restore code and conversation",
+      "Summarize up to here",
+      "Restore conversation",
+      "Summarize from here"
+    ],
+    "answer": 1,
+    "explanation": "Summarize up to here compresses everything before the checkpoint, which is the setup phase, and keeps the implementation intact. Summarize from here does the opposite: it compresses what comes after the checkpoint, which suits a side conversation.",
+    "source": "04-claude-code-in-action/01-steering-long-sessions.md"
+  },
+  {
+    "id": "C4-058",
+    "module": 4,
+    "domain": "Context Management & Reliability",
+    "scenario": "Code Generation with Claude Code",
+    "topic": "Goal conditions must be observable",
+    "difficulty": "hard",
+    "question": "A developer sets /goal the billing service works correctly in production. Claude keeps working, but the goal never resolves sensibly. What is the core problem, and what is the fix?",
+    "options": [
+      "Goals only work in plan mode, so switch to plan mode before setting the goal again",
+      "Goals accept only a single condition, so split it into two separate /goal commands",
+      "The evaluator reads only the transcript, so restate it as visible output like passing tests",
+      "The evaluator needs production access, so add a connector that queries the live service"
+    ],
+    "answer": 2,
+    "explanation": "A fast evaluator checks the goal by reading only the transcript, so the condition has to be checkable from output Claude produces, such as test runs or type-checker results. Giving the evaluator production access misreads how it works.",
+    "source": "04-claude-code-in-action/01-steering-long-sessions.md"
+  },
+  {
+    "id": "C4-059",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "topic": "Loop for polling",
+    "difficulty": "easy",
+    "question": "While working locally, a developer wants Claude to check a running CI pipeline at intervals between turns and act when its status changes. Which feature fits, and how is it stopped?",
+    "options": [
+      "Loop, which is stopped by pressing escape",
+      "Rewind, which is stopped by double-tapping escape",
+      "Goal, which is stopped with /goal clear",
+      "A routine, which is stopped by deleting it on the web"
+    ],
+    "answer": 0,
+    "explanation": "Loop runs a prompt on a fixed or self-paced interval between turns, which suits polling external state like CI. Pressing escape stops it. A goal is a completion condition, not a polling mechanism.",
+    "source": "04-claude-code-in-action/01-steering-long-sessions.md"
+  },
+  {
+    "id": "C4-060",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Code Generation with Claude Code",
+    "topic": ".worktreeinclude",
+    "difficulty": "medium",
+    "question": "A developer runs Claude sessions in separate worktrees. Each worktree is missing the git-ignored .env file the app needs, and the team does not want to commit that file. What solves this?",
+    "options": [
+      "Remove .env from .gitignore so worktrees receive it",
+      "Use a SessionStart hook to print .env into context",
+      "List .env in a .worktreeinclude file at the repo root",
+      "Reference .env with an @-import in the project CLAUDE.md"
+    ],
+    "answer": 2,
+    "explanation": "A .worktreeinclude file at the repo root lists git-ignored files to copy into each worktree, such as env files or local config. Removing .env from .gitignore would risk committing secrets, which is what the team wants to avoid.",
+    "source": "04-claude-code-in-action/01-steering-long-sessions.md"
+  },
+  {
+    "id": "C4-061",
+    "module": 4,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Code Generation with Claude Code",
+    "topic": "Parallel sessions with worktrees",
+    "difficulty": "hard",
+    "question": "A developer wants several Claude Code instances building different features at the same time in one repository. Which TWO statements reflect the course's guidance? (Select TWO.)",
+    "options": [
+      "Run every instance in one checkout and rely on rewind to undo collisions",
+      "A clean worktree is removed automatically when its session exits",
+      "Keep all but one instance in plan mode so only one writes at a time",
+      "Give each instance its own worktree so they can't clobber each other's files",
+      "Have all instances share one branch so that no merging is needed later"
+    ],
+    "answer": [
+      1,
+      3
+    ],
+    "explanation": "Several sessions in one file tree conflict with each other, like two steering wheels in one car. Worktrees give each session its own independent tree, and clean worktrees are removed automatically when the session exits. Serializing the work through plan mode gives up the parallelism the developer wants.",
+    "source": "04-claude-code-in-action/01-steering-long-sessions.md"
+  },
+  {
+    "id": "C4-062",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "topic": "Custom project commands",
+    "difficulty": "medium",
+    "question": "A developer keeps typing the same prompt to create a worktree for a named feature and start work in it. They want a reusable project command that takes the feature name as input. How should it be created?",
+    "options": [
+      "As a markdown prompt file in .claude/commands using an $ARGUMENTS placeholder",
+      "As a line in CLAUDE.md that tells Claude to remember the prompt for later",
+      "As a routine triggered by an HTTP POST with the feature name in the body",
+      "As a PreToolUse hook that detects the phrase and expands it into the full prompt"
+    ],
+    "answer": 0,
+    "explanation": "Custom commands are markdown prompt files in .claude/commands, and the $ARGUMENTS placeholder fills in dynamic values like the feature name. A PreToolUse hook fires on tool calls, not on what the user types in a prompt.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md"
+  },
+  {
+    "id": "C4-063",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "topic": "Adding an MCP server",
+    "difficulty": "easy",
+    "question": "A developer built a local MCP server that exposes a document-to-markdown tool and is started with uv run main.py. How do they make it available in Claude Code?",
+    "options": [
+      "Run /goal with the startup command so Claude launches it as needed",
+      "Run claude mcp add documents \"uv run main.py\" and then restart Claude Code",
+      "Add the server's startup command as a new line in the project CLAUDE.md",
+      "Put main.py in a skill folder so Claude executes it as a script"
+    ],
+    "answer": 1,
+    "explanation": "You connect a server with claude mcp add followed by a name and a startup command, then restart Claude Code to get the new tools. A line in CLAUDE.md is only guidance and doesn't register any tools.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md"
+  },
+  {
+    "id": "C4-064",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "topic": "Bootstrapping CLAUDE.md with init",
+    "difficulty": "easy",
+    "question": "A developer opens an unfamiliar project in Claude Code. They want Claude to scan the codebase's architecture and coding style and record it as context that is included automatically in future requests. What should they run?",
+    "options": [
+      "/init, which generates a CLAUDE.md file",
+      "/clear, which resets and re-reads the project",
+      "/goal, which records the project conventions",
+      "/compact, which summarizes the codebase"
+    ],
+    "answer": 0,
+    "explanation": "The init command scans the codebase for its architecture and coding style and writes a CLAUDE.md, which is included automatically in later requests. /compact summarizes the current conversation, not the codebase.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md"
+  },
+  {
+    "id": "C4-065",
+    "module": 4,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Code Generation with Claude Code",
+    "topic": "Cold second opinion",
+    "difficulty": "medium",
+    "question": "An unattended Claude run finished a large change overnight. Before merging, the team wants a review that catches what the original run may have talked itself past. What does the course recommend?",
+    "options": [
+      "Ask the same session to carefully re-review all of its own changes before it closes",
+      "Read Claude's end-of-run summary and spot-check the files it lists",
+      "Re-run the task in auto mode so the classifier double-checks every action",
+      "Have a fresh session or subagent with no memory of the build review the changes"
+    ],
+    "answer": 3,
+    "explanation": "A reviewer with fresh context has no stake in the approach, so it catches what the author rationalized away. The original session carries those same rationalizations. The classifier judges only danger, never correctness.",
+    "source": "04-claude-code-in-action/08-trust-it-verifying-unsupervised-runs.md"
+  },
+  {
+    "id": "C4-066",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Opening the rewind menu",
+    "difficulty": "easy",
+    "question": "Midway through a session, a developer realizes Claude took a wrong turn three prompts ago. They want to return to the state before that prompt rather than trying to prompt their way back out. How do they get there?",
+    "options": [
+      "Press escape once while Claude is working, which reverts the most recent set of file edits",
+      "Run /goal clear so Claude abandons the current path and restarts from the original plan",
+      "Double-tap escape on an empty prompt and pick that prompt's checkpoint in the rewind menu",
+      "Run /compact so the wrong turn is summarized away, then continue from the summary"
+    ],
+    "answer": 2,
+    "explanation": "Every user prompt creates a checkpoint, and double-tapping escape on an empty prompt opens the rewind menu so you can go back to one. Compacting only summarizes the conversation. It doesn't undo the wrong path, and the bad file edits stay in place.",
+    "source": "04-claude-code-in-action/01-steering-long-sessions.md"
+  },
+  {
+    "id": "C4-067",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "topic": "Shift-tab mode cycle",
+    "difficulty": "medium",
+    "question": "A developer presses shift-tab repeatedly, expecting eventually to land on don't ask or bypass permissions, but never sees either one. Which statement explains what they are seeing?",
+    "options": [
+      "Shift-tab cycles the everyday modes (manual, accept edits, plan, auto); the status bar shows which is active",
+      "Shift-tab cycles all six modes, but only after auto mode has been approved for the current session",
+      "Shift-tab cycles all six modes, but don't ask and bypass are hidden from the status bar while active",
+      "Shift-tab only toggles between manual and plan, and every other mode needs its own slash command"
+    ],
+    "answer": 0,
+    "explanation": "Shift-tab cycles through manual, accept edits, plan, and auto, and the status bar always shows which mode is active. Don't ask and bypass permissions are not part of that everyday cycle. The status bar never hides the active mode.",
+    "source": "04-claude-code-in-action/04-permission-modes.md"
+  },
+  {
+    "id": "C4-068",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Creating a routine from the terminal",
+    "difficulty": "easy",
+    "question": "A developer working in Claude Code wants to set up a daily 9am dependency audit as a routine without leaving the terminal. What should they do?",
+    "options": [
+      "Run /schedule and describe the job in plain language",
+      "Run /loop with a 24-hour interval so the audit repeats each morning",
+      "Run /goal with the audit as its completion condition so it recurs daily",
+      "Add a cron line to the project CLAUDE.md describing the audit schedule"
+    ],
+    "answer": 0,
+    "explanation": "Routines can be created on the web at claude.ai/code/routines or from inside Claude Code with /schedule and a plain-language description, such as \"daily dependency audit at 9am\". A loop runs between turns in your live session, so it isn't a cloud routine and stops when the session ends.",
+    "source": "04-claude-code-in-action/06-routines-and-headless.md"
+  },
+  {
+    "id": "C4-069",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Routine ingredients: connectors",
+    "difficulty": "medium",
+    "question": "A team wants a routine that scans its Sentry tickets every morning and works out which issues in its repository are most urgent. When designing the routine, which set of things does it need to bundle?",
+    "options": [
+      "A prompt, the repository, and a Sentry connector, plus a cron trigger",
+      "A skill folder, a Stop hook, and a developer's machine left running overnight",
+      "A prompt and a workflow file committed under the .github/workflows folder",
+      "A prompt, a server the team hosts, and an API key stored in CLAUDE.md"
+    ],
+    "answer": 0,
+    "explanation": "A routine ties together a prompt, the repository it works on, any connectors it needs (here, access to Sentry), and a trigger. There is no workflow file to maintain and no machine of yours to keep on, which is what sets routines apart from a GitHub Action.",
+    "source": "04-claude-code-in-action/06-routines-and-headless.md"
+  },
+  {
+    "id": "C4-070",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Claude Code for Continuous Integration",
+    "topic": "GitHub Action provider inputs",
+    "difficulty": "medium",
+    "question": "A company's policy requires all model traffic to go through its Amazon Bedrock account. It wants to adopt anthropics/claude-code-action@v1 for @claude mentions on pull requests. Which action input addresses the policy?",
+    "options": [
+      "github_token, replaced with a Bedrock access credential",
+      "trigger_phrase, set to a Bedrock-specific mention keyword",
+      "use_bedrock, which switches the action to that provider",
+      "prompt, with an instruction telling Claude to use Bedrock"
+    ],
+    "answer": 2,
+    "explanation": "The action has use_bedrock and use_vertex inputs for teams on those providers. The trigger phrase only controls which comment text the action listens for. Telling Claude to use Bedrock in the prompt doesn't change where requests are sent.",
+    "source": "04-claude-code-in-action/07-github-actions-and-code-review.md"
+  },
+  {
+    "id": "C4-071",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Applying a plugin install",
+    "difficulty": "medium",
+    "question": "Inside a running session, a developer installs a plugin with /plugin install acme@release-tools. The install succeeds, but the plugin's skills don't seem to be available yet. What is the expected next step?",
+    "options": [
+      "Add the plugin's skills to CLAUDE.md as @-imports",
+      "Run /reload-plugins to apply the change",
+      "Reinstall it through a private team marketplace",
+      "Run /init so that CLAUDE.md picks up the plugin"
+    ],
+    "answer": 1,
+    "explanation": "After /plugin install, Claude Code tells you to run /reload-plugins to apply the change. Plugin components are discovered from the plugin itself, so importing them into CLAUDE.md is unnecessary and would only add always-loaded text.",
+    "source": "04-claude-code-in-action/09-plugins.md"
+  },
+  {
+    "id": "C4-072",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Plugin directory layout",
+    "difficulty": "hard",
+    "question": "A team is turning its working .claude setup into a plugin and wants Claude Code to discover the components by convention. Which TWO placements match the course's plugin layout? (Select TWO.)",
+    "options": [
+      "Hook definitions listed inside .claude-plugin/plugin.json",
+      "hooks/hooks.json and .mcp.json at the plugin root",
+      "Each subagent as its own markdown file under an agents folder",
+      "MCP server configs placed under each skill's own folder",
+      "All skills merged into a single skills.md at the plugin root"
+    ],
+    "answer": [
+      1,
+      2
+    ],
+    "explanation": "A plugin uses the same shape as .claude: one folder per skill, one markdown file per subagent under agents, and hooks/hooks.json plus .mcp.json at the plugin root. Claude Code finds components from that structure. The manifest only holds metadata such as name and version, so listing hooks there is the tempting mistake.",
+    "source": "04-claude-code-in-action/09-plugins.md"
+  },
+  {
+    "id": "C4-073",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Plugin settings.json scope",
+    "difficulty": "hard",
+    "question": "A platform team ships a plugin whose settings.json contains a broad set of preferences, including permission rules they expected every installer to inherit. After rollout, none of those permission rules take effect. What is the explanation?",
+    "options": [
+      "Only the agent and subagent status line keys in a plugin's settings.json are honored",
+      "Plugin settings are always overridden whenever the project has its own CLAUDE.md file",
+      "Plugin settings take effect only when the plugin comes from the official curated marketplace",
+      "Plugin settings apply only after the user approves each key individually in the plugin panel"
+    ],
+    "answer": 0,
+    "explanation": "A plugin can ship a settings.json, but Claude Code reads only two keys from it: agent and the subagent status line. Other keys are ignored, so permission rules there do nothing. Where the plugin came from doesn't widen what is honored.",
+    "source": "04-claude-code-in-action/09-plugins.md"
+  },
+  {
+    "id": "C4-074",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Code Generation with Claude Code",
+    "topic": "SessionStart startup source",
+    "difficulty": "medium",
+    "question": "A team's SessionStart hook runs an expensive environment-priming script. They notice it also runs after every compaction, slowing long sessions down. They want it to run only when a session is freshly started. What should they configure?",
+    "options": [
+      "Move the script into a PreToolUse hook on the Bash tool",
+      "Have the hook exit 2 whenever compaction triggers it",
+      "Move the script into a PostCompact hook instead",
+      "Limit the hook to the startup source of SessionStart"
+    ],
+    "answer": 3,
+    "explanation": "SessionStart fires in several situations, including right after compaction (the compact matcher). Using the startup source limits the hook to fresh starts. Exit 2 can't help, because SessionStart ignores blocking.",
+    "source": "04-claude-code-in-action/05-hooks.md"
+  },
+  {
+    "id": "C4-075",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Code Generation with Claude Code",
+    "topic": "WorktreeCreate exit codes",
+    "difficulty": "hard",
+    "question": "A team has a WorktreeCreate hook that runs a setup step. A minor lint warning in that step makes the script exit with code 1. The team expected exit 1 to be non-blocking, as it is for most hooks, but worktree creation fails. What explains this?",
+    "options": [
+      "Exit 1 always blocks, and only exit 2 is treated as non-blocking",
+      "WorktreeCreate is an exception that aborts on any non-zero exit code",
+      "The .worktreeinclude file must list the hook script for it to pass",
+      "WorktreeCreate needs JSON with permissionDecision allow to proceed"
+    ],
+    "answer": 1,
+    "explanation": "For most events only exit 2 blocks, and other non-zero codes are just logged. The course's notes call out WorktreeCreate as an exception that aborts on any non-zero exit. Thinking exit 1 always blocks gets the general rule backwards.",
+    "source": "04-claude-code-in-action/_official-course-notes.md"
+  },
+  {
+    "id": "C4-076",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Claude Code for Continuous Integration",
+    "topic": "Scoping a PreToolUse guardrail",
+    "difficulty": "hard",
+    "question": "A team already has a PreToolUse guardrail hook registered, but its logic runs on every tool call. They want it to inspect only git push commands. Which TWO configuration changes achieve this? (Select TWO.)",
+    "options": [
+      "Add an if clause narrowing it to git push",
+      "Set the matcher to Stop so it fires at turn end",
+      "Re-register the hook on the PostToolUse event",
+      "Move the push rule into the project CLAUDE.md",
+      "Set the hook's matcher to the Bash tool"
+    ],
+    "answer": [
+      0,
+      4
+    ],
+    "explanation": "The matcher picks which tool to watch (Bash), and the optional if clause narrows the hook further to a specific command such as git push. PostToolUse is the tempting distractor, but it fires after the push has already happened, so it can't guard anything. CLAUDE.md is only guidance.",
+    "source": "04-claude-code-in-action/05-hooks.md"
+  },
+  {
+    "id": "C4-077",
+    "module": 4,
+    "domain": "Claude Code Configuration & Workflows",
+    "scenario": "Claude Code for Continuous Integration",
+    "topic": "Manual runs of scheduled workflows",
+    "difficulty": "easy",
+    "question": "A team's claude-code-action workflow posts a rollup on a 9:00 UTC cron schedule. After a major incident, they want to run it immediately from the GitHub Actions tab instead of waiting until the next morning. What should the workflow include?",
+    "options": [
+      "A second trigger_phrase matching the word incident",
+      "A workflow_dispatch trigger",
+      "A --max-turns value of zero passed in claude_args",
+      "A routine that mirrors the workflow on an HTTP trigger"
+    ],
+    "answer": 1,
+    "explanation": "Adding a workflow_dispatch trigger lets you start the scheduled workflow manually from the Actions tab. A trigger phrase applies only to @-mentions in PR and issue comments, not to manual runs.",
+    "source": "04-claude-code-in-action/07-github-actions-and-code-review.md"
+  }
+]

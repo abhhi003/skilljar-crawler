@@ -1,0 +1,803 @@
+[
+  {
+    "id": "M1-001",
+    "module": 1,
+    "domain": "Model Selection and Optimization",
+    "topic": "Tokens & cost",
+    "difficulty": "easy",
+    "question": "A product manager asks how to estimate the per-request cost of a new Claude-powered support feature. What should the estimate be based on?",
+    "options": [
+      "The number of words the end user types into the chat box",
+      "Tokens across the prompt, history, tool definitions, tool results, and the response",
+      "The number of API requests made, since each call is billed at a flat rate",
+      "The character count of the model's response, since only output is billed"
+    ],
+    "answer": 1,
+    "explanation": "Tokens are the unit of both pricing and budget, and everything the model processes counts: prompt, conversation history, tool definitions, tool results, and the generated response. Counting only user words (or only output) undercounts, because history and tool content are billed too.",
+    "source": "01-mso-foundations/02-how-llms-behave.md"
+  },
+  {
+    "id": "M1-002",
+    "module": 1,
+    "domain": "Model Selection and Optimization",
+    "topic": "Tokens & cost",
+    "difficulty": "medium",
+    "question": "A developer sizes documents for a new Claude model generation using a characters-per-token ratio they measured on an older model. What is the best guidance?",
+    "options": [
+      "The ratio is fixed across all Claude models, so the old measurement is safe to reuse",
+      "Count words instead, since one word always equals exactly one token",
+      "Treat the ratio as model-dependent and confirm the current tokenizer's behavior at build time",
+      "Ignore the ratio, because tokenization only affects output and not whether input fits"
+    ],
+    "answer": 2,
+    "explanation": "The characters-per-token average depends on the model's tokenizer and differs between model generations, so any rule of thumb must be confirmed at build time. Assuming the ratio is constant across Claude models is the tempting mistake the course explicitly warns against.",
+    "source": "01-mso-foundations/02-how-llms-behave.md"
+  },
+  {
+    "id": "M1-003",
+    "module": 1,
+    "domain": "Model Selection and Optimization",
+    "topic": "Tokens & cost",
+    "difficulty": "medium",
+    "question": "An agent's token estimate only counts the user's message and the system prompt, yet real usage is far higher. The agent has twelve tools and calls several per turn. Which TWO token sources is the estimate most likely missing? (Select TWO.)",
+    "options": [
+      "The tool definitions sent with each request",
+      "A flat per-invocation fee charged for every tool call",
+      "The tool results returned into the conversation",
+      "A duplicate copy of the system prompt added when tools are enabled",
+      "A surcharge applied to streamed responses"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "The course states that tool definitions and tool results are counted in tokens alongside the prompt, history, and response. A per-invocation tool fee sounds plausible, but the course frames tokens as the single unit of pricing and budget; it describes no flat fees, duplicate prompts, or streaming surcharges.",
+    "source": "01-mso-foundations/02-how-llms-behave.md"
+  },
+  {
+    "id": "M1-004",
+    "module": 1,
+    "domain": "Model Selection and Optimization",
+    "topic": "Context window",
+    "difficulty": "easy",
+    "question": "Which statement best describes what Claude's context window must hold for a single request?",
+    "options": [
+      "Only the newest user message; earlier turns are stored separately by the API",
+      "The input messages only; the model's output has its own separate budget",
+      "The system prompt, history, injected documents, tool results, and the model output",
+      "Only the documents you inject, since the system prompt is held outside the window"
+    ],
+    "answer": 2,
+    "explanation": "The context window is a fixed budget that holds everything at once: system prompt, full conversation, injected documents, tool results, and the model output. Treating output as having its own separate budget is the common misconception; output shares the same window.",
+    "source": "01-mso-foundations/02-how-llms-behave.md"
+  },
+  {
+    "id": "M1-005",
+    "module": 1,
+    "domain": "Model Selection and Optimization",
+    "topic": "Context window",
+    "difficulty": "medium",
+    "question": "A developer sends a request whose input is already larger than the model's context window. What happens?",
+    "options": [
+      "The request is rejected with a validation error before generation begins",
+      "The API silently trims the oldest messages so the request fits",
+      "Generation starts and returns a model_context_window_exceeded stop reason",
+      "The window automatically expands to fit the request at a higher price"
+    ],
+    "answer": 0,
+    "explanation": "An input that already exceeds the window is rejected with a validation error before any generation happens. The model_context_window_exceeded stop reason applies to a different case: a request that fits on input but reaches the ceiling during generation.",
+    "source": "01-mso-foundations/02-how-llms-behave.md"
+  },
+  {
+    "id": "M1-006",
+    "module": 1,
+    "domain": "Model Selection and Optimization",
+    "topic": "Context window",
+    "difficulty": "hard",
+    "question": "A long agent session sends a request that fits within the context window on input, but the response is long enough to reach the ceiling during generation. On current models, what does the application receive?",
+    "options": [
+      "A validation error before any tokens are generated",
+      "The output generated so far, with a model_context_window_exceeded stop reason",
+      "A complete response, because the API drops the oldest turns mid-generation",
+      "A rate-limit error asking the client to retry with a larger window"
+    ],
+    "answer": 1,
+    "explanation": "When input fits but generation hits the ceiling, current models stop and return the partial output with a model_context_window_exceeded stop reason instead of raising an error. The validation error only applies when the input itself is already oversized, and the API never silently drops turns for you.",
+    "source": "01-mso-foundations/02-how-llms-behave.md"
+  },
+  {
+    "id": "M1-007",
+    "module": 1,
+    "domain": "Prompt and Context Engineering",
+    "topic": "Context management",
+    "difficulty": "medium",
+    "question": "A multi-turn assistant worked perfectly in development but starts failing in production after users hold long conversations with many tool calls. What is the most accurate diagnosis and fix?",
+    "options": [
+      "Sampling is drifting as sessions grow; lower the temperature on later turns",
+      "The model degrades over time; restart the API client every few turns",
+      "Production uses a smaller model; switch to the largest tier to get a bigger window",
+      "History is filling the fixed context window; trim or summarize history before each call"
+    ],
+    "answer": 3,
+    "explanation": "Short test inputs rarely fill the window, while production's longer inputs and more turns fill it faster. Managing history (trimming or summarizing before each call) is the application's job. Blaming temperature confuses sampling with the token budget, which is the error the module exercise calls out.",
+    "source": "01-mso-foundations/02-how-llms-behave.md"
+  },
+  {
+    "id": "M1-008",
+    "module": 1,
+    "domain": "Model Selection and Optimization",
+    "topic": "Sampling",
+    "difficulty": "easy",
+    "question": "What is the effect of lowering the temperature where the model accepts that parameter?",
+    "options": [
+      "It concentrates probability on the most likely tokens, making output more repeatable",
+      "It shortens responses by capping the number of output tokens",
+      "It guarantees the same output on every call when set to zero",
+      "It spreads probability across more tokens, producing more varied output"
+    ],
+    "answer": 0,
+    "explanation": "Lower temperature concentrates probability on the most likely tokens, so output becomes more repeatable. It does not guarantee identical output even at zero, and temperature controls the shape of the distribution, not response length.",
+    "source": "01-mso-foundations/02-how-llms-behave.md"
+  },
+  {
+    "id": "M1-009",
+    "module": 1,
+    "domain": "Model Selection and Optimization",
+    "topic": "Sampling",
+    "difficulty": "hard",
+    "question": "A developer migrates a classifier to one of the newest Claude models, keeps temperature set to 0, and every request now fails with a 400 error. What is the best course of action?",
+    "options": [
+      "Switch to temperature 0.01, since exactly zero is outside the valid range",
+      "Replace temperature with top_k set to 1 to get the same greedy behavior",
+      "Remove the non-default sampling parameters and steer behavior through prompting",
+      "Keep temperature 0 and retry, since a 400 on sampling settings is transient"
+    ],
+    "answer": 2,
+    "explanation": "The newest Claude models do not accept non-default sampling parameters; setting temperature, top_p, or top_k returns a 400 error, and behavior is steered through prompting instead. Swapping to top_k fails for the same reason, since it is also a rejected sampling control on those models.",
+    "source": "01-mso-foundations/02-how-llms-behave.md"
+  },
+  {
+    "id": "M1-010",
+    "module": 1,
+    "domain": "Model Selection and Optimization",
+    "topic": "Sampling",
+    "difficulty": "medium",
+    "question": "A team sets temperature to 0 on a model that accepts it, then writes CI checks that expect byte-identical responses across repeated calls. What should they expect?",
+    "options": [
+      "Identical output on every call, since temperature 0 removes all sampling",
+      "More repeatable output, but identical output across calls is still not guaranteed",
+      "Identical output only when streaming is disabled for the request",
+      "Less repeatable output, since temperature 0 is treated as the default"
+    ],
+    "answer": 1,
+    "explanation": "The course states that temperature 0 makes outputs more repeatable but does not guarantee identical outputs across calls. Believing temperature 0 makes the model fully deterministic is the misconception; streaming has nothing to do with it.",
+    "source": "01-mso-foundations/02-how-llms-behave.md"
+  },
+  {
+    "id": "M1-011",
+    "module": 1,
+    "domain": "Model Selection and Optimization",
+    "topic": "Non-determinism & testing",
+    "difficulty": "medium",
+    "question": "A test suite for a Claude invoice-extraction feature asserts the exact text of each response and fails intermittently even though the answers look correct. Which TWO assertions should replace the exact-text checks? (Select TWO.)",
+    "options": [
+      "The response matches a stored golden string character for character",
+      "The required invoice_total field is present in the output",
+      "The response's first sentence is identical across repeated runs",
+      "The output structure parses successfully as the expected JSON",
+      "The response length equals the length of a recorded baseline"
+    ],
+    "answer": [
+      1,
+      3
+    ],
+    "explanation": "Because identical inputs do not guarantee identical outputs, exact-text assertions are inherently inconsistent. Tests should assert properties that must hold, such as a required field being present, a value being in range, or the structure parsing. Golden-string, first-sentence, and exact-length checks all still anchor on wording the model can legitimately vary.",
+    "source": "01-mso-foundations/02-how-llms-behave.md"
+  },
+  {
+    "id": "M1-012",
+    "module": 1,
+    "domain": "Model Selection and Optimization",
+    "topic": "Non-determinism & testing",
+    "difficulty": "medium",
+    "question": "A team needs to verify that generated summaries are faithful to their source documents. Structural checks pass, but they need to judge meaning. What does the course recommend?",
+    "options": [
+      "An eval that uses a model-graded judge to assess meaning",
+      "An exact-match comparison against a single reference summary",
+      "A regex check that the summary repeats key source sentences",
+      "Lowering temperature so the summary matches a stored baseline"
+    ],
+    "answer": 0,
+    "explanation": "When you need to judge meaning rather than structure, the course recommends an eval with a model-graded judge, and treats evals as the standard for knowing a feature is correct. Exact-match against a reference fails because correct answers can be worded many ways.",
+    "source": "01-mso-foundations/02-how-llms-behave.md"
+  },
+  {
+    "id": "M1-013",
+    "module": 1,
+    "domain": "Model Selection and Optimization",
+    "topic": "Model family & tiers",
+    "difficulty": "easy",
+    "question": "Which Claude tier does the course describe as the balanced default for most production workloads?",
+    "options": [
+      "Haiku",
+      "Sonnet",
+      "Opus",
+      "Fable"
+    ],
+    "answer": 1,
+    "explanation": "Sonnet is described as the balanced default for most production workloads. Haiku targets speed and cost efficiency within its capability envelope, while Opus and Fable handle more demanding work.",
+    "source": "01-mso-foundations/03-models-reasoning.md"
+  },
+  {
+    "id": "M1-014",
+    "module": 1,
+    "domain": "Model Selection and Optimization",
+    "topic": "Model family & tiers",
+    "difficulty": "easy",
+    "question": "A team needs a model for the most demanding reasoning, coding, and agentic work, where maximum intelligence matters more than cost. Which tier is built for this?",
+    "options": [
+      "Opus",
+      "Sonnet",
+      "Fable",
+      "Haiku"
+    ],
+    "answer": 2,
+    "explanation": "Fable is described as the most capable tier, built for the most demanding reasoning, coding, and agentic work where maximum intelligence is the priority. Opus is the tempting distractor, but the course positions it for demanding work above the Sonnet envelope, below Fable.",
+    "source": "01-mso-foundations/03-models-reasoning.md"
+  },
+  {
+    "id": "M1-015",
+    "module": 1,
+    "domain": "Model Selection and Optimization",
+    "topic": "Model family & tiers",
+    "difficulty": "medium",
+    "question": "A team is starting a new production feature and has not run any evals yet. Which model-selection approach matches the course's guidance?",
+    "options": [
+      "Start with the most capable tier and move down once quality is confirmed",
+      "Start with Haiku because it is cheapest, and move up only if users complain",
+      "Run every tier in production and keep whichever responds fastest",
+      "Start with Sonnet and move up a tier only when an eval shows it misses the quality bar"
+    ],
+    "answer": 3,
+    "explanation": "The practical default is to start with Sonnet and move up only when an eval shows the current tier missing the quality bar. Starting at the top tier spends extra cost and latency without evidence it is needed, and moves in either direction should be driven by evals, not complaints.",
+    "source": "01-mso-foundations/03-models-reasoning.md"
+  },
+  {
+    "id": "M1-016",
+    "module": 1,
+    "domain": "Model Selection and Optimization",
+    "topic": "Model family & tiers",
+    "difficulty": "medium",
+    "question": "A feature runs well on Sonnet, and finance asks the team to switch to Haiku to cut costs. What should the team do first?",
+    "options": [
+      "Switch immediately, since Haiku handles every task Sonnet does at lower cost",
+      "Run an eval and move to Haiku only if the quality drop is acceptable for the task",
+      "Keep Sonnet but enable extended reasoning to offset the higher price",
+      "Switch to Haiku and add a larger context window to compensate for quality"
+    ],
+    "answer": 1,
+    "explanation": "The course says to move down to Haiku only when an eval shows the quality drop is acceptable for the task. Haiku is efficient for tasks within its capability envelope, so assuming it matches Sonnet everywhere is the misconception.",
+    "source": "01-mso-foundations/03-models-reasoning.md"
+  },
+  {
+    "id": "M1-017",
+    "module": 1,
+    "domain": "Model Selection and Optimization",
+    "topic": "Reasoning modes",
+    "difficulty": "hard",
+    "question": "A developer moves code to one of the newest Claude models and sets a fixed thinking budget with budget_tokens. The call returns a 400 error. What is the correct fix?",
+    "options": [
+      "Use adaptive thinking and tune depth with an effort setting instead of a token budget",
+      "Lower the budget_tokens value so it fits inside the context window",
+      "Switch to an older model, since the newest models do not support reasoning",
+      "Move budget_tokens into the system prompt as a natural-language instruction"
+    ],
+    "answer": 0,
+    "explanation": "On current models the reasoning mode is adaptive thinking: the model decides when and how much to think, and you tune depth with an effort setting. The budget_tokens control is deprecated and returns a 400 on the newest generations, so shrinking its value does not help.",
+    "source": "01-mso-foundations/03-models-reasoning.md"
+  },
+  {
+    "id": "M1-018",
+    "module": 1,
+    "domain": "Model Selection and Optimization",
+    "topic": "Reasoning modes",
+    "difficulty": "medium",
+    "question": "A developer enables reasoning on one of the newest models but notices the response contains no visible thinking content to show users. What explains this?",
+    "options": [
+      "Reasoning silently failed and the model answered without thinking",
+      "Thinking is only returned when the request is sent as a batch",
+      "Thinking content is omitted by default; request summarized display to show it",
+      "Thinking content is only returned by the Fable tier"
+    ],
+    "answer": 2,
+    "explanation": "On the newest models, thinking content is omitted from responses by default, and you request summarized display when you need to show it. Its absence does not mean reasoning failed, and the course ties this to a display setting, not to a tier or to batching.",
+    "source": "01-mso-foundations/03-models-reasoning.md"
+  },
+  {
+    "id": "M1-019",
+    "module": 1,
+    "domain": "Model Selection and Optimization",
+    "topic": "Reasoning modes",
+    "difficulty": "medium",
+    "question": "A platform team has a fixed reasoning budget and must decide which of its Claude workloads should run with reasoning enabled. Which TWO workloads are most likely to earn the extra cost? (Select TWO.)",
+    "options": [
+      "Looking up a product's SKU from a short provided catalog entry",
+      "Diagnosing a bug that spans several interacting services step by step",
+      "Classifying support tickets into one of five fixed categories",
+      "Planning a multi-step data migration with ordering dependencies",
+      "Returning a customer's account status from a supplied record"
+    ],
+    "answer": [
+      1,
+      3
+    ],
+    "explanation": "The course says reasoning earns its cost on hard, multi-step problems and is wasted on lookups and classification. Ticket classification is the tempting pick because accuracy matters there, but it is exactly the kind of task the course says does not benefit from reasoning.",
+    "source": "01-mso-foundations/03-models-reasoning.md"
+  },
+  {
+    "id": "M1-020",
+    "module": 1,
+    "domain": "Model Selection and Optimization",
+    "topic": "Reasoning modes",
+    "difficulty": "hard",
+    "question": "An architect argues that turning on extended reasoning is effectively choosing a bigger model, so they plan to configure it once at the account level. Which statement best corrects this?",
+    "options": [
+      "Correct: reasoning is a separate model that the platform routes to automatically",
+      "Partly correct: reasoning is fixed per account but can differ between tiers",
+      "Incorrect: reasoning only works on the most capable tier, so it is a model choice",
+      "Incorrect: model choice picks the family member, while reasoning is configured per request"
+    ],
+    "answer": 3,
+    "explanation": "Model choice and reasoning mode are separate, composable levers: model choice picks which family member runs, and the reasoning mode is configured per call. A capable model can run with reasoning off and a smaller model with it on, so reasoning is neither a different model nor an account-level setting.",
+    "source": "01-mso-foundations/03-models-reasoning.md"
+  },
+  {
+    "id": "M1-021",
+    "module": 1,
+    "domain": "Model Selection and Optimization",
+    "topic": "Reasoning modes",
+    "difficulty": "medium",
+    "question": "Under adaptive thinking on current models, how is the amount of reasoning determined?",
+    "options": [
+      "The developer sets an exact number of thinking tokens for every call",
+      "The model decides when and how much to think, and the developer tunes depth with effort",
+      "The platform picks a thinking depth based on the account's pricing plan",
+      "Thinking depth is fixed per model and cannot be adjusted by the developer"
+    ],
+    "answer": 1,
+    "explanation": "With adaptive thinking, the model decides when and how much to think, and you tune depth with an effort setting rather than a fixed token budget. Setting an exact thinking-token count is the older budget_tokens approach, which is deprecated.",
+    "source": "01-mso-foundations/03-models-reasoning.md"
+  },
+  {
+    "id": "M1-022",
+    "module": 1,
+    "domain": "Prompt and Context Engineering",
+    "topic": "Prompting modes",
+    "difficulty": "easy",
+    "question": "A prompt contains the task instruction plus one example input paired with its desired output. Which prompting mode is this?",
+    "options": [
+      "Zero-shot",
+      "Multi-shot",
+      "One-shot",
+      "Few-shot"
+    ],
+    "answer": 2,
+    "explanation": "One-shot adds a single example of input paired with desired output. Zero-shot has no examples, and multi-shot (also called few-shot) includes several examples.",
+    "source": "01-mso-foundations/04-prompting-modes.md"
+  },
+  {
+    "id": "M1-023",
+    "module": 1,
+    "domain": "Prompt and Context Engineering",
+    "topic": "Prompting modes",
+    "difficulty": "medium",
+    "question": "An extraction prompt keeps returning dates in the wrong casing and structure, even after the team added two more paragraphs of instructions. What is the most effective next step?",
+    "options": [
+      "Add one or two correct input-output examples showing the exact format",
+      "Add another paragraph that restates the format rules more forcefully",
+      "Switch to the most capable tier before changing the prompt at all",
+      "Enable reasoning at high effort so the model thinks about the format"
+    ],
+    "answer": 0,
+    "explanation": "When output has a specific structure, casing, or edge case that a description keeps missing, one or two correct examples usually fix it faster than more instructions. Adding yet another paragraph repeats the approach that already failed.",
+    "source": "01-mso-foundations/04-prompting-modes.md"
+  },
+  {
+    "id": "M1-024",
+    "module": 1,
+    "domain": "Prompt and Context Engineering",
+    "topic": "Prompting modes",
+    "difficulty": "easy",
+    "question": "A teammate suggests sending ten examples in the first request only, reasoning that the model will have learned the format for every later call. Why is this wrong?",
+    "options": [
+      "Examples only take effect after the model is retrained overnight",
+      "Examples sit in the prompt, not in training data, so they must be included on each call",
+      "Examples are cached by the SDK and replayed automatically, so ten is wasteful",
+      "Examples only apply when sent through a batch request, not a normal call"
+    ],
+    "answer": 1,
+    "explanation": "The course stresses that examples are not training data; they sit in the prompt and show the model the shape of the answer, which is why they cost tokens on every call. Nothing carries over between requests, so they must be sent each time they are needed.",
+    "source": "01-mso-foundations/04-prompting-modes.md"
+  },
+  {
+    "id": "M1-025",
+    "module": 1,
+    "domain": "Prompt and Context Engineering",
+    "topic": "Prompting modes",
+    "difficulty": "hard",
+    "question": "A larger model handles a structured-output task zero-shot, while a cheaper model gets the structure wrong zero-shot. The team wants to minimize cost. What does the course suggest?",
+    "options": [
+      "Use the larger model, since examples cannot fix a capability gap",
+      "Use the cheaper model zero-shot and raise its temperature to vary the structure",
+      "Try the cheaper model with a few examples and keep it if it meets the eval",
+      "Use the larger model with several examples to make the output even more reliable"
+    ],
+    "answer": 2,
+    "explanation": "Prompting mode and model choice are related levers: adding examples can let a cheaper model match the structure a more capable model gets zero-shot. The team should try the simplest model with the fewest examples that meet the eval, adding capability only where the eval says it is needed.",
+    "source": "01-mso-foundations/04-prompting-modes.md"
+  },
+  {
+    "id": "M1-026",
+    "module": 1,
+    "domain": "Prompt and Context Engineering",
+    "topic": "Prompting modes",
+    "difficulty": "medium",
+    "question": "A simple sentiment task with an obvious output shape already returns correct results zero-shot. A developer wants to add five examples just in case. What is the best guidance?",
+    "options": [
+      "Add them, since more examples always improve accuracy with no downside",
+      "Add them, since examples reduce token cost by shortening the response",
+      "Replace the instruction with the five examples to keep the prompt short",
+      "Stay zero-shot, since each example adds token cost on every call for little gain"
+    ],
+    "answer": 3,
+    "explanation": "Each example costs tokens on every call and consumes context, so the discipline is to use the smallest prompt that produces a reliable result. Zero-shot fits simple tasks with an obvious output shape; the claim that examples lower cost is the reverse of what the course says.",
+    "source": "01-mso-foundations/04-prompting-modes.md"
+  },
+  {
+    "id": "M1-027",
+    "module": 1,
+    "domain": "Applications and Integration",
+    "topic": "SDK vs REST",
+    "difficulty": "easy",
+    "question": "A developer asks whether using the official Python SDK gives access to a different or better model than calling the REST API directly. What is accurate?",
+    "options": [
+      "The SDK reaches a faster model that is not exposed over REST",
+      "Both reach the same API and model; the SDK handles auth, retries, and parsing",
+      "REST reaches the full model, while the SDK uses a lighter cached version",
+      "The SDK runs the model locally, while REST calls the hosted model"
+    ],
+    "answer": 1,
+    "explanation": "The SDK is a thin convenience layer over the same REST API, handling authentication, request construction, retries, and response parsing. SDK and raw REST reach the same API and the same model; the SDK only saves boilerplate.",
+    "source": "01-mso-foundations/05-technical-substrate.md"
+  },
+  {
+    "id": "M1-028",
+    "module": 1,
+    "domain": "Applications and Integration",
+    "topic": "Streaming & sync",
+    "difficulty": "easy",
+    "question": "Users of a chat UI complain about staring at a blank screen while long answers generate. Which response pattern addresses this?",
+    "options": [
+      "Streaming, which sends the response in pieces as it is generated",
+      "Synchronous requests, which return the whole response at once",
+      "The Message Batches API, which processes requests at lower cost",
+      "A larger context window, which lets the model answer faster"
+    ],
+    "answer": 0,
+    "explanation": "Streaming sends the response in pieces as the model generates it, so output appears immediately instead of after a blank-screen wait. Claude streams over the same HTTP connection using server-sent events. A synchronous request is what causes the wait.",
+    "source": "01-mso-foundations/05-technical-substrate.md"
+  },
+  {
+    "id": "M1-029",
+    "module": 1,
+    "domain": "Applications and Integration",
+    "topic": "Async & batch",
+    "difficulty": "hard",
+    "question": "A Python web service must call Claude for many concurrent user requests and return each result in real time, without tying up its application thread. Which approach fits?",
+    "options": [
+      "The Message Batches API, polling each batch until it completes",
+      "A synchronous client in a loop, processing one user at a time",
+      "The AsyncAnthropic client with async/await for non-blocking calls",
+      "Streaming every response so the thread is released between chunks"
+    ],
+    "answer": 2,
+    "explanation": "The async client (AsyncAnthropic) makes non-blocking calls so the application can handle other work while waiting, and requests still return in real time. Batches are the tempting distractor, but they suit bulk offline work and can take up to 24 hours, which fails the real-time requirement.",
+    "source": "01-mso-foundations/05-technical-substrate.md"
+  },
+  {
+    "id": "M1-030",
+    "module": 1,
+    "domain": "Applications and Integration",
+    "topic": "Async & batch",
+    "difficulty": "hard",
+    "question": "A TypeScript developer wants concurrent, non-blocking Claude calls and searches the SDK for a separate async client class like Python's. What should they do?",
+    "options": [
+      "Use the Message Batches API, since TypeScript has no non-blocking option",
+      "Await calls on the standard Anthropic client, which is already Promise-based",
+      "Wrap the raw REST endpoint manually, since the SDK only supports blocking calls",
+      "Install the Python SDK alongside to access the AsyncAnthropic client"
+    ],
+    "answer": 1,
+    "explanation": "In the TypeScript SDK the standard Anthropic client is Promise-based, so you await calls directly; there is no separate async client class. The Batches API solves a different problem (bulk offline work), not non-blocking real-time calls.",
+    "source": "01-mso-foundations/05-technical-substrate.md"
+  },
+  {
+    "id": "M1-031",
+    "module": 1,
+    "domain": "Applications and Integration",
+    "topic": "Async & batch",
+    "difficulty": "medium",
+    "question": "A team runs a nightly evaluation over 20,000 test prompts. Nobody waits on individual results, and cost matters more than turnaround. Which pattern fits best?",
+    "options": [
+      "Streaming each response so results arrive as soon as possible",
+      "The async client firing all 20,000 requests concurrently in real time",
+      "Synchronous calls in a loop, since it is the simplest pattern",
+      "The Message Batches API: submit, get an identifier, and poll for completion"
+    ],
+    "answer": 3,
+    "explanation": "The Message Batches API is built for bulk offline workloads like evaluation runs: you submit many requests, receive an identifier, and poll. Jobs can take up to 24 hours but run at a lower per-token cost. The async client gives concurrency but still returns in real time without the batch discount, which doesn't fit when cost matters more than turnaround.",
+    "source": "01-mso-foundations/05-technical-substrate.md"
+  },
+  {
+    "id": "M1-032",
+    "module": 1,
+    "domain": "Model Selection and Optimization",
+    "topic": "Sampling",
+    "difficulty": "hard",
+    "question": "A teammate notices that running the same prompt twice produced two differently worded answers, both correct, and files it as a bug. Which TWO statements are accurate? (Select TWO.)",
+    "options": [
+      "The model samples each next token from a probability distribution rather than picking a fixed token",
+      "The variation shows the stream was corrupted in transit and should be retried",
+      "Differently worded answers can both be correct, so this is expected behavior rather than a bug",
+      "Wording only varies on the largest tier, so switching tiers removes the variation",
+      "Enabling extended thinking makes the model deterministic and eliminates the variation"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "At each step the model produces a probability distribution over next tokens and samples from it, so the same prompt can return different wording even when both answers are correct. Blaming the transport or the tier is the tempting misdiagnosis; variation is a property of how the model generates, and reasoning does not make it deterministic.",
+    "source": "01-mso-foundations/02-how-llms-behave.md"
+  },
+  {
+    "id": "M1-033",
+    "module": 1,
+    "domain": "Model Selection and Optimization",
+    "topic": "Model family & tiers",
+    "difficulty": "easy",
+    "question": "Which TWO statements about the Claude model tiers match the course's descriptions? (Select TWO.)",
+    "options": [
+      "Haiku is built for speed and cost efficiency on tasks within its capability envelope",
+      "Haiku is the most capable tier and the default for agentic coding work",
+      "Opus handles demanding work above the Sonnet envelope",
+      "Sonnet is intended only for prototyping, not production workloads",
+      "Fable is the lowest-cost tier, intended for simple lookups"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "The course describes Haiku as built for speed and cost efficiency within its envelope and Opus as handling demanding work above the Sonnet envelope. Sonnet is the balanced default for most production work, not a prototyping-only tier, and Fable is the most capable tier rather than the cheapest.",
+    "source": "01-mso-foundations/03-models-reasoning.md"
+  },
+  {
+    "id": "M1-034",
+    "module": 1,
+    "domain": "Model Selection and Optimization",
+    "topic": "Model family & tiers",
+    "difficulty": "easy",
+    "question": "A developer copies Claude model identifiers from a months-old blog post into a new service's configuration. What does the course advise?",
+    "options": [
+      "Keep them, since model identifiers never change once published",
+      "Confirm the current lineup and identifiers against platform.claude.com/docs at build time",
+      "Use whichever identifier the SDK autocompletes, since it always selects the newest model",
+      "Pick the identifier with the highest version number to get the cheapest option"
+    ],
+    "answer": 1,
+    "explanation": "The Claude family is evolving, so the course says to confirm the current model lineup and identifiers against platform.claude.com/docs at build time. Assuming identifiers are permanent is the tempting shortcut; it is exactly the stale-information risk the course warns about.",
+    "source": "01-mso-foundations/03-models-reasoning.md"
+  },
+  {
+    "id": "M1-035",
+    "module": 1,
+    "domain": "Model Selection and Optimization",
+    "topic": "Reasoning modes",
+    "difficulty": "hard",
+    "question": "A team assumed reasoning stays off unless they explicitly enable it. After moving to one of the newest Claude models, they see thinking happening on requests where they never turned it on. What is the best explanation and response?",
+    "options": [
+      "The SDK enables reasoning automatically for any request over a size threshold",
+      "Reasoning is now set per account, so an administrator must have enabled it",
+      "The request was silently routed to a more capable tier that always reasons",
+      "Some of the newest models think adaptively by default or always; confirm that model's thinking defaults"
+    ],
+    "answer": 3,
+    "explanation": "The course notes that per-model defaults differ: some of the newest models think adaptively by default or always, so you should confirm the current thinking defaults at build time. Blaming an account-level setting is wrong because reasoning is configured per request, and model choice never changes silently because reasoning is on.",
+    "source": "01-mso-foundations/03-models-reasoning.md"
+  },
+  {
+    "id": "M1-036",
+    "module": 1,
+    "domain": "Model Selection and Optimization",
+    "topic": "Reasoning modes",
+    "difficulty": "hard",
+    "question": "A team is building an agent for the hardest multi-step coding tasks in their product, where output quality matters far more than latency or cost. Which configuration best matches the course's guidance?",
+    "options": [
+      "A capable model paired with a higher reasoning effort setting",
+      "The smallest tier with reasoning off, plus a lower temperature",
+      "A capable model with reasoning off, since larger models never need to think",
+      "The smallest tier with the maximum thinking budget set via budget_tokens"
+    ],
+    "answer": 0,
+    "explanation": "The course says the most demanding tasks pair a capable model with a higher effort setting, since model choice and reasoning are independent levers that compose. A capable model with reasoning off is fast and direct, which suits simpler work; budget_tokens is deprecated and returns a 400 on the newest models.",
+    "source": "01-mso-foundations/03-models-reasoning.md"
+  },
+  {
+    "id": "M1-037",
+    "module": 1,
+    "domain": "Prompt and Context Engineering",
+    "topic": "Prompting modes",
+    "difficulty": "medium",
+    "question": "A team's prompts keep growing as engineers add instructions and examples \"to be safe.\" Which TWO practices align with the course's guidance on prompting modes? (Select TWO.)",
+    "options": [
+      "Start zero-shot when the task is simple and the output shape is obvious",
+      "Always include at least five examples so the model has enough training data",
+      "Add examples only when a structure or edge case keeps being missed",
+      "Send examples once at the start of a session so later calls inherit them",
+      "Add paragraphs of instructions before ever trying an example"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "The discipline is to add the smallest amount of prompt that produces a reliable result: zero-shot for simple tasks with obvious output, and examples when structure, casing, or edge cases keep being missed. Examples are not training data and do not carry across calls, and the course notes one or two examples often beat another paragraph of instructions.",
+    "source": "01-mso-foundations/04-prompting-modes.md"
+  },
+  {
+    "id": "M1-038",
+    "module": 1,
+    "domain": "Prompt and Context Engineering",
+    "topic": "Prompting modes",
+    "difficulty": "medium",
+    "question": "A document-analysis prompt already runs close to the context window limit because each request includes long source documents. An engineer proposes adding eight long worked examples. What is the main concern?",
+    "options": [
+      "Examples are stored outside the context window, so they only add latency",
+      "Examples permanently retrain the model, so mistakes in them cannot be undone",
+      "Every example consumes context budget and tokens on each call, leaving less room for documents",
+      "Examples disable sampling, so the documents will be summarized identically every time"
+    ],
+    "answer": 2,
+    "explanation": "Each example costs tokens on every call and consumes context budget, and the context window is a fixed budget shared by everything in the request. With documents already near the limit, long examples crowd them out; examples are part of the prompt, not stored separately or used for training.",
+    "source": "01-mso-foundations/04-prompting-modes.md"
+  },
+  {
+    "id": "M1-039",
+    "module": 1,
+    "domain": "Applications and Integration",
+    "topic": "SDK vs REST",
+    "difficulty": "medium",
+    "question": "A team is deciding between the official SDK and hand-written HTTP calls. Which TWO tasks does the SDK handle for them? (Select TWO.)",
+    "options": [
+      "Authentication with the API key",
+      "Trimming conversation history to fit the context window",
+      "Retrying failed requests",
+      "Guaranteeing identical output across repeated calls",
+      "Choosing the cheapest model tier that meets the eval"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "The SDK is a thin convenience layer that handles authentication, request construction, retries, and response parsing. Trimming history is the tempting distractor, but the course is explicit that managing the context window is the application's job, not something the SDK does.",
+    "source": "01-mso-foundations/05-technical-substrate.md"
+  },
+  {
+    "id": "M1-040",
+    "module": 1,
+    "domain": "Applications and Integration",
+    "topic": "Streaming & sync",
+    "difficulty": "easy",
+    "question": "A backend job generates short internal tags for records once an hour, and no user waits on the results. An engineer proposes adding streaming. What is the best advice?",
+    "options": [
+      "Streaming is required for any backend job to avoid timeouts",
+      "Use the Message Batches API, since synchronous calls are deprecated",
+      "Use streaming so the job can reassemble tags faster than a synchronous call",
+      "A synchronous request is fine, since responses are short and no one is waiting"
+    ],
+    "answer": 3,
+    "explanation": "The course describes synchronous requests as fine for short responses and backend jobs where no one is waiting. Streaming's benefit is showing output immediately to a watching user, which does not apply here.",
+    "source": "01-mso-foundations/05-technical-substrate.md"
+  },
+  {
+    "id": "M1-041",
+    "module": 1,
+    "domain": "Applications and Integration",
+    "topic": "Streaming & sync",
+    "difficulty": "medium",
+    "question": "An engineer plans a separate WebSocket service to receive Claude output incrementally for a chat UI. What does the course say about how Claude streams?",
+    "options": [
+      "Streaming requires a dedicated WebSocket connection managed by the SDK",
+      "Claude streams over the same HTTP connection using server-sent events, and the client reassembles the pieces",
+      "Streaming is only available through the Message Batches API",
+      "Claude streams the complete message repeatedly, so the client keeps the last copy"
+    ],
+    "answer": 1,
+    "explanation": "Claude exposes streaming over the same HTTP connection using server-sent events; output arrives in pieces and your code reassembles them into the final message. No separate WebSocket channel is needed, and batches are an offline pattern, not a streaming one.",
+    "source": "01-mso-foundations/05-technical-substrate.md"
+  },
+  {
+    "id": "M1-042",
+    "module": 1,
+    "domain": "Applications and Integration",
+    "topic": "Async & batch",
+    "difficulty": "medium",
+    "question": "A data team is evaluating the Message Batches API for a bulk workload. Which TWO statements about it are accurate? (Select TWO.)",
+    "options": [
+      "Batch jobs can take up to 24 hours to complete",
+      "Results stream back to the caller in real time as each item finishes",
+      "Batches run at a lower per-token cost in exchange for latency",
+      "Batches require the separate AsyncAnthropic client class",
+      "Batches are the recommended pattern for interactive chat features"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "With the Message Batches API you submit many requests in one call, receive an identifier, and poll; jobs can take up to 24 hours and run at a lower per-token cost. Real-time streaming is the tempting distractor, but batches trade latency for cost and are not tied to the async client.",
+    "source": "01-mso-foundations/05-technical-substrate.md"
+  },
+  {
+    "id": "M1-043",
+    "module": 1,
+    "domain": "Applications and Integration",
+    "topic": "Async & batch",
+    "difficulty": "medium",
+    "question": "To cut costs, a product manager proposes routing every message in the company's live customer chat through the Message Batches API. What is the strongest objection?",
+    "options": [
+      "Batches cannot accept chat-style message lists",
+      "Batches cost more per token than synchronous calls",
+      "Batch jobs can take up to 24 hours, which fails users waiting on each reply",
+      "Batches reject any request that includes a system prompt"
+    ],
+    "answer": 2,
+    "explanation": "Batches suit bulk offline work where no user is waiting and cost matters more than turnaround; jobs can take up to 24 hours. A live chat has a user waiting on every reply, so it needs synchronous or streaming responses. The claim that batches cost more is backwards: they run at a lower per-token cost.",
+    "source": "01-mso-foundations/05-technical-substrate.md"
+  },
+  {
+    "id": "M1-044",
+    "module": 1,
+    "domain": "Applications and Integration",
+    "topic": "API request patterns",
+    "difficulty": "easy",
+    "question": "According to the course recap, which TWO factors should drive the choice between synchronous, streaming, async/await, and batch requests? (Select TWO.)",
+    "options": [
+      "Whether a user is waiting on the result",
+      "Which model tier the request uses",
+      "Whether the workload is real-time or bulk offline",
+      "Whether the prompt is zero-shot or multi-shot",
+      "The temperature setting on the request"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "The recap says to choose between synchronous, streaming, async/await, or batch based on whether a user is waiting and whether the workload is real-time or bulk offline. Model tier and prompting mode are separate levers that do not determine request shape.",
+    "source": "01-mso-foundations/05-technical-substrate.md"
+  },
+  {
+    "id": "M1-045",
+    "module": 1,
+    "domain": "Applications and Integration",
+    "topic": "API request patterns",
+    "difficulty": "hard",
+    "question": "An engineer must process 50,000 documents overnight and proposes concatenating them all into a single request to avoid making repeated API calls. What is the best response?",
+    "options": [
+      "Approve it, since one large request is cheaper than many small ones",
+      "Approve it with streaming enabled so the long response arrives in pieces",
+      "Reject it and use a synchronous loop, since loops avoid rate limits",
+      "Reject it: the context window is a fixed per-request budget, so use the batch pattern"
+    ],
+    "answer": 3,
+    "explanation": "The context window is a fixed token budget per request, and an oversized input is rejected before generation, so one giant request is not a substitute for many calls. The module's exercise points to batch submission with polling for this workload; a synchronous loop is the tempting fallback, but it would hit rate limits and tie up the application.",
+    "source": "01-mso-foundations/05-technical-substrate.md"
+  }
+]

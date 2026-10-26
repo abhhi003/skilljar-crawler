@@ -1,0 +1,1107 @@
+[
+  {
+    "id": "C1-001",
+    "module": 1,
+    "domain": "Prompt Engineering & Structured Output",
+    "scenario": "Structured Data Extraction",
+    "topic": "Prefill + stop sequence for raw JSON",
+    "difficulty": "medium",
+    "question": "An invoice-extraction service asks Claude to \"return the invoice fields as JSON.\" About 20% of responses begin with a line such as \"Here is the extracted data:\" and end with a short note, so json.loads() fails. Which change most directly produces raw, parseable JSON on every call?",
+    "options": [
+      "Raise max_tokens so Claude has room to finish the JSON before it adds any closing commentary",
+      "Set temperature to 1.0 so Claude explores output formats that leave out the extra commentary",
+      "Prefill the assistant turn with \"```json\" and set \"```\" as the stop sequence",
+      "Append a follow-up user message after each response asking Claude to strip its commentary"
+    ],
+    "answer": 2,
+    "explanation": "With the opening delimiter prefilled, Claude treats the response as already started and emits only the content. The matching stop sequence halts generation at the closing fence, so no header or footer text appears. Raising max_tokens only changes the length ceiling and does nothing about the unwanted prose.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Structured Data"
+  },
+  {
+    "id": "C1-002",
+    "module": 1,
+    "domain": "Prompt Engineering & Structured Output",
+    "topic": "Stop sequence output",
+    "difficulty": "easy",
+    "question": "You ask Claude to \"count from one to ten, separated by commas\" and pass the stop sequence \", five\". What text is returned?",
+    "options": [
+      "one, two, three, four, five",
+      "one, two, three, four",
+      "one, two, three, four, ",
+      "The full count to ten, because stop sequences filter only the prompt"
+    ],
+    "answer": 1,
+    "explanation": "Generation halts as soon as the exact stop string is produced, and the stop string itself is not included in the output. Because \", five\" includes the leading comma and space, the result is the clean \"one, two, three, four\". A stop sequence of just \"five\" would leave the trailing \"four, \".",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Controlling Model Output"
+  },
+  {
+    "id": "C1-003",
+    "module": 1,
+    "domain": "Prompt Engineering & Structured Output",
+    "scenario": "Structured Data Extraction",
+    "topic": "Stitching prefill and continuation",
+    "difficulty": "hard",
+    "question": "An extraction pipeline prefills the assistant message with {\"customer_id\": so the JSON always starts with that key. The logs look plausible, but json.loads(response.content[0].text) fails on every call. What is the cause?",
+    "options": [
+      "Prefilled assistant messages are ignored unless a stop sequence is also supplied, so Claude returns free-form prose instead",
+      "The prefill makes Claude repeat the opening key, which produces a duplicated customer_id field that json.loads() rejects",
+      "Prefill only takes effect on the first turn of a conversation, so later calls return an object wrapped in markdown",
+      "The returned text starts after the prefill, so it must be joined with the prefill before parsing"
+    ],
+    "answer": 3,
+    "explanation": "Claude treats the prefill as text it already wrote and resumes from exactly where it stops. The API returns only the new tokens, so the application has to join the prefill and the generated text before parsing. Claude does not repeat the prefill, and the technique works without a stop sequence.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Controlling Model Output"
+  },
+  {
+    "id": "C1-004",
+    "module": 1,
+    "domain": "Prompt Engineering & Structured Output",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "Prefill to steer response direction",
+    "difficulty": "easy",
+    "question": "Replies to refund requests from a support agent must open by acknowledging the customer's frustration before any policy details, but the model sometimes skips this despite instructions. Which API technique most directly controls how each reply begins?",
+    "options": [
+      "Set a stop sequence of \"policy\" so Claude cannot reach policy details before it acknowledges the customer",
+      "Prefill the assistant message with an empathetic opening that Claude then continues",
+      "Lower max_tokens so Claude is forced to prioritize the acknowledgement over the policy details",
+      "Raise temperature so Claude is more likely to choose empathetic phrasing at the start of each reply"
+    ],
+    "answer": 1,
+    "explanation": "Prefilling puts words in Claude's mouth, and Claude continues from them, which steers the direction of the reply. The course's \"Coffee is better because\" example shows that a prefill locks in where the response starts. A stop sequence on \"policy\" would just cut the reply off and would not make it start with empathy.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Controlling Model Output"
+  },
+  {
+    "id": "C1-005",
+    "module": 1,
+    "domain": "Prompt Engineering & Structured Output",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Prefill when output format is unknown",
+    "difficulty": "medium",
+    "question": "An internal AWS helper returns Python, a JSON config, or a raw regex depending on the task, and the caller cannot know in advance which one. You want only the code, with no commentary, using prefill plus a stop sequence. Which prefill matches the course's approach?",
+    "options": [
+      "\"```python\" for every request, because JSON and regex are valid Python literals",
+      "No prefill at all, with \"```\" as the stop sequence so Claude halts after its first code block",
+      "A generic \"```code\" opening, with \"```\" as the stop sequence",
+      "\"```json\" for every request, converting any non-JSON output to strings during parsing"
+    ],
+    "answer": 2,
+    "explanation": "When the exact format isn't known ahead of time, the course prefills a generic \"```code\" fence and stops on the closing fence. Leaving out the prefill is the trap: Claude would usually open with prose and then hit the stop sequence on its own opening fence, so you would get commentary instead of code.",
+    "source": "03-claude-with-google-vertex/_official-course-notes.md#Code Based Grading"
+  },
+  {
+    "id": "C1-006",
+    "module": 1,
+    "domain": "Prompt Engineering & Structured Output",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "Clear and direct first line",
+    "difficulty": "easy",
+    "question": "A ticket-summary prompt opens with three paragraphs of company background and ends with \"it would be nice to have a summary of this.\" Summaries come back inconsistent. Applying the \"be clear and direct\" technique, what should you change first?",
+    "options": [
+      "Open with an action-verb line stating the task and the expected output format",
+      "Move the company background into a tag named <data> so Claude knows it can skip that section",
+      "Add several example summaries before the background so Claude can infer what task is wanted",
+      "Raise temperature so Claude tries more summary styles and settles on a better one by itself"
+    ],
+    "answer": 0,
+    "explanation": "The course treats the first line as the most important part of a prompt. It should start with an action verb, state the task directly, and say what output is expected. Adding examples can help later, but it doesn't fix a prompt that never clearly states its task.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Being Clear and Direct"
+  },
+  {
+    "id": "C1-007",
+    "module": 1,
+    "domain": "Prompt Engineering & Structured Output",
+    "topic": "When to use step guidelines",
+    "difficulty": "medium",
+    "question": "When does the course recommend adding Type B guidelines (steps for the model to follow) on top of Type A guidelines (desired output attributes)?",
+    "options": [
+      "For nearly every prompt, because step lists consistently outperform lists of output attributes",
+      "Only when the output must be valid JSON, since the steps define the order of the schema fields",
+      "When the prompt is very short, to compensate for the lack of interpolated content in it",
+      "For complex problems needing viewpoints the model would not naturally consider"
+    ],
+    "answer": 3,
+    "explanation": "Type B steps shape how the model reaches its answer. The course reserves them for complex problems that need a broader perspective. Type A attributes, not steps, are what the course recommends for almost every prompt.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Being Specific"
+  },
+  {
+    "id": "C1-008",
+    "module": 1,
+    "domain": "Prompt Engineering & Structured Output",
+    "topic": "Type A vs Type B guidelines",
+    "difficulty": "medium",
+    "question": "Which two statements about the two kinds of guidelines from the \"Being Specific\" lesson are accurate? (Select TWO.)",
+    "options": [
+      "Type A guidelines should be reserved for complex problems that need extra perspectives",
+      "Type A guidelines describe qualities of the output, such as its length, structure, and format",
+      "Type A and Type B guidelines conflict and should not be combined in the same prompt",
+      "Type B guidelines remove the need for a clear action verb in the prompt's first line",
+      "Type B guidelines shape how the model arrives at its answer by giving it steps to follow"
+    ],
+    "answer": [
+      1,
+      4
+    ],
+    "explanation": "Type A lists output attributes and Type B lists reasoning steps, and professional prompts often combine the two. It is Type B, not Type A, that the course reserves for complex problems. Type A is recommended for nearly all prompts.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Being Specific"
+  },
+  {
+    "id": "C1-009",
+    "module": 1,
+    "domain": "Prompt Engineering & Structured Output",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "XML tags to separate content",
+    "difficulty": "medium",
+    "question": "A debugging assistant pastes a user's 300-line module and a 200-line excerpt of library documentation into one prompt, back to back. Claude sometimes \"fixes\" lines that actually come from the documentation. What is the best change?",
+    "options": [
+      "Wrap both blocks in a single <data> tag so Claude knows that all of the text is input",
+      "Move the docs into the system prompt and leave the code untagged in the user message",
+      "Wrap the blocks in descriptive tags such as <my_code> and <docs>",
+      "Lower temperature to 0 so Claude stops confusing the two sources of interpolated text"
+    ],
+    "answer": 2,
+    "explanation": "XML tags help Claude tell different kinds of interpolated content apart and see where each block ends, and the course uses exactly this code-versus-docs example. A single generic <data> tag still leaves the two blocks merged together. Temperature changes randomness, not Claude's understanding of the prompt's structure.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Structure with XML Tags"
+  },
+  {
+    "id": "C1-010",
+    "module": 1,
+    "domain": "Prompt Engineering & Structured Output",
+    "topic": "Descriptive XML tag names",
+    "difficulty": "easy",
+    "question": "You are wrapping a block of quarterly CRM sales exports in an XML tag inside a prompt. Which tag name best follows the course's guidance?",
+    "options": [
+      "<data>",
+      "<sales_records>",
+      "<input_1>",
+      "<block>"
+    ],
+    "answer": 1,
+    "explanation": "The course recommends specific, descriptive tag names because they tell Claude what kind of content it is reading. \"sales_records\" carries that meaning, while generic names like \"data\" give Claude no context about the content.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Structure with XML Tags"
+  },
+  {
+    "id": "C1-011",
+    "module": 1,
+    "domain": "Prompt Engineering & Structured Output",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "Few-shot examples for corner cases",
+    "difficulty": "medium",
+    "question": "A sentiment router for support tickets labels messages such as \"Great, the third broken charger this month. Fantastic service.\" as positive. The label definitions are already clear. Which two changes does the course recommend? (Select TWO.)",
+    "options": [
+      "Add examples of sarcastic messages paired with their correct labels",
+      "Raise the temperature so Claude considers less likely labels such as negative",
+      "Add a stop sequence on \"positive\" so that label can never be emitted",
+      "Add an explicit note telling Claude to be especially careful with sarcasm",
+      "Replace the label definitions with a longer role description in the system prompt"
+    ],
+    "answer": [
+      0,
+      3
+    ],
+    "explanation": "Multi-shot examples are the course's tool for corner cases like sarcasm, and it recommends adding context that calls out the tricky scenario. A stop sequence on \"positive\" would just break legitimate positive classifications. Raising temperature adds randomness and does not teach Claude to recognize sarcasm.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Providing Examples"
+  },
+  {
+    "id": "C1-012",
+    "module": 1,
+    "domain": "Prompt Engineering & Structured Output",
+    "scenario": "Structured Data Extraction",
+    "topic": "Selecting and annotating examples",
+    "difficulty": "hard",
+    "question": "An extraction prompt's eval scores have plateaued, so you plan to add few-shot examples. Which two practices does the course recommend? (Select TWO.)",
+    "options": [
+      "Use the highest-scoring outputs from your prompt evaluations as the example outputs",
+      "Drop the written guidelines once examples are added, since examples replace instructions",
+      "Leave examples unwrapped so they blend naturally into the surrounding instructions",
+      "Explain alongside each example why its output is considered ideal",
+      "Use only typical inputs as examples, avoiding corner cases that might confuse the model"
+    ],
+    "answer": [
+      0,
+      3
+    ],
+    "explanation": "The course suggests taking the best-scoring eval outputs as templates and adding reasoning about why they are ideal, which reinforces the behavior you want. Examples should be clearly wrapped and should sit after the guidelines, not replace them. Corner cases are one of the main reasons to use examples at all.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Providing Examples"
+  },
+  {
+    "id": "C1-013",
+    "module": 1,
+    "domain": "Prompt Engineering & Structured Output",
+    "topic": "Example placement",
+    "difficulty": "easy",
+    "question": "Where in a prompt does the course recommend placing one-shot or multi-shot examples?",
+    "options": [
+      "Before the first line, so the action verb comes after them",
+      "Only inside the system prompt, separate from the task",
+      "After the main instructions and guidelines",
+      "Split up inside each guideline bullet they illustrate"
+    ],
+    "answer": 2,
+    "explanation": "The best practices in the course say to place examples after the main instructions and guidelines. Putting them before the first line goes against the clear-and-direct principle that the opening line should state the task.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Providing Examples"
+  },
+  {
+    "id": "C1-014",
+    "module": 1,
+    "domain": "Prompt Engineering & Structured Output",
+    "scenario": "Structured Data Extraction",
+    "topic": "Examples for complex output structure",
+    "difficulty": "medium",
+    "question": "Extracted shipment records must follow a nested JSON shape: an array of packages, each with nested dimensions and a customs object. A prose description of this shape still produces frequent structural mistakes. What should you add to the prompt?",
+    "options": [
+      "A longer prose description that lists every field in alphabetical order",
+      "A sample input paired with its ideal nested JSON output, wrapped in XML tags",
+      "A higher max_tokens value so the nested structure is never truncated",
+      "A temperature of 1.0 so Claude tries several structures across calls"
+    ],
+    "answer": 1,
+    "explanation": "The course names complex output formats, including intricate JSON structures, as a key use for examples. Showing the structure works better than describing it. Raising max_tokens only matters when output is cut off, and the problem here is the wrong shape, not truncation.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Providing Examples"
+  },
+  {
+    "id": "C1-015",
+    "module": 1,
+    "domain": "Prompt Engineering & Structured Output",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "Delimiting examples from real input",
+    "difficulty": "hard",
+    "question": "A reply-drafting prompt pastes a sample customer email and an ideal reply directly after the instructions, followed by the real customer's email, with no markers. Claude sometimes answers questions from the sample email or reuses its order number. What is the best fix?",
+    "options": [
+      "Wrap the sample input and ideal reply in <example> tags, apart from the real email",
+      "Delete the example entirely, because one-shot prompting tends to leak sample details into outputs",
+      "Move the real customer's email above the instructions so that it is read before the sample",
+      "Add the sample's order number as a stop sequence so that value can never appear in a reply"
+    ],
+    "answer": 0,
+    "explanation": "The course says examples should always be clearly wrapped in XML tags that separate the sample input and ideal output from the actual prompt content. Without boundaries, Claude cannot tell which email is real. Deleting the example throws away a useful technique when the actual problem is missing structure.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Providing Examples"
+  },
+  {
+    "id": "C1-016",
+    "module": 1,
+    "domain": "Prompt Engineering & Structured Output",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "Role-based system prompt",
+    "difficulty": "medium",
+    "question": "A cloud vendor's support bot uses a long system-prompt rule list (\"don't mention competitors,\" \"don't answer non-cloud questions,\" and so on) and still mishandles situations the list doesn't cover. Which system prompt approach does the course say handles such edge cases more naturally?",
+    "options": [
+      "Keep appending each newly discovered edge case to the rule list as production incidents occur",
+      "Move the rule list into the first user message so that it sits closer to the customer's question",
+      "Remove the system prompt and rely on temperature 0 to keep the bot's behavior consistent",
+      "Assign a role, such as \"You are a cloud support specialist for <vendor>\""
+    ],
+    "answer": 3,
+    "explanation": "The course explains that giving the model a role makes it act like a real specialist, which automatically covers cases such as avoiding competitor mentions or declining off-topic questions. That generalizes better than an explicit list of rules. Adding more and more rules still leaves the cases nobody has thought of yet.",
+    "source": "06-claude-in-amazon-bedrock/_official-course-notes.md#System Prompts"
+  },
+  {
+    "id": "C1-017",
+    "module": 1,
+    "domain": "Prompt Engineering & Structured Output",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Optional system prompt implementation",
+    "difficulty": "hard",
+    "question": "A shared chat() helper accepts an optional system prompt and always passes system=system_prompt to messages.create(). Calls made without a system prompt fail. Which implementation does the course recommend?",
+    "options": [
+      "Default the system argument to an empty string so the key is always present in the call",
+      "Send the system text as an assistant message at the start of the message list instead",
+      "Add the system key to the request only when a prompt is actually provided",
+      "Copy the system text into the first user message on every call, whether or not it exists"
+    ],
+    "answer": 2,
+    "explanation": "The system parameter can't be None, so the course leaves the key out entirely when no prompt is given. An empty string is the tempting fix, but the course warns that a system prompt must contain at least one character, so it causes its own error.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#System Prompts"
+  },
+  {
+    "id": "C1-018",
+    "module": 1,
+    "domain": "Prompt Engineering & Structured Output",
+    "topic": "Purpose of system prompts",
+    "difficulty": "easy",
+    "question": "An edtech team wants Claude to give students hints and leading questions rather than full solutions to math problems. What role does the system prompt play in this design?",
+    "options": [
+      "It supplies the math problems, so user messages only need to contain the student's name",
+      "It controls how Claude responds, e.g. as a patient tutor who guides rather than solves",
+      "It stores each student's earlier answers between calls so that Claude remembers them",
+      "It caps the length of every answer, which replaces the need to set max_tokens"
+    ],
+    "answer": 1,
+    "explanation": "System prompts shape Claude's approach and tone, meaning how it responds rather than what content it is given. The math-tutor role is the course's own example. The API is stateless, so the system prompt cannot store anything between calls.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#System Prompts"
+  },
+  {
+    "id": "C1-019",
+    "module": 1,
+    "domain": "Prompt Engineering & Structured Output",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "max_tokens is a ceiling, not a target",
+    "difficulty": "hard",
+    "question": "To keep chat replies short, a team lowered max_tokens to 120, and replies now often end mid-sentence. Which two statements reflect the course's guidance? (Select TWO.)",
+    "options": [
+      "Lowering max_tokens further will teach Claude to plan shorter replies",
+      "A stop sequence of \".\" is the reliable way to get complete short replies",
+      "max_tokens is a safety limit on generation length, not a target length",
+      "The desired reply length should be stated as an output guideline in the prompt",
+      "Raising temperature makes Claude favor shorter tokens and finish sooner"
+    ],
+    "answer": [
+      2,
+      3
+    ],
+    "explanation": "The course describes max_tokens as a safety cap. Claude does not plan its answer to fit it, so a low value just truncates the reply. Length belongs in the prompt as a Type A attribute. A \".\" stop sequence would cut every reply at its first sentence, including ones that need more than one sentence.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Making a Request"
+  },
+  {
+    "id": "C1-020",
+    "module": 1,
+    "domain": "Prompt Engineering & Structured Output",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Code-based syntax validation",
+    "difficulty": "medium",
+    "question": "A tool generates regular expressions for log filters. You want an automated, objective check that each output is at least a valid regex. Which approach matches the course's code-based grading?",
+    "options": [
+      "Ask a second Claude call whether the regex looks correct and accept its yes or no",
+      "Try to compile the output, scoring 10 if it compiles and 0 if it raises an error",
+      "Check that the output contains at least one backslash or one bracket character",
+      "Have a reviewer spot-check a random five percent of generated patterns each week"
+    ],
+    "answer": 1,
+    "explanation": "The course checks syntax by parsing or compiling inside try/except: a clean parse scores 10 and an error scores 0. This is objective and cheap. A model grader is flexible, but it is the wrong tool for a deterministic validity check that code can do exactly.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Code Based Grading"
+  },
+  {
+    "id": "C1-021",
+    "module": 1,
+    "domain": "Prompt Engineering & Structured Output",
+    "topic": "Scope of the structured-output pattern",
+    "difficulty": "easy",
+    "question": "The prefill-plus-stop-sequence pattern for getting clean structured output applies to which kinds of content?",
+    "options": [
+      "Only JSON, because the stop sequence depends on the JSON parser to detect the end",
+      "Only outputs short enough to fit within the default max_tokens value",
+      "Only responses generated at temperature 0, where the format is guaranteed",
+      "Any delimited structured content, such as JSON, Python code, or lists"
+    ],
+    "answer": 3,
+    "explanation": "The course states that the technique works for any structured data type, including JSON, Python code, and lists. Stop sequences are plain string matches and have nothing to do with a JSON parser, so the pattern is not limited to JSON.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Structured Data"
+  },
+  {
+    "id": "C1-022",
+    "module": 1,
+    "domain": "Prompt Engineering & Structured Output",
+    "scenario": "Structured Data Extraction",
+    "topic": "Request-level controls for raw output",
+    "difficulty": "medium",
+    "question": "Without changing the wording of the user prompt, which two request-level mechanisms together make Claude return only the JSON body with no surrounding commentary? (Select TWO.)",
+    "options": [
+      "A temperature of 1.0 to discourage habitual preambles and sign-offs",
+      "A max_tokens value set to match the expected length of the JSON",
+      "An assistant message prefilled with the opening delimiter \"```json\"",
+      "An empty system prompt so that no persona text is added to replies",
+      "A stop sequence set to the closing delimiter \"```\""
+    ],
+    "answer": [
+      2,
+      4
+    ],
+    "explanation": "The prefill makes Claude act as if it has already opened the code block, and the stop sequence ends generation at the closing fence. Together they leave only the data. Setting max_tokens to the expected size risks truncation and does nothing to stop a preamble.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Structured Data"
+  },
+  {
+    "id": "C1-023",
+    "module": 1,
+    "domain": "Prompt Engineering & Structured Output",
+    "topic": "Iterative prompt engineering",
+    "difficulty": "medium",
+    "question": "A team rewrote its meal-planning prompt by applying a clear first line, guidelines, XML tags, and examples all at once, then saw its eval score drop and cannot tell why. Which process does the course recommend instead?",
+    "options": [
+      "Revert to the original prompt, since stacking techniques usually lowers eval scores",
+      "Apply one technique at a time, re-running the eval after each change",
+      "Switch to a larger model, since technique gains only show up on smaller models",
+      "Drop the eval and judge the rewritten prompt by reading a handful of outputs"
+    ],
+    "answer": 1,
+    "explanation": "The course's loop is to write the prompt, evaluate it, apply one technique, evaluate again, and repeat. Measuring after each change shows which technique helped or hurt. Combining the techniques was never the problem, because professional prompts use all of them together.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Prompt Engineering"
+  },
+  {
+    "id": "C1-024",
+    "module": 1,
+    "domain": "Prompt Engineering & Structured Output",
+    "topic": "Recognizing a clear first line",
+    "difficulty": "easy",
+    "question": "Which opening line best applies the course's \"be clear and direct\" guidance?",
+    "options": [
+      "\"I've been thinking about athlete nutrition and wondered what you might suggest.\"",
+      "\"Athletes have many dietary needs, and planning their meals can get complicated.\"",
+      "\"Generate a one-day meal plan for an athlete that meets their dietary restrictions.\"",
+      "\"What should this person eat, given everything about them listed below?\""
+    ],
+    "answer": 2,
+    "explanation": "A clear first line starts with an action verb, states the task directly, and specifies the deliverable. The other openings are vague, give background, or ask an indirect question. The course's weak starting prompt was essentially \"What should this person eat?\"",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Being Clear and Direct"
+  },
+  {
+    "id": "C1-025",
+    "module": 1,
+    "domain": "Prompt Engineering & Structured Output",
+    "topic": "Type A attribute guidelines",
+    "difficulty": "medium",
+    "question": "A release-notes generator already has a clear, action-verb first line, but outputs vary wildly: some are one line and others are 1,000 words with no sections. Which addition targets this problem most directly?",
+    "options": [
+      "A list of output attributes such as target length, required sections, and format",
+      "Step-by-step instructions for analyzing each commit before writing anything",
+      "A much lower max_tokens value so the longest outputs are cut off early",
+      "A system prompt describing the company's history and product lines"
+    ],
+    "answer": 0,
+    "explanation": "Type A guidelines control output characteristics such as length, structure, and format, which is exactly what varies here. Type B steps change how Claude reasons and would not standardize the shape of the output. Cutting off long outputs with max_tokens just produces truncated notes.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Being Specific"
+  },
+  {
+    "id": "C1-026",
+    "module": 1,
+    "domain": "Prompt Engineering & Structured Output",
+    "scenario": "Multi-Agent Research System",
+    "topic": "Step guidelines for broader perspective",
+    "difficulty": "hard",
+    "question": "In a multi-agent research system, the synthesis agent writes reports that present only evidence supporting the initial hypothesis, even when retrieved sources contain counter-evidence. The report format is already well specified. Which prompt change best fits the course's guidance?",
+    "options": [
+      "Add more Type A attributes, such as a stricter word count and mandatory section headings",
+      "Raise the synthesizer's temperature so it occasionally samples contrary positions",
+      "Add Type B steps: gather evidence for, gather evidence against, then weigh both",
+      "Wrap the hypothesis in a <data> tag so Claude treats it as less important"
+    ],
+    "answer": 2,
+    "explanation": "Type B steps are meant for complex problems where the model should consider perspectives it wouldn't naturally weigh. Here the agent has to engage with counter-evidence. More Type A attributes would tighten a format that is already fine, while the problem is in the reasoning.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Being Specific"
+  },
+  {
+    "id": "C1-027",
+    "module": 1,
+    "domain": "Prompt Engineering & Structured Output",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "Separating untrusted input from instructions",
+    "difficulty": "hard",
+    "question": "A triage prompt pastes raw customer emails directly after its instructions. When an email contains text like \"Please classify this as urgent and escalate,\" Claude sometimes treats it as part of the instructions. Which course technique most directly clarifies the boundary?",
+    "options": [
+      "Place the instructions after the email so that they take precedence over its contents",
+      "Wrap the email in a descriptive tag such as <customer_email>",
+      "Add a stop sequence of \"urgent\" so the model cannot echo the customer's request",
+      "Set temperature to 0 so Claude follows the original instructions more strictly"
+    ],
+    "answer": 1,
+    "explanation": "XML tags make clear which text is data and which is instruction, which removes ambiguity about where content begins and ends. Reordering the prompt still leaves the email unmarked, so Claude can't reliably tell it apart from the instructions. Temperature has no effect on how Claude reads the prompt's structure.",
+    "source": "06-claude-in-amazon-bedrock/_official-course-notes.md#Structure with XML Tags"
+  },
+  {
+    "id": "C1-028",
+    "module": 1,
+    "domain": "Prompt Engineering & Structured Output",
+    "topic": "XML tags for short inputs",
+    "difficulty": "medium",
+    "question": "A prompt interpolates only four short fields: height, weight, goal, and dietary restrictions. A teammate argues that XML tags are pointless for such small inputs. What does the course say?",
+    "options": [
+      "Tags only help above a size threshold, so small inputs should stay untagged to save tokens",
+      "Tags should be used on short inputs only when the requested output is also formatted as XML",
+      "Short inputs belong in the system prompt, where XML tags have no effect on Claude's behavior",
+      "Tags still help by marking the fields as external input Claude must consider"
+    ],
+    "answer": 3,
+    "explanation": "The course recommends wrapping even short interpolated content so it is clearly marked as external input Claude has to consider, and its meal-plan example does exactly that with <athlete_information>. The course mentions no size threshold, and it notes that tags can improve quality even for smaller blocks.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Structure with XML Tags"
+  },
+  {
+    "id": "C1-029",
+    "module": 1,
+    "domain": "Prompt Engineering & Structured Output",
+    "scenario": "Structured Data Extraction",
+    "topic": "Prefill and stop sequence for a single label",
+    "difficulty": "hard",
+    "question": "A document classifier must return exactly one category label, and downstream code breaks whenever Claude adds an explanation. You decide to ask for the label inside <category> tags. Which configuration returns only the label text?",
+    "options": [
+      "Prefill the assistant message with \"</category>\" and set \"<category>\" as the stop sequence",
+      "Prefill the assistant message with \"<category>\" and set \"</category>\" as the stop sequence",
+      "Set \"<category>\" as the stop sequence and parse whatever text appears before it",
+      "Prefill the complete answer \"<category>billing</category>\" so the format is locked in"
+    ],
+    "answer": 1,
+    "explanation": "This is the same pattern as structured data: prefill the opening delimiter so Claude continues inside it, and stop on the closing delimiter so nothing comes after. Stopping on the opening tag would return only the preamble. Prefilling a full answer hard-codes the label instead of letting Claude classify.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Structured Data"
+  },
+  {
+    "id": "C1-030",
+    "module": 1,
+    "domain": "Prompt Engineering & Structured Output",
+    "topic": "Multiple stop sequences",
+    "difficulty": "medium",
+    "question": "You pass two stop sequences, \"END\" and \"###\", in one request. Claude generates \"###\" before it would ever produce \"END\". What happens?",
+    "options": [
+      "Generation continues until both of the sequences have been produced",
+      "Generation halts at \"###\", and the returned text ends with \"###\"",
+      "Generation halts at \"###\", and \"###\" is left out of the returned text",
+      "Only the first sequence in the list, \"END\", is honored by the API"
+    ],
+    "answer": 2,
+    "explanation": "You can supply several stop sequences, and generation halts at the first one that matches. As with any stop sequence, the matched text is not included in the response. The API does not wait for every sequence to appear.",
+    "source": "06-claude-in-amazon-bedrock/_official-course-notes.md#Controlling Model Output"
+  },
+  {
+    "id": "C1-031",
+    "module": 1,
+    "domain": "Prompt Engineering & Structured Output",
+    "scenario": "Structured Data Extraction",
+    "topic": "Stop sequence collisions with content",
+    "difficulty": "hard",
+    "question": "A pipeline extracts README sections into JSON using a \"```json\" prefill and a \"```\" stop sequence. Records whose field values contain markdown code samples come back truncated and unparseable. What is happening?",
+    "options": [
+      "Stop sequences match only at the start of a line, so the closing fence was missed and max_tokens ran out",
+      "The \"```json\" prefill caused Claude to escape every backtick, which corrupted the body of the JSON",
+      "The JSON exceeded an internal stop-sequence buffer, so Claude shortened it to fit the limit",
+      "The stop sequence also fires on fences inside field values, ending the output early"
+    ],
+    "answer": 3,
+    "explanation": "A stop sequence halts generation the moment that exact string is produced, wherever it appears. A code fence inside a field value ends the response early. The fix is a closing delimiter that cannot appear in the data. Nothing restricts matching to the start of a line.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Controlling Model Output"
+  },
+  {
+    "id": "C1-032",
+    "module": 1,
+    "domain": "Prompt Engineering & Structured Output",
+    "topic": "Elements of a clear first line",
+    "difficulty": "medium",
+    "question": "According to the \"Being Clear and Direct\" lesson, which two elements belong in a prompt's first line? (Select TWO.)",
+    "options": [
+      "An action verb that states exactly what the model should do",
+      "Background on the organization that will use the response",
+      "Details of the expected output, such as quantity or format",
+      "A full list of the edge cases the model might encounter",
+      "A friendly greeting to establish a conversational tone"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "The course's structure for a first line is an action verb, then a direct task statement, then output specifications, as in \"Write three paragraphs about how solar panels work.\" Background and edge cases can come later in the prompt. Putting them first pushes the actual task down.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Being Clear and Direct"
+  },
+  {
+    "id": "C1-033",
+    "module": 1,
+    "domain": "Prompt Engineering & Structured Output",
+    "topic": "One-shot vs multi-shot",
+    "difficulty": "easy",
+    "question": "What distinguishes multi-shot prompting from one-shot prompting?",
+    "options": [
+      "Multi-shot sends the same prompt several times and keeps the best response from the set",
+      "Multi-shot includes several examples in the prompt, while one-shot includes a single example",
+      "Multi-shot spreads the task across several conversation turns, while one-shot uses one turn",
+      "Multi-shot lets Claude ask clarifying questions, while one-shot forbids follow-up questions"
+    ],
+    "answer": 1,
+    "explanation": "Both terms describe how many examples of input and ideal output are placed in the prompt: one for one-shot, several for multi-shot. Neither has anything to do with retrying calls, splitting work across turns, or allowing questions.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Providing Examples"
+  },
+  {
+    "id": "C1-034",
+    "module": 1,
+    "domain": "Prompt Engineering & Structured Output",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "Examples to convey style",
+    "difficulty": "medium",
+    "question": "A support team's guidance says replies should be \"friendly but concise,\" yet the drafted replies range from curt to chatty. Which change best conveys the expected style?",
+    "options": [
+      "Add example replies in the ideal style, noting why each one is ideal",
+      "Repeat \"friendly but concise\" several times throughout the prompt for emphasis",
+      "Lower max_tokens until the chatty replies are truncated to an acceptable length",
+      "Raise temperature so the model explores tones and converges on the right one"
+    ],
+    "answer": 0,
+    "explanation": "Examples clarify expected quality and style in a way an adjective can't. Explaining why an example is ideal reinforces the target behavior. Repeating a vague descriptor doesn't make it more specific, and truncating replies with max_tokens cuts them off mid-thought.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Providing Examples"
+  },
+  {
+    "id": "C1-035",
+    "module": 1,
+    "domain": "Context Management & Reliability",
+    "scenario": "Structured Data Extraction",
+    "topic": "Detecting truncated output",
+    "difficulty": "hard",
+    "question": "A batch job extracts line items from long contracts using prefill and stop sequences. Occasionally the returned JSON ends abruptly and fails to parse. What should the job check first to diagnose and route these failures?",
+    "options": [
+      "The usage input-token count, to see whether the prompt was larger than on previous runs",
+      "The temperature setting, since any nonzero temperature truncates long structured outputs",
+      "The content_block_start event, which reports whether the JSON body was left incomplete",
+      "The stop_reason, to see whether max_tokens ended generation"
+    ],
+    "answer": 3,
+    "explanation": "Generation stops either at max_tokens or when the model finishes naturally (or hits a stop sequence), and stop_reason says which happened. A max_tokens stop identifies truncation as the cause, so those records can be retried with a higher limit. Temperature changes token choice, not where generation ends.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Accessing the API"
+  },
+  {
+    "id": "C1-036",
+    "module": 1,
+    "domain": "Context Management & Reliability",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "Prompt testing traps",
+    "difficulty": "easy",
+    "question": "A team wrote a new system prompt for its support agent. Which two pre-deployment approaches does the course describe as common traps? (Select TWO.)",
+    "options": [
+      "Running the prompt over a test dataset in an evaluation pipeline",
+      "Testing the prompt once or twice and then deploying it to production",
+      "Scoring every response objectively and comparing average scores",
+      "Iterating on the prompt based on measured scores before release",
+      "Trying a few custom inputs and tweaking the wording for each corner case"
+    ],
+    "answer": [
+      1,
+      4
+    ],
+    "explanation": "The course lays out three paths after writing a prompt. Testing once or twice and ad hoc tweaking for corner cases are both traps, because engineers routinely under-test their prompts. The recommended path is an eval pipeline that produces objective scores.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Prompt Evaluation"
+  },
+  {
+    "id": "C1-037",
+    "module": 1,
+    "domain": "Context Management & Reliability",
+    "topic": "Eval workflow order",
+    "difficulty": "medium",
+    "question": "Which sequence matches the typical prompt-evaluation workflow described in the course?",
+    "options": [
+      "Build dataset, grade the dataset inputs, draft prompt, run the prompt once, then deploy",
+      "Draft prompt, build dataset, run all inputs, grade, average, iterate",
+      "Draft prompt, run it on one input, grade that output, deploy if it scores 7 or higher",
+      "Write expected outputs, draft prompt, tweak until one output matches, then build dataset"
+    ],
+    "answer": 1,
+    "explanation": "The workflow is to draft a baseline prompt, build an evaluation dataset, put each input into the prompt template, collect Claude's responses, grade them, average the scores, and iterate. Grading a single output can't give an objective measure of prompt performance across many inputs.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#A Typical Eval Workflow"
+  },
+  {
+    "id": "C1-038",
+    "module": 1,
+    "domain": "Context Management & Reliability",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Building eval datasets",
+    "difficulty": "medium",
+    "question": "A team keeps postponing its first prompt eval because it believes it needs a large human-labelled dataset. Which two statements about eval datasets match the course? (Select TWO.)",
+    "options": [
+      "A dataset can be as small as a few cases or as large as thousands",
+      "Test inputs must be labelled by humans for the eval to be valid",
+      "At least one thousand cases are needed before averages mean anything",
+      "Test inputs can be written by hand or generated automatically with Claude",
+      "Datasets must be drawn from real production logs, not synthesized"
+    ],
+    "answer": [
+      0,
+      3
+    ],
+    "explanation": "The course says datasets can range from three examples to thousands and can be hand-assembled or generated by an LLM such as Haiku. Starting small is fine, and real-world evals then grow. Nothing in the course requires human labels or production logs before you begin.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#A Typical Eval Workflow"
+  },
+  {
+    "id": "C1-039",
+    "module": 1,
+    "domain": "Context Management & Reliability",
+    "topic": "Model grader prompt design",
+    "difficulty": "hard",
+    "question": "A model grader prompt says \"Score this response from 1 to 10. Return only the number.\" Almost every response receives a 6 or 7 regardless of quality. What change does the course recommend?",
+    "options": [
+      "Run the grader at temperature 1.0 so its scores spread across the whole range",
+      "Switch to a 1-100 scale so that differences between responses become visible",
+      "Require strengths, weaknesses, and reasoning before the score",
+      "Average three grader calls per response so the middling scores cancel each other out"
+    ],
+    "answer": 2,
+    "explanation": "The course warns that asking for only a score yields default middling scores, around 6. Requiring strengths, weaknesses, and reasoning before the score gives a more discriminating judgment, and JSON output with prefill keeps it parseable. Averaging repeated middling scores still gives a middling score.",
+    "source": "03-claude-with-google-vertex/_official-course-notes.md#Model Based Grading"
+  },
+  {
+    "id": "C1-040",
+    "module": 1,
+    "domain": "Context Management & Reliability",
+    "scenario": "Structured Data Extraction",
+    "topic": "Choosing code vs model graders",
+    "difficulty": "medium",
+    "question": "In an eval for a document-extraction prompt, which two checks are best implemented as code graders rather than model graders? (Select TWO.)",
+    "options": [
+      "Whether the summary captures the document's main argument",
+      "Whether the output parses as valid JSON",
+      "Whether the extracted complaint's tone is characterized accurately",
+      "Whether the output stays under a maximum length",
+      "Whether nuanced instructions about ambiguous dates were followed"
+    ],
+    "answer": [
+      1,
+      3
+    ],
+    "explanation": "Code graders handle programmatic checks such as syntax validity, length, and the presence of specific words. Judgments about meaning, tone, and nuanced instruction-following need a model grader's flexibility. Trying to judge tone or argument capture in code would mean writing brittle rules.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Model Based Grading"
+  },
+  {
+    "id": "C1-041",
+    "module": 1,
+    "domain": "Context Management & Reliability",
+    "topic": "Combining grader scores",
+    "difficulty": "medium",
+    "question": "An eval combines a model grader and a syntax (code) grader as the course does. A response gets 8 from the model grader and 0 from the syntax grader because its JSON doesn't parse. What is its final score?",
+    "options": [
+      "0, because a syntax failure overrides any model score",
+      "8, because the model score measures task correctness",
+      "4, the average of the two scores",
+      "6, because the model score is weighted twice as heavily"
+    ],
+    "answer": 2,
+    "explanation": "The course's scoring is (model_score + syntax_score) / 2, which captures both semantic quality and technical validity. A syntax failure lowers the score sharply but does not zero it out. Treating the syntax result as an override is a reasonable design choice, but it is not the scheme the course uses.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Code Based Grading"
+  },
+  {
+    "id": "C1-042",
+    "module": 1,
+    "domain": "Context Management & Reliability",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Routing to the right validator",
+    "difficulty": "hard",
+    "question": "You add syntax validators for Python, JSON, and regex to the eval of an AWS code helper, but the grader cannot tell which validator applies to each output. What does the course do to solve this?",
+    "options": [
+      "Run all three validators on every output and keep whichever one returns the highest score",
+      "Add a \"format\" key to each test case and dispatch on it",
+      "Ask the model grader to guess each output's format before syntax grading takes place",
+      "Remove the regex cases, because only JSON and Python can be validated reliably in code"
+    ],
+    "answer": 1,
+    "explanation": "The course names a limitation of code-based grading: it requires a known expected format. So the dataset generator is updated to include a \"format\" field, and a dispatcher picks the validator. Taking the best of three validators would let a plain string pass as a \"valid regex\" even when JSON was required.",
+    "source": "03-claude-with-google-vertex/_official-course-notes.md#Code Based Grading"
+  },
+  {
+    "id": "C1-043",
+    "module": 1,
+    "domain": "Context Management & Reliability",
+    "topic": "Defining grading criteria",
+    "difficulty": "hard",
+    "question": "An eval's model grader gives high scores to meal plans that omit total calories and portion sizes, both of which the product requires. Reading the grader's reasoning shows it judges general helpfulness. What is the most direct fix?",
+    "options": [
+      "Replace the model grader with human graders for every test case in the dataset",
+      "Add many more test cases so that the weaker plans are outvoted in the average",
+      "Lower the grader's max_tokens so that its review focuses on the major issues",
+      "Pass those requirements to the grader as explicit criteria"
+    ],
+    "answer": 3,
+    "explanation": "The course stresses defining evaluation criteria upfront, and its eval tooling accepts extra criteria such as caloric totals and exact portions for the model grader. A grader can't penalize something it was never told to look for. Human graders would work but are slow and tedious, which is more than this needs.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Prompt Engineering"
+  },
+  {
+    "id": "C1-044",
+    "module": 1,
+    "domain": "Context Management & Reliability",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "Comparing prompt versions",
+    "difficulty": "medium",
+    "question": "You have two candidate system prompts for the support agent. Following the course's approach, how should you choose between them?",
+    "options": [
+      "Run both through the same dataset and grader, then compare their average scores",
+      "Run each on its own dataset suited to its strengths, then compare top scores",
+      "Choose the prompt whose single best output received the highest grade",
+      "Deploy both for a month and keep the one that draws fewer complaints"
+    ],
+    "answer": 0,
+    "explanation": "The workflow compares prompt versions by running them through the same pipeline and comparing averages, so the only thing that changes is the prompt. Using different datasets or best-case outputs makes the comparison meaningless. A month in production without an eval is the under-testing trap.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#A Typical Eval Workflow"
+  },
+  {
+    "id": "C1-045",
+    "module": 1,
+    "domain": "Context Management & Reliability",
+    "topic": "Placeholder grading",
+    "difficulty": "easy",
+    "question": "An eval pipeline's run_test_case function currently returns score = 10 for every output, so every prompt version averages 10. What does this indicate?",
+    "options": [
+      "The prompt is already optimal, so further iteration on it would be wasted effort",
+      "Grading isn't implemented yet, so the scores carry no signal",
+      "The dataset is too easy and needs harder cases before the scores can mean anything",
+      "The model is running at temperature 0, so every output it produces is identical"
+    ],
+    "answer": 1,
+    "explanation": "In the course, the first version of the eval hardcodes a score of 10 as a placeholder, and the next step is to build real graders. A constant score comes from the code, not from the prompt or the dataset, so it says nothing about quality.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Running the Eval"
+  },
+  {
+    "id": "C1-046",
+    "module": 1,
+    "domain": "Context Management & Reliability",
+    "topic": "Temperature for extraction",
+    "difficulty": "easy",
+    "question": "An invoice extractor must return the same field values for the same document across reruns. Which temperature setting fits this task?",
+    "options": [
+      "Near 1",
+      "Around 0.5",
+      "Randomized on each call",
+      "Near 0"
+    ],
+    "answer": 3,
+    "explanation": "The course recommends low temperature for data extraction and factual tasks that need consistency, and high temperature for creative work such as brainstorming or marketing copy. Randomizing per call would add the variability this task has to avoid.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Temperature"
+  },
+  {
+    "id": "C1-047",
+    "module": 1,
+    "domain": "Context Management & Reliability",
+    "topic": "Temperature does not guarantee variety",
+    "difficulty": "medium",
+    "question": "A marketing tagline generator runs at temperature 1.0, yet two consecutive calls sometimes return the same tagline. What explains this?",
+    "options": [
+      "Temperature only takes effect when a system prompt is included in the request",
+      "Temperature 1.0 is deterministic, so values above 1.0 are needed to get variety",
+      "Higher temperature makes variation more likely but never guarantees it",
+      "Repeated outputs indicate a malformed prompt that must be rewritten before use"
+    ],
+    "answer": 2,
+    "explanation": "Temperature reshapes the next-token probabilities, and higher values make variation more likely but not certain. The course notes that you may need several attempts to see different outputs. The range is 0 to 1, and 0, not 1, is the deterministic setting.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Temperature"
+  },
+  {
+    "id": "C1-048",
+    "module": 1,
+    "domain": "Context Management & Reliability",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "Stateless API and history",
+    "difficulty": "easy",
+    "question": "In a support chat built on the Messages API, the agent's second reply asks for an order number the customer already gave in the first message. What is the most likely cause?",
+    "options": [
+      "The order number exceeded max_tokens and was dropped from the conversation by the API",
+      "The API is stateless and the app sent only the latest message",
+      "The system prompt took priority over the content of the customer's earlier message",
+      "The temperature was set too high, so Claude chose to ignore the earlier context"
+    ],
+    "answer": 1,
+    "explanation": "The API stores no messages, so each request is independent. The application has to keep the message list and resend all of it on every turn. max_tokens limits the length of the output, not how much input Claude remembers.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Multi-Turn Conversations"
+  },
+  {
+    "id": "C1-049",
+    "module": 1,
+    "domain": "Context Management & Reliability",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "Message role alternation",
+    "difficulty": "hard",
+    "question": "A support app appends the customer's message and calls Claude. When the call times out, it appends the customer's retry as another user message without recording any assistant turn, and later requests sometimes fail. Which message-structure rule does this break?",
+    "options": [
+      "User and assistant messages must strictly alternate in the list",
+      "Each request may contain at most one user message, no matter how long the history is",
+      "After a retry, an assistant message must come first in the message list",
+      "The system prompt must be re-sent as a user message whenever a user turn repeats"
+    ],
+    "answer": 0,
+    "explanation": "Conversation history has to follow a user, assistant, user, assistant pattern and never contain two messages with the same role in a row. The retry logic should merge the retry into the pending user turn or record the assistant turn properly. Histories normally contain many user messages, so a one-user-message limit is not the rule.",
+    "source": "06-claude-in-amazon-bedrock/_official-course-notes.md#Multi-Turn Conversations"
+  },
+  {
+    "id": "C1-050",
+    "module": 1,
+    "domain": "Context Management & Reliability",
+    "topic": "Maintaining conversation history",
+    "difficulty": "medium",
+    "question": "You are writing helpers for a multi-turn chat on the Messages API. Which two steps are required for Claude to answer follow-up questions in context? (Select TWO.)",
+    "options": [
+      "Append each assistant response to the message list before adding the next user message",
+      "Send only the most recent assistant reply together with the new question",
+      "Send the entire accumulated message list with every follow-up request",
+      "Save the conversation ID returned by the API and pass it on later requests",
+      "Rewrite the system prompt each turn to describe what the user asked before"
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "Because the API keeps no state, the course's helpers (add_user_message, add_assistant_message, chat) build up the full history and send all of it each time. There is no server-side conversation ID to reference. Sending only the last reply drops earlier context that a follow-up may depend on.",
+    "source": "03-claude-with-google-vertex/_official-course-notes.md#Multi-Turn Conversations"
+  },
+  {
+    "id": "C1-051",
+    "module": 1,
+    "domain": "Context Management & Reliability",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "Streaming responses",
+    "difficulty": "medium",
+    "question": "A support chat shows a spinner for 10-30 seconds before each reply appears, so you switch to streaming. Which two statements about the course's streaming approach are accurate? (Select TWO.)",
+    "options": [
+      "The message_start event carries the first sentence of the reply text",
+      "stream.get_final_message() assembles the full message for storage afterward",
+      "Streaming must be turned off to obtain a complete message for the database",
+      "The message_stop event contains the full concatenated reply as its payload",
+      "The text chunks to forward to the browser arrive in content_block_delta events"
+    ],
+    "answer": [
+      1,
+      4
+    ],
+    "explanation": "content_block_delta events carry the generated text chunks, while message_start is only an initial acknowledgement with no text. After streaming finishes, get_final_message() assembles the chunks into the complete message for storage, so there is no need to make a second, non-streaming call.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Response Streaming"
+  },
+  {
+    "id": "C1-052",
+    "module": 1,
+    "domain": "Context Management & Reliability",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Eval concurrency and rate limits",
+    "difficulty": "medium",
+    "question": "Your eval harness runs test cases concurrently and starts hitting rate-limit errors partway through a run. What does the course advise?",
+    "options": [
+      "Raise concurrency so the run finishes before the rate-limit window resets",
+      "Lower the max concurrent tasks setting, e.g. from 3 toward 1",
+      "Switch to model graders, since they reduce the number of requests sent",
+      "Shorten every test case prompt, since rate limits depend only on prompt length"
+    ],
+    "answer": 1,
+    "explanation": "The course's prompt evaluator supports concurrency and tells you to set it according to your rate limits: start low, around 3, and drop to 1 if you hit limits. Raising concurrency increases request pressure and makes the errors worse. Model graders add API calls rather than removing them.",
+    "source": "03-claude-with-google-vertex/_official-course-notes.md#Prompt Engineering"
+  },
+  {
+    "id": "C1-053",
+    "module": 1,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Multi-Agent Research System",
+    "topic": "Model selection per pipeline step",
+    "difficulty": "hard",
+    "question": "A research system has (1) a planner that decomposes open-ended questions into multi-step investigation plans, (2) a step that tags thousands of retrieved snippets by topic, and (3) a report writer. Which two model assignments best follow the course's selection framework? (Select TWO.)",
+    "options": [
+      "Haiku for the planner, since planning runs only once per question",
+      "Opus for the planner, since it requires deep multi-step reasoning",
+      "Opus for snippet tagging, so every tag gets the deepest analysis",
+      "One model for all three steps, since mixing models is discouraged",
+      "Haiku for the high-volume snippet tagging, where speed and cost dominate"
+    ],
+    "answer": [
+      1,
+      4
+    ],
+    "explanation": "The framework maps intelligence priority to Opus, speed and volume priority to Haiku, and balanced needs to Sonnet. The course notes that using several models in one application is common. Running Opus on thousands of simple tagging calls pays its cost and latency for no benefit.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Overview of Claude Models"
+  },
+  {
+    "id": "C1-054",
+    "module": 1,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "Shared core capabilities",
+    "difficulty": "medium",
+    "question": "Customers of a support agent can upload photos of damaged items. An architect proposes sending every photo-related turn to Opus because \"only the top model handles images.\" What does the course say?",
+    "options": [
+      "Only Opus supports image analysis, so photo turns must indeed be routed to Opus",
+      "Only Sonnet and Opus support images, so Haiku turns must be upgraded when photos appear",
+      "All three families analyze images; they differ in optimization focus",
+      "Image analysis needs a separate vision API, so no Claude model handles the photos directly"
+    ],
+    "answer": 2,
+    "explanation": "The course says Opus, Sonnet, and Haiku all share text generation, coding, and image analysis. Model choice should follow the task's priority on intelligence, speed, or cost. Routing based on a capability gap that doesn't exist adds cost and latency without any gain.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Overview of Claude Models"
+  },
+  {
+    "id": "C1-055",
+    "module": 1,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Developer Productivity with Claude",
+    "topic": "Haiku and reasoning-heavy steps",
+    "difficulty": "hard",
+    "question": "A developer-tools pipeline uses Haiku for every step to minimize cost. One step must plan complex, multi-step changes across many files, and its plans are consistently shallow and miss dependencies. Which change best aligns with the course's guidance?",
+    "options": [
+      "Move only that step to Opus and keep Haiku for the speed-bound steps",
+      "Keep Haiku and raise its temperature so it explores more alternative plans before answering",
+      "Keep Haiku and increase max_tokens so it has room to produce a deeper and longer plan",
+      "Move every step to Opus, since mixing models within one pipeline causes inconsistent output"
+    ],
+    "answer": 0,
+    "explanation": "The course describes Haiku as optimized for speed and cost without the reasoning capabilities of Opus and Sonnet, while Opus targets complex multi-step planning. Mixing models by task is the recommended pattern. A higher max_tokens only allows a longer output and does not add reasoning ability.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Overview of Claude Models"
+  },
+  {
+    "id": "C1-056",
+    "module": 1,
+    "domain": "Agentic Architecture & Orchestration",
+    "topic": "Model for dataset generation",
+    "difficulty": "easy",
+    "question": "You need to generate a few hundred synthetic test inputs for a prompt eval and want the job to be fast and cheap. Which model does the course use for this?",
+    "options": [
+      "Opus",
+      "Haiku",
+      "Sonnet",
+      "The same model as the prompt under test"
+    ],
+    "answer": 1,
+    "explanation": "The course generates test datasets with Haiku because it is the faster, cheaper model and the task does not require deep reasoning. Opus would add cost and latency to a simple generation job.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Generating Test Datasets"
+  },
+  {
+    "id": "C1-057",
+    "module": 1,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "Keeping the API key server-side",
+    "difficulty": "easy",
+    "question": "A mobile team wants its support app to call the Anthropic API directly from users' phones to reduce latency. What does the course recommend?",
+    "options": [
+      "Embed the API key in the app and obfuscate it within the compiled binary",
+      "Call the API directly only for streaming replies, where latency matters most",
+      "Store the API key in the device keychain so the app can call the API securely",
+      "Route requests through your server, which holds the API key"
+    ],
+    "answer": 3,
+    "explanation": "The course's access flow sends user input to the developer's server, which calls the API, so the key never reaches a client. Any key shipped inside an app can be extracted, whether it is obfuscated or stored in the keychain.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Accessing the API"
+  },
+  {
+    "id": "C1-058",
+    "module": 1,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Customer Support Resolution Agent",
+    "topic": "Conversation state in scaled deployments",
+    "difficulty": "hard",
+    "question": "A support agent runs on several app servers behind a load balancer, and each server keeps conversation history in local memory. Users say the agent \"forgets\" earlier turns when a follow-up lands on a different server. What design fixes this?",
+    "options": [
+      "Enable sticky sessions on the API side so Claude recognizes returning conversations",
+      "Send only the newest message and let the API retrieve earlier turns by session",
+      "Keep message lists in a shared store and resend full history each turn",
+      "Place the history in the system prompt once at the start of each user session"
+    ],
+    "answer": 2,
+    "explanation": "The API is stateless, so the application owns conversation state and must resend the whole message list each turn. Storing that list where any server can read it removes the dependency on which instance handles the request. The API has no session that it could recognize or use to retrieve earlier turns.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Multi-Turn Conversations"
+  },
+  {
+    "id": "C1-059",
+    "module": 1,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Code Generation with Claude Code",
+    "topic": "Model for precise code edits",
+    "difficulty": "medium",
+    "question": "An automated step must make precise edits to existing source files without breaking functionality. It runs many times a day, so speed and cost matter as well as quality. Which model fits the course's framework?",
+    "options": [
+      "Sonnet",
+      "Haiku",
+      "Opus",
+      "Any model, since they share coding ability"
+    ],
+    "answer": 0,
+    "explanation": "The course describes Sonnet as the balanced choice with strong coding and precise code editing that doesn't break functionality, at good speed and cost. Opus would add cost and latency the task doesn't need. Shared core capabilities do not mean the models are equally optimized for this task.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Overview of Claude Models"
+  },
+  {
+    "id": "C1-060",
+    "module": 1,
+    "domain": "Agentic Architecture & Orchestration",
+    "scenario": "Multi-Agent Research System",
+    "topic": "Latency-aware model split",
+    "difficulty": "hard",
+    "question": "A research assistant must reply within about a second with a clarifying question, then run a deep multi-source analysis that can take minutes. A teammate proposes Opus for both steps and streaming to hide latency. What is the better design?",
+    "options": [
+      "Use Opus for both steps and rely on streaming to make the clarifying step feel instant",
+      "Use Haiku for both steps and split the deep analysis into many small, cheap calls",
+      "Use Haiku for the real-time clarifying exchange and Opus for the deep analysis step",
+      "Use Sonnet for both steps, since a balanced model avoids trade-offs at each stage"
+    ],
+    "answer": 2,
+    "explanation": "Haiku targets real-time interactions, while Opus targets complex reasoning at higher latency and cost, so each step gets the model that matches its priority. Streaming improves perceived responsiveness but doesn't remove Opus's latency or cost on a turn that needs neither. Splitting the analysis into Haiku calls doesn't give it reasoning ability.",
+    "source": "02-claude-with-the-anthropic-api/_official-course-notes.md#Overview of Claude Models"
+  }
+]

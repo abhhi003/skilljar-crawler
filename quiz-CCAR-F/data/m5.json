@@ -1,0 +1,499 @@
+[
+  {
+    "id": "C5-001", "module": 5, "domain": "Agentic Architecture & Orchestration",
+    "topic": "Delegation: Problem Awareness", "difficulty": "hard",
+    "question": "A team lead is asked to \"bring Claude into the quarterly planning process.\" Within an hour she is comparing AI products and drafting prompts, but she still cannot say what a successful planning cycle should produce or which steps are actually slow. Which Delegation component has she skipped?",
+    "options": [
+      "Platform Awareness, because she has not yet benchmarked enough AI products",
+      "Problem Awareness, because she has not clarified the goal and the work involved",
+      "Task Delegation, because she has not yet assigned prompts to individual teammates",
+      "Transparency Diligence, because she has not disclosed AI use to stakeholders"
+    ],
+    "answer": 1,
+    "explanation": "Problem Awareness means clearly understanding your goals and the nature of the work before involving AI, and that is exactly what is missing here. Platform Awareness is the tempting pick because she is busy comparing products, but she is doing that before she has defined the problem. Platform choices only make sense once the goal is clear.",
+    "source": "01-ai-fluency-framework-foundations/06-a-closer-look-at-delegation.md"
+  },
+  {
+    "id": "C5-002", "module": 5, "domain": "Agentic Architecture & Orchestration",
+    "topic": "Automation, Augmentation, Agency", "difficulty": "easy",
+    "question": "An operations architect gives an assistant standing knowledge and behavior patterns so it can handle incoming requests on the team's behalf, instead of giving it separate instructions for each task. Which way of engaging with AI does this represent?",
+    "options": [
+      "Automation, where the AI completes specific tasks from your instructions",
+      "Augmentation, where you and the AI think and execute as partners",
+      "Agency, where you shape the AI's knowledge and behavior to act for you",
+      "Delegation, where the AI decides on its own which work to take on"
+    ],
+    "answer": 2,
+    "explanation": "Agency means configuring AI to work independently on your behalf by setting up its knowledge and behavior patterns rather than handing it specific tasks. Automation is the closest distractor, but it means executing specific tasks from your instructions, which is the per-task model the architect moved away from. Delegation is a 4D competency, not a mode of engagement.",
+    "source": "01-ai-fluency-framework-foundations/02-why-do-we-need-ai-fluency.md"
+  },
+  {
+    "id": "C5-003", "module": 5, "domain": "Agentic Architecture & Orchestration",
+    "topic": "Goal of Delegation", "difficulty": "easy",
+    "question": "An executive asks the solutions architect to \"automate 100% of client proposal writing with Claude\" to cut costs. Proposals combine pricing judgment, relationship context, and boilerplate sections. Which response best matches the course's view of Delegation?",
+    "options": [
+      "Automate every section, since modern models handle all language tasks without retraining",
+      "Keep proposal writing fully human, since client-facing work should never involve AI",
+      "Automate the pricing judgment first, since numerical work is where AI is most reliable",
+      "Map which parts need human judgment and which suit AI, then design the partnership"
+    ],
+    "answer": 3,
+    "explanation": "The course says the goal isn't to automate everything. The goal is the most effective human-AI partnership, which means dividing the work according to the strengths of each. Automating every section ignores the parts that need human judgment, and refusing AI altogether throws away its strengths on boilerplate.",
+    "source": "01-ai-fluency-framework-foundations/06-a-closer-look-at-delegation.md"
+  },
+  {
+    "id": "C5-004", "module": 5, "domain": "Agentic Architecture & Orchestration",
+    "topic": "Project planning sequence", "difficulty": "medium",
+    "question": "A team is following the course's project-planning method to use Claude on a multi-step product-comparison report. What should they establish with Claude before they break the work into tasks and make delegation decisions?",
+    "options": [
+      "A shared vision of what success looks like, with Claude asking clarifying questions",
+      "A diligence statement disclosing which AI systems will contribute to the final report",
+      "A complete first draft from Claude that can be split into reviewable sections",
+      "A set of prompt templates that each team member will reuse for assigned tasks"
+    ],
+    "answer": 0,
+    "explanation": "In the planning lesson, Step 2 (project vision and goals) comes before Step 3 (task breakdown and delegation analysis), and you invite Claude to ask questions until the vision is solid. Producing a draft first reverses the order: you would be generating output before deciding what success looks like or who should do which part.",
+    "source": "01-ai-fluency-framework-foundations/07-project-planning-and-delegation.md"
+  },
+  {
+    "id": "C5-005", "module": 5, "domain": "Agentic Architecture & Orchestration", "scenario": "Developer Productivity with Claude",
+    "topic": "Cowork scheduled tasks: local vs remote", "difficulty": "hard",
+    "question": "A team sets up a Cowork scheduled task to build a 7 a.m. Monday briefing from spreadsheets in a folder on one engineer's laptop. On some Mondays the briefing never runs. Another scheduled task that uses only connected cloud tools runs reliably. What best explains the difference?",
+    "options": [
+      "Scheduled tasks always run only while the desktop app is open, so both should fail",
+      "Tasks that need files on the computer run locally, and only while the app is open",
+      "Scheduled tasks require Research to be enabled, which resets when the laptop restarts",
+      "Cowork cannot read local folders at all, so the task silently falls back to web search"
+    ],
+    "answer": 1,
+    "explanation": "Scheduled tasks run remotely, so they run even when the computer is asleep or the app is closed. A task that needs files on your computer runs locally, and only while the app is open. The first distractor is wrong because remote tasks do not depend on the app being open, which is why the cloud-only task keeps working.",
+    "source": "05-claude-101/04-how-you-ll-work-with-claude-on-your-desktop.md"
+  },
+  {
+    "id": "C5-006", "module": 5, "domain": "Agentic Architecture & Orchestration",
+    "topic": "Hand-off vs turn-by-turn", "difficulty": "medium",
+    "question": "An architect is coaching staff on when to hand a task off to Claude in Cowork instead of working turn by turn in Chat. Which TWO characteristics most strongly signal a hand-off? (Select TWO.)",
+    "options": [
+      "Each answer changes what you will want to ask next",
+      "The task has several steps you would normally do in sequence",
+      "You want your own judgment applied on every turn of the draft",
+      "The output should be finished files saved where you need them",
+      "The request is a quick rewrite, small enough for one message"
+    ],
+    "answer": [1, 3],
+    "explanation": "The course lists multi-step sequential tasks and finished files delivered to your file system as reasons to hand work off. Spanning several tools and running on a schedule are the other two. An answer that changes your next question, wanting your judgment on every turn, and quick requests are all signs of turn-by-turn work in Chat.",
+    "source": "05-claude-101/04-how-you-ll-work-with-claude-on-your-desktop.md"
+  },
+  {
+    "id": "C5-007", "module": 5, "domain": "Agentic Architecture & Orchestration", "scenario": "Multi-Agent Research System",
+    "topic": "Cowork subagents", "difficulty": "easy",
+    "question": "A strategy team hands Cowork a large job: review dozens of competitor filings and produce one consolidated memo. Claude splits the work across several background workers. How does Claude 101 describe these subagents?",
+    "options": [
+      "They run one after another in a single shared context so each sees the others' notes",
+      "They are separate chats that the user must open and merge into the memo manually",
+      "They are directory plugins, and each one is tied to a single connected tool",
+      "They run in parallel, each with its own context, and yield one finished deliverable"
+    ],
+    "answer": 3,
+    "explanation": "For a big job, Claude splits the work across background workers that run in parallel, each with its own context, and hands back one finished deliverable. The shared-context option is wrong on both points: subagents are not sequential and do not share one context. Plugins are a separate concept, bundles of skills, connectors, and agents for a role.",
+    "source": "05-claude-101/04-how-you-ll-work-with-claude-on-your-desktop.md"
+  },
+  {
+    "id": "C5-008", "module": 5, "domain": "Agentic Architecture & Orchestration",
+    "topic": "Routing requests to Research", "difficulty": "medium",
+    "question": "A team is writing guidance on when staff should use Claude's Research feature rather than quick web search, Thinking, or enterprise search. Which TWO requests are best suited to Research? (Select TWO.)",
+    "options": [
+      "Compare three payroll vendors on pricing, implementation, and support, with sources",
+      "Find a listed competitor's current share price before a call that starts in five minutes",
+      "Work through a logic bug in a pricing formula that needs no outside information",
+      "Look up the company's internal remote-work policy for a newly hired employee",
+      "Analyze the EV battery market's key players, technology trends, and supply risks"
+    ],
+    "answer": [0, 4],
+    "explanation": "Research suits comparative analysis and comprehensive multi-source reports with citations you can check, such as a vendor comparison or a market analysis. A quick single fact is a job for web search, pure reasoning with no outside information calls for Thinking, and company-specific internal knowledge belongs in enterprise search.",
+    "source": "05-claude-101/10-research-for-deep-dives.md"
+  },
+  {
+    "id": "C5-009", "module": 5, "domain": "Agentic Architecture & Orchestration",
+    "topic": "Skills vs Projects", "difficulty": "hard",
+    "question": "A consulting team wants Claude to (a) always draw on each client's brand guidelines, past deliverables, and meeting notes, and (b) run the same seven-step brand-voice review procedure on every draft. How should the architect split these needs across Claude features?",
+    "options": [
+      "Encode the client materials as a skill and keep the review procedure in Memory",
+      "Put both into one skill so the procedure and the knowledge always load together",
+      "Put the client materials in a project and encode the review procedure as a skill",
+      "Put both in the project description field so that every teammate can see them"
+    ],
+    "answer": 2,
+    "explanation": "Claude 101 sums it up as \"projects store knowledge, skills perform tasks.\" Reference materials go in a project knowledge base, and a repeatable, consistent methodology belongs in a skill, which can draw on the project's knowledge. Packing everything into one skill puts long-term reference knowledge in the procedural tool, and Claude never sees the project description at all.",
+    "source": "05-claude-101/07-working-with-skills.md"
+  },
+  {
+    "id": "C5-010", "module": 5, "domain": "Agentic Architecture & Orchestration",
+    "topic": "Delegation needs domain expertise", "difficulty": "hard",
+    "question": "A company asks its AI platform team, who know the tools well but have no underwriting background, to decide alone which underwriting tasks should be handed to Claude. According to the course, what is the main weakness of this arrangement?",
+    "options": [
+      "Effective delegation needs domain expertise as well as an understanding of AI capabilities",
+      "Delegation decisions should be made by the AI system itself after it reviews the workload",
+      "Platform teams lack Creation Diligence, so they cannot be trusted to select AI systems",
+      "Underwriting is a reasoning task, and current AI systems cannot perform reasoning at all"
+    ],
+    "answer": 0,
+    "explanation": "The course stresses that effective delegation needs both expertise in your field and an understanding of AI capabilities. A team with only the second cannot judge which underwriting steps need human judgment. The course flags complex reasoning as a challenge for AI, not something it cannot do at all, so the last option overstates the limitation.",
+    "source": "01-ai-fluency-framework-foundations/06-a-closer-look-at-delegation.md"
+  },
+  {
+    "id": "C5-011", "module": 5, "domain": "Prompt Engineering & Structured Output",
+    "topic": "Performance Description", "difficulty": "easy",
+    "question": "In a shared project's instructions, an architect writes: \"Be concise, and push back when my assumptions look weak rather than just agreeing.\" Which type of Description is this?",
+    "options": [
+      "Product Description, because it defines the format of the final output",
+      "Process Description, because it sets the steps Claude follows to reach an answer",
+      "Performance Description, because it defines how Claude behaves as a collaborator",
+      "Platform Description, because it sets which AI system the team relies on"
+    ],
+    "answer": 2,
+    "explanation": "Performance Description covers behavior during the collaboration, such as being concise or detailed, challenging or supportive. Product Description covers the output's format, audience, and style, and Process Description covers how Claude approaches the task. There is no \"Platform Description\". Platform Awareness belongs to Delegation.",
+    "source": "01-ai-fluency-framework-foundations/08-a-closer-look-at-description.md"
+  },
+  {
+    "id": "C5-012", "module": 5, "domain": "Prompt Engineering & Structured Output",
+    "topic": "Process Description", "difficulty": "medium",
+    "question": "A finance team's prompt clearly specifies the deliverable: a one-page variance summary for executives, in plain language. The summaries look polished, but Claude jumps straight to conclusions instead of first comparing actuals to budget line by line, as the team's method requires. Which part of the prompt should be strengthened?",
+    "options": [
+      "Product Description, by stating the page length and the audience more precisely",
+      "Process Description, by guiding how Claude should approach the analysis",
+      "Performance Description, by asking Claude to take a more supportive tone",
+      "Deployment Diligence, by adding a disclosure statement to every summary"
+    ],
+    "answer": 1,
+    "explanation": "The deliverable is already well specified. What is going wrong is how Claude approaches the task, and Process Description exists to guide that. The course notes it can matter as much as specifying the end goal. Tightening the Product Description is tempting, but length and audience are already right.",
+    "source": "01-ai-fluency-framework-foundations/08-a-closer-look-at-description.md"
+  },
+  {
+    "id": "C5-013", "module": 5, "domain": "Prompt Engineering & Structured Output", "scenario": "Structured Data Extraction",
+    "topic": "Fixing format mismatches", "difficulty": "easy",
+    "question": "A team asks Claude to summarize support tickets into a table with specific columns. Claude captures the right information but keeps returning prose paragraphs. According to Claude 101's troubleshooting guidance, what is the most effective fix?",
+    "options": [
+      "Ask Claude to think step by step before it writes each of the ticket summaries",
+      "Start a new chat each time so earlier formatting does not carry over",
+      "Enable Research so Claude can look up how other teams format tables",
+      "Show an example of the table format or describe the structure explicitly"
+    ],
+    "answer": 3,
+    "explanation": "When Claude understands what you want but not how to present it, Claude 101 advises \"show, don't tell\": provide an example of the format or describe the structure explicitly. Asking Claude to think first helps with reasoning quality, not with output layout, so it does not address this problem.",
+    "source": "05-claude-101/03-getting-better-results.md"
+  },
+  {
+    "id": "C5-014", "module": 5, "domain": "Prompt Engineering & Structured Output",
+    "topic": "Prompting techniques for complex tasks", "difficulty": "medium",
+    "question": "A single prompt asks Claude to evaluate a vendor contract, score its risks, and recommend a negotiation strategy all at once. The responses blend these stages together and the reasoning is hard to follow. Which TWO of the six foundational prompting techniques address this most directly? (Select TWO.)",
+    "options": [
+      "Specify a shorter maximum length for the output",
+      "Break the complex task into explicit steps",
+      "Define a friendlier role or tone for Claude",
+      "Show an example of the preferred tone of voice",
+      "Ask Claude to think first before it answers"
+    ],
+    "answer": [1, 4],
+    "explanation": "Breaking complex tasks into steps guides the AI through multi-step reasoning, and asking it to think first gives it room to work through its process. Together they fix both the blended stages and the hard-to-follow reasoning. Length limits, role, and tone examples shape style, but they do not separate or clarify the reasoning.",
+    "source": "01-ai-fluency-framework-foundations/09-effective-prompting-techniques.md"
+  },
+  {
+    "id": "C5-015", "module": 5, "domain": "Prompt Engineering & Structured Output",
+    "topic": "Stage, task, rules framework", "difficulty": "medium",
+    "question": "Using Claude 101's three-part prompt framework, review this prompt: \"Summarize the attached churn data as a one-page bulleted brief in a formal tone, with three recommendations.\" Which element is missing?",
+    "options": [
+      "Defining the task, since no action is requested of Claude",
+      "Specifying rules, since no format or tone has been given",
+      "Setting the stage, since role, objective, and context are absent",
+      "Adding context, since uploaded files cannot be referenced in prompts"
+    ],
+    "answer": 2,
+    "explanation": "The prompt defines a task (summarize, recommend) and specifies rules (one page, bullets, formal tone). It never sets the stage: who is asking, for what objective, or for which audience. That context is what keeps Claude's output from being generic. The adding-context option is false, because uploaded files are meant to be referenced in prompts.",
+    "source": "05-claude-101/02-your-first-conversation-with-claude.md"
+  },
+  {
+    "id": "C5-016", "module": 5, "domain": "Prompt Engineering & Structured Output",
+    "topic": "Project instructions vs description", "difficulty": "hard",
+    "question": "When setting up a shared project, a team lead types the team's mandatory tone rules into the project's description field. Teammates report that Claude ignores the rules in every chat. What is the most likely cause?",
+    "options": [
+      "Claude does not see the project description; the rules belong in project instructions",
+      "Project-level rules only take effect after the knowledge base becomes RAG-enabled for search",
+      "Tone rules have to be set per user in Settings rather than at the project level",
+      "Teammates with Can view permission do not receive the project's instructions"
+    ],
+    "answer": 0,
+    "explanation": "Claude 101 notes that Claude doesn't see the project description directly. It is there to help people understand the project's purpose. Behavioral rules such as tone belong in project instructions, which apply to every chat in the project. RAG only changes how the knowledge base is retrieved, not whether instructions apply.",
+    "source": "05-claude-101/05-introduction-to-projects.md"
+  },
+  {
+    "id": "C5-017", "module": 5, "domain": "Prompt Engineering & Structured Output",
+    "topic": "Specific feedback when iterating", "difficulty": "easy",
+    "question": "A reviewer replies \"make it shorter\" to each draft of a status update, and it takes many rounds to converge. Which change best follows Claude 101's iteration guidance?",
+    "options": [
+      "Repeat the original prompt word for word so Claude re-reads every instruction",
+      "Switch on Research so Claude can find examples of well-written status updates",
+      "Give specific feedback, e.g. cut the first two paragraphs and sharpen the close",
+      "Accept the first draft, since repeated iteration tends to lower output quality"
+    ],
+    "answer": 2,
+    "explanation": "Claude 101 says \"make it shorter\" is fine, but feedback like \"cut the first two paragraphs and make the conclusion more action-oriented\" is better. Specific feedback lets Claude converge quickly. Repeating the original prompt adds no new information about what is wrong with the current draft.",
+    "source": "05-claude-101/03-getting-better-results.md"
+  },
+  {
+    "id": "C5-018", "module": 5, "domain": "Prompt Engineering & Structured Output",
+    "topic": "Description-Discernment loop", "difficulty": "medium",
+    "question": "In the course's Description-Discernment loop, a team has evaluated Claude's draft and found a factual gap and an unhelpfully verbose style. Which step comes next, before the team integrates its own expertise into the result?",
+    "options": [
+      "Delegate: reassign the whole task to a human because the AI draft fell short",
+      "Refine: give feedback on what worked, adjust the description, and iterate",
+      "Disclose: write the diligence statement before making any further changes",
+      "Deploy: share the draft so stakeholders can flag whatever issues remain"
+    ],
+    "answer": 1,
+    "explanation": "The loop runs Describe, Discern, Refine, then Integrate. Refine means giving feedback, clarifying or adjusting the description, and requesting iterations until you are satisfied. Handing the whole task to a human after one weak draft gives up on the loop instead of improving the description.",
+    "source": "01-ai-fluency-framework-foundations/11-the-description-discernment-loop.md"
+  },
+  {
+    "id": "C5-019", "module": 5, "domain": "Prompt Engineering & Structured Output",
+    "topic": "Effective Research prompts", "difficulty": "medium",
+    "question": "A planner's Research prompt reads \"Find us a venue for the team offsite.\" Research runs take minutes, so the prompt is worth improving first. Which TWO edits will improve the result most? (Select TWO.)",
+    "options": [
+      "Ask Claude to skip citations so the report finishes noticeably faster",
+      "Ask for one best venue so that Claude runs a single search, not many",
+      "List the sections wanted, such as location, amenities, catering, pricing",
+      "Add constraints such as budget range, dates, and geographic requirements",
+      "Turn web search off so Claude focuses only on connected integrations"
+    ],
+    "answer": [2, 3],
+    "explanation": "Claude 101 advises specifying the sections or structure you want, because Claude organizes its findings around them, and including constraints such as budget, timeline, and geography to keep the research focused. Turning web search off would stop Research from working at all, and dropping citations removes the main way to verify the findings.",
+    "source": "05-claude-101/10-research-for-deep-dives.md"
+  },
+  {
+    "id": "C5-020", "module": 5, "domain": "Prompt Engineering & Structured Output",
+    "topic": "The prompting secret weapon", "difficulty": "easy",
+    "question": "A team keeps rewriting the prompt for a recurring task and gets mixed results. Which technique does the course call the \"secret weapon\" for this situation?",
+    "options": [
+      "Keep adding examples to the prompt until the outputs stabilize",
+      "Assign Claude a fixed expert persona at the top of every prompt",
+      "Restart the chat after each reply that is not satisfactory",
+      "Ask the AI itself to help improve the prompt you are using"
+    ],
+    "answer": 3,
+    "explanation": "The effective-prompting lesson names asking the AI to help improve your prompt as the \"secret weapon\", and it frames prompting as iterative and collaborative with the AI. Adding examples is one of the six foundational techniques, but piling them on blindly does not tell you what the prompt is missing.",
+    "source": "01-ai-fluency-framework-foundations/09-effective-prompting-techniques.md"
+  },
+  {
+    "id": "C5-021", "module": 5, "domain": "Context Management & Reliability", "scenario": "Customer Support Resolution Agent",
+    "topic": "Mitigating confident wrong answers", "difficulty": "medium",
+    "question": "A support team uses Claude to draft answers about niche product configuration details. Several drafts contained confident-sounding specifics that turned out to be wrong. Which TWO mitigations does Claude 101 recommend for high-stakes facts like these? (Select TWO.)",
+    "options": [
+      "Verify the key facts independently before the answer is sent",
+      "Ask Claude to use a more authoritative and formal tone",
+      "Switch on Accept edits so Claude can correct itself faster",
+      "Ask Claude to cite its sources or indicate its confidence level",
+      "Shorten the prompts so Claude has less room to elaborate"
+    ],
+    "answer": [0, 3],
+    "explanation": "For plausible but incorrect information, especially on specific facts or niche topics, Claude 101 recommends verifying key facts independently, asking Claude to cite sources or indicate its confidence, and enabling web search. A more authoritative tone would only make wrong answers sound more convincing.",
+    "source": "05-claude-101/03-getting-better-results.md"
+  },
+  {
+    "id": "C5-022", "module": 5, "domain": "Context Management & Reliability",
+    "topic": "Knowledge cutoff limitation", "difficulty": "medium",
+    "question": "A compliance analyst asks a chat assistant, with web search turned off, about a regulation that was amended a few months ago. The assistant confidently describes the old version of the rule. Which limitation is the primary root cause?",
+    "options": [
+      "Context window constraints, since regulations are too long to read in full",
+      "A lack of conversational awareness across the turns of a single chat",
+      "The knowledge cutoff date, since the change came after its training data",
+      "An inability to switch between diverse tasks without additional training"
+    ],
+    "answer": 2,
+    "explanation": "The course lists knowledge cutoff dates among generative AI's current limitations. A model cannot know about changes made after its training data unless current information is supplied. Conversational awareness and switching between tasks without retraining are listed as capabilities, not limitations, and context window size has nothing to do with knowing about a recent change.",
+    "source": "01-ai-fluency-framework-foundations/05-capabilities-limitations.md"
+  },
+  {
+    "id": "C5-023", "module": 5, "domain": "Context Management & Reliability",
+    "topic": "Process Discernment", "difficulty": "medium",
+    "question": "A reviewer checks a Claude-generated root-cause analysis. The final conclusion happens to be right, but the reasoning jumps from symptoms to cause without considering an obvious alternative explanation. Which type of Discernment is she exercising?",
+    "options": [
+      "Product Discernment, assessing the accuracy of the final output",
+      "Process Discernment, assessing how the AI arrived at its output",
+      "Performance Discernment, assessing how the AI communicated with her",
+      "Deployment Diligence, assessing whether the output is safe to share"
+    ],
+    "answer": 1,
+    "explanation": "Process Discernment looks at how the AI reached its output, watching for logical errors, attention gaps, or inappropriate reasoning, even when the answer itself is correct. Product Discernment is tempting, but it judges the output's accuracy and relevance, and here the output is right. Only the reasoning path is flawed.",
+    "source": "01-ai-fluency-framework-foundations/10-a-closer-look-at-discernment.md"
+  },
+  {
+    "id": "C5-024", "module": 5, "domain": "Context Management & Reliability",
+    "topic": "Domain expertise enables Discernment", "difficulty": "medium",
+    "question": "An organization rolls out Claude to draft first-pass summaries of clinical-trial literature. Which reviewer assignment best supports effective Discernment of these drafts?",
+    "options": [
+      "Domain experts, since their knowledge lets them spot errors others would miss",
+      "Generalist reviewers, since a fresh eye is less biased by the domain's assumptions",
+      "A second AI model, since human reviewers slow down the turnaround time",
+      "The prompt author, since they know exactly what the model was asked to do"
+    ],
+    "answer": 0,
+    "explanation": "The Discernment exercise shows that domain knowledge is what lets you spot factual errors, gaps, and misused terminology, and that someone without that expertise struggles to judge quality. The course also says even advanced AI benefits from human judgment, so replacing human reviewers with a second model removes the oversight it calls for.",
+    "source": "01-ai-fluency-framework-foundations/10-a-closer-look-at-discernment.md"
+  },
+  {
+    "id": "C5-025", "module": 5, "domain": "Context Management & Reliability",
+    "topic": "Lightweight evals", "difficulty": "medium",
+    "question": "Before standardizing Claude for a recurring weekly report, an architect wants a lightweight evaluation that needs no special infrastructure. What is the first step of the simple eval approach in Claude 101?",
+    "options": [
+      "Run Claude on every live report for a month and track the complaints",
+      "Ask Claude to grade its own outputs on a one-to-ten quality scale",
+      "Write a diligence statement for the reports that Claude will produce",
+      "Gather five to ten real examples of the task that you've done before"
+    ],
+    "answer": 3,
+    "explanation": "The simple eval approach goes: gather 5-10 examples of a task you do regularly, write test prompts, compare Claude's outputs to your examples, and refine. Running it on live reports skips the baseline you need for comparison and exposes stakeholders to untested output.",
+    "source": "05-claude-101/03-getting-better-results.md"
+  },
+  {
+    "id": "C5-026", "module": 5, "domain": "Context Management & Reliability", "scenario": "Structured Data Extraction",
+    "topic": "Acting on eval results", "difficulty": "hard",
+    "question": "A team evaluates Claude on extracting key terms from contracts by comparing its output with ten contracts they abstracted by hand. Claude gets most individual values right but misses cross-clause patterns that their analysts always flag. Based on Claude 101, which TWO follow-ups are most appropriate? (Select TWO.)",
+    "options": [
+      "Drop human review, since most individual values already match the manual work",
+      "End the eval and roll out now, since ten samples are enough to generalize from",
+      "Refine the prompt and add examples that show what good output looks like",
+      "Move the contracts into Enterprise Search so that Claude indexes them separately",
+      "Identify where human review remains essential for this particular task"
+    ],
+    "answer": [2, 4],
+    "explanation": "Claude 101 says to refine based on what the eval shows: adjust prompts, add examples of what good looks like, or identify where human review is essential. Its data-analysis example (right numbers, missed patterns) matches this case. Dropping review because individual values match ignores the very gap the eval just exposed.",
+    "source": "05-claude-101/03-getting-better-results.md"
+  },
+  {
+    "id": "C5-027", "module": 5, "domain": "Context Management & Reliability",
+    "topic": "Deployment Diligence and accountability", "difficulty": "easy",
+    "question": "A consultant sends a client a report that Claude helped draft. A figure in it is later found to be wrong. Under the course's Diligence competency, who is responsible for the error?",
+    "options": [
+      "The consultant, who must verify and vouch for any outputs they share",
+      "The AI vendor, since its model generated the incorrect figure",
+      "The client, since they accepted the report without checking it",
+      "The consultant and the AI equally, as a diligence statement sets out"
+    ],
+    "answer": 0,
+    "explanation": "Deployment Diligence means taking responsibility for verifying and vouching for the AI-assisted outputs you use or share. The course's sample diligence statement says the author maintains full responsibility, so it does not split blame with the AI. Pointing at the vendor is the most tempting wrong answer, but it contradicts the principle that people own the AI-assisted work they deploy.",
+    "source": "01-ai-fluency-framework-foundations/12-a-closer-look-at-diligence.md"
+  },
+  {
+    "id": "C5-028", "module": 5, "domain": "Context Management & Reliability",
+    "topic": "Diligence statement contents", "difficulty": "medium",
+    "question": "A firm is drafting a standard diligence statement template for AI-assisted deliverables. According to the course exercise, which TWO elements should the statement address? (Select TWO.)",
+    "options": [
+      "The training data and architecture of the AI model used",
+      "The review process used to check the AI contributions",
+      "An assertion that the author is responsible for the output",
+      "A clause moving liability for errors to the AI provider",
+      "The complete prompt transcript from every AI session"
+    ],
+    "answer": [1, 2],
+    "explanation": "The exercise says a diligence statement should cover which AI systems were used, how they contributed, the review process, the author's assertion of responsibility, and any context-specific considerations. A clause shifting liability to the provider contradicts that assertion of responsibility, and the course asks for neither model internals nor full transcripts.",
+    "source": "01-ai-fluency-framework-foundations/12-a-closer-look-at-diligence.md"
+  },
+  {
+    "id": "C5-029", "module": 5, "domain": "Context Management & Reliability",
+    "topic": "Creation Diligence", "difficulty": "easy",
+    "question": "Before a pilot, a team debates whether to paste confidential customer records into a free AI tool that nobody has vetted. Which Diligence component most directly governs this decision?",
+    "options": [
+      "Transparency Diligence: being open about AI's role with those who need to know",
+      "Creation Diligence: choosing which AI systems to use and how to engage with them",
+      "Deployment Diligence: verifying and vouching for the outputs that are shared",
+      "Product Discernment: evaluating the accuracy and relevance of the AI's outputs"
+    ],
+    "answer": 1,
+    "explanation": "Creation Diligence covers which AI systems you choose and how you work with them, including what data you share and any privacy or security concerns. Transparency Diligence matters later, when disclosing AI's role to an audience. It does not decide whether confidential data should go into an unvetted tool.",
+    "source": "01-ai-fluency-framework-foundations/12-a-closer-look-at-diligence.md"
+  },
+  {
+    "id": "C5-030", "module": 5, "domain": "Context Management & Reliability", "scenario": "Multi-Agent Research System",
+    "topic": "Verifying Research output via citations", "difficulty": "hard",
+    "question": "A strategy group uses Claude's Research feature to prepare a competitor briefing for leadership. Which review practice makes the best use of what Research provides?",
+    "options": [
+      "Re-run the same Research prompt and treat any matching answers as verified",
+      "Trust the report as written, since Research cross-references sources for you",
+      "Ask Claude in a new chat whether the report contains any hallucinations",
+      "Spot-check key claims against the source each one links to before circulating"
+    ],
+    "answer": 3,
+    "explanation": "Every claim in a Research report links back to its source, specifically so you can verify the information yourself. Human verification against those citations is the Discernment and Deployment Diligence step. Trusting the report because Research cross-references its sources is tempting, but cross-referencing does not replace your responsibility to verify before you share.",
+    "source": "05-claude-101/10-research-for-deep-dives.md"
+  },
+  {
+    "id": "C5-031", "module": 5, "domain": "Context Management & Reliability", "scenario": "Developer Productivity with Claude",
+    "topic": "Enterprise Search permissions", "difficulty": "easy",
+    "question": "An engineering org enables Enterprise Search so new hires can ask questions like \"How does our authentication system work?\" Security asks whether a new hire could surface content from a private leadership Slack channel. What is the correct answer?",
+    "options": [
+      "Yes, because Enterprise Search indexes all connected data into one shared store",
+      "No, because it only shows content the user can already access in the source tool",
+      "Yes, unless an admin manually excludes each private channel during initial setup",
+      "No, because Enterprise Search can search documents but never chat tools like Slack"
+    ],
+    "answer": 1,
+    "explanation": "Enterprise Search only shows what you already have permission to access in the original connected tool. Connected data isn't indexed or stored separately, and conversations remain private. The last option is wrong because chat tools such as Slack or Teams are a required connector category during setup.",
+    "source": "05-claude-101/09-enterprise-search.md"
+  },
+  {
+    "id": "C5-032", "module": 5, "domain": "Context Management & Reliability",
+    "topic": "Project knowledge scaling (RAG)", "difficulty": "hard",
+    "question": "A team's project knowledge base has grown to many large documents and is approaching the context window limit. A lead proposes splitting it into several projects to avoid degraded answers. What does Claude 101 say happens if they keep a single project?",
+    "options": [
+      "Claude retrieves only the relevant parts, expanding capacity by up to about 10x",
+      "Uploads are blocked at the limit until some of the older files have been deleted",
+      "Claude loads files in upload order and silently drops the oldest of them",
+      "Claude condenses every file into a digest that replaces the original files"
+    ],
+    "answer": 0,
+    "explanation": "As project knowledge approaches the context limit, Claude stops loading everything at once and uses RAG to search the files and pull in only what is relevant. That expands capacity by up to 10x while maintaining response quality, so splitting the project is unnecessary. None of the blocking, dropping, or digest behaviors appear in the course.",
+    "source": "05-claude-101/05-introduction-to-projects.md"
+  },
+  {
+    "id": "C5-033", "module": 5, "domain": "Context Management & Reliability", "scenario": "Customer Support Resolution Agent",
+    "topic": "Keeping project knowledge current", "difficulty": "medium",
+    "question": "A support team's shared project keeps quoting last year's refund policy, even though the new policy was announced months ago on the company intranet. Which best-practice gap is most likely responsible?",
+    "options": [
+      "The project is shared with Can view members, who receive cached responses",
+      "The project instructions don't tell Claude to prefer the newest post on the intranet",
+      "The project needs Research switched on so Claude re-checks policy every time",
+      "The knowledge base still holds outdated documents that need review and updating"
+    ],
+    "answer": 3,
+    "explanation": "Claude 101 warns that outdated documents lead to outdated responses and recommends reviewing and updating project knowledge periodically. Claude answers from what is in the project knowledge base. An instruction to prefer the intranet does nothing if the intranet isn't connected, and the old document would still be there.",
+    "source": "05-claude-101/05-introduction-to-projects.md"
+  },
+  {
+    "id": "C5-034", "module": 5, "domain": "Context Management & Reliability",
+    "topic": "Artifact data freshness", "difficulty": "hard",
+    "question": "A team builds a Claude Doc containing a chart of pipeline data pulled from their connected CRM and shares it as the weekly sales dashboard. A month later, leadership notices the numbers haven't changed. What explains this, and what is the fix?",
+    "options": [
+      "External sharing froze the doc; an Owner has to re-enable it in organization settings",
+      "The CRM connector expired; reconnecting it makes the chart update automatically",
+      "The chart is a snapshot, not a live feed; ask Claude to pull fresh data into it",
+      "Docs refresh only on export; re-exporting to Google Docs brings the chart up to date"
+    ],
+    "answer": 2,
+    "explanation": "Charts and diagrams Claude pulls into a doc from connected tools are snapshots, not live feeds. You have to ask Claude to pull fresh data and update them. Reconnecting the connector is the tempting answer, but a working connector still doesn't make the chart refresh on its own.",
+    "source": "05-claude-101/06-creating-with-artifacts.md"
+  },
+  {
+    "id": "C5-035", "module": 5, "domain": "Context Management & Reliability", "scenario": "Customer Support Resolution Agent",
+    "topic": "Human approval in hand-off work", "difficulty": "medium",
+    "question": "A support operations lead wants to hand off drafting and sending customer follow-up emails to Claude in Cowork, but policy requires a human to approve anything that leaves the team. Which capability described in Claude 101 best meets this requirement?",
+    "options": [
+      "Set Claude to ask before acting, so it pauses for approval before sending",
+      "Use subagents, so that a second worker reviews each email before it is sent",
+      "Schedule the task to run remotely, so the emails only go out overnight",
+      "Turn on Research mode, so each email cites the ticket history it relies on"
+    ],
+    "answer": 0,
+    "explanation": "When Claude is set to ask before acting, it stops for your approval on actions that matter, such as sending an email or sharing a file, so you stay in control of what leaves your desk. Subagents split work for parallel processing. They are not a human approval gate, so they do not satisfy a policy that requires a person to sign off.",
+    "source": "05-claude-101/04-how-you-ll-work-with-claude-on-your-desktop.md"
+  }
+]
