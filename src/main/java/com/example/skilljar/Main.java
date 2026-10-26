@@ -56,6 +56,18 @@ public class Main {
                 case "login" -> login(browser, cfg);
                 case "links" -> withSession(browser, cfg, page -> printLinks(page, cfg));
                 case "frames" -> withSession(browser, cfg, page -> printFrames(page, cfg));
+                case "courses" -> withSession(browser, cfg, page -> crawlCourses(page, cfg));
+                case "coursenotes" -> withSession(browser, cfg, page -> fetchOfficialNotes(page, cfg));
+                case "html" -> withSession(browser, cfg, page -> {
+                    // diagnostic: outerHTML (trimmed) of the first element matching --content-selector
+                    page.waitForTimeout(3000);
+                    // climb two parents so the surrounding menu/toggle markup is visible, not just the matched node
+                    String html = (String) page.evaluate("s => { let e = document.querySelector(s); if (!e) return 'no match'; for (let i = 0; i < 2 && e.parentElement; i++) e = e.parentElement; return e.outerHTML; }", cfg.contentSelector());
+                    String flat = html.replaceAll("\\s+", " ");
+                    System.out.println(flat.substring(0, Math.min(flat.length(), 5000)));
+                });
+                case "copynotes" -> withSession(browser, cfg, page -> probeCopyNotes(page));
+                case "selectors" -> withSession(browser, cfg, page -> printSelectorSizes(page));
                 case "probe" -> withSession(browser, cfg, page -> probe(page, cfg));
                 case "crawl" -> withSession(browser, cfg, page -> crawl(page, cfg));
                 default -> {
@@ -132,6 +144,208 @@ public class Main {
                 System.out.println("  html(" + html.length() + ") tail: " + html.substring(Math.max(0, html.length() - 2500)));
             }
         }
+    }
+
+    /**
+     * Listing page of standalone courses (/page/...-prep-courses) -> one directory per course -> one file per
+     * lesson. Unlike the learning-path crawl these are ordinary Skilljar courses: lesson links look like
+     * /course-slug/12345 and the lesson body is #lesson-main, with exercises embedded as iframes.
+     */
+    private static void crawlCourses(Page page, Config cfg) throws Exception {
+        URI base = URI.create(page.url());
+        Map<String, String> courses = new LinkedHashMap<>();
+        for (Locator a : page.locator("a[href]").all()) {
+            String abs = base.resolve(a.getAttribute("href")).toString();
+            if (!abs.startsWith("http") || !URI.create(abs).getHost().equals(base.getHost())) continue;
+            String p = URI.create(abs).getPath();
+            // single-segment slugs; the certification landing pages in the site nav also look like this
+            if (p.matches("/[a-z0-9-]+") && !p.endsWith("-certification")) {
+                courses.putIfAbsent(abs, p.substring(1));
+            }
+        }
+        log.info("Found {} courses: {}", courses.size(), courses.values());
+
+        Files.createDirectories(cfg.outDir());
+        int c = 1;
+        for (Map.Entry<String, String> ce : courses.entrySet()) {
+            String slug = ce.getValue();
+            Path dir = cfg.outDir().resolve(String.format("%02d-%s", c++, slug));
+            // re-runs only fetch what is missing, so the courses already exported are never overwritten
+            if (Files.isDirectory(dir)) {
+                try (var existing = Files.list(dir)) {
+                    if (existing.anyMatch(p -> p.getFileName().toString().matches("\\d\\d-.*\\.md"))) {
+                        log.info("{}: already exported, skipping", slug);
+                        continue;
+                    }
+                }
+            }
+            try {
+                page.navigate(ce.getKey(), new Page.NavigateOptions().setWaitUntil(WaitUntilState.DOMCONTENTLOADED));
+                page.waitForTimeout(1500);
+                // an unenrolled course shows only a catalog page with an enroll button and no lesson links
+                if (page.locator("a:has-text('Enroll in Course')").count() > 0) {
+                    log.warn("{}: NOT ENROLLED - enroll in this course on the site first, then re-run", slug);
+                    continue;
+                }
+                // course page may land on the first lesson; the sidebar curriculum lists every lesson either way
+                Map<String, String> lessons = new LinkedHashMap<>();
+                for (Locator a : page.locator("a[href]").all()) {
+                    String abs = base.resolve(a.getAttribute("href")).toString();
+                    if (abs.startsWith("http") && URI.create(abs).getPath().matches("/" + slug + "/\\d+")) {
+                        lessons.putIfAbsent(abs, a.innerText().trim().replaceAll("\\s+", " "));
+                    }
+                }
+                log.info("{}: {} lessons", slug, lessons.size());
+                Files.createDirectories(dir);
+                StringBuilder index = new StringBuilder("# " + slug + "\n\nSource: " + ce.getKey() + "\n\n");
+                int n = 1;
+                for (Map.Entry<String, String> le : lessons.entrySet()) {
+                    try {
+                        page.navigate(le.getKey(), new Page.NavigateOptions().setWaitUntil(WaitUntilState.DOMCONTENTLOADED));
+                        page.waitForSelector("#lesson-main");
+                        page.waitForTimeout(1500); // let embedded exercise iframes attach
+                        String md = (String) page.evaluate(LESSON_TO_MARKDOWN_JS);
+                        StringBuilder body = new StringBuilder(md);
+                        for (Frame f : page.frames()) {
+                            if (f != page.mainFrame() && f.url().contains("/embed/")) {
+                                body.append("\n\n---\n\nEmbedded exercise (").append(f.url().split("\\?")[0]).append("):\n\n")
+                                    .append(f.locator("body").innerText().trim());
+                            }
+                        }
+                        String title = le.getValue().isBlank() ? "lesson-" + n : le.getValue();
+                        String name = String.format("%02d-%s.md", n, slug(title));
+                        Files.writeString(dir.resolve(name), body.toString().replaceAll("\n{3,}", "\n\n").trim() + "\n");
+                        index.append("- ").append(name).append("\n");
+                        log.info("  [{}/{}] {}/{}", n, lessons.size(), dir.getFileName(), name);
+                    } catch (Exception ex) {
+                        // one bad lesson (video-only, quiz timeout) should not abort the course
+                        log.error("  [{}/{}] failed {}: {}", n, lessons.size(), le.getKey(),
+                                ex.getMessage().lines().findFirst().orElse(""));
+                    }
+                    n++;
+                    Thread.sleep(cfg.delayMs());
+                }
+                Files.writeString(dir.resolve("index.md"), index.toString());
+            } catch (Exception ex) {
+                log.error("course {} failed: {}", slug, ex.getMessage().lines().findFirst().orElse(""));
+            }
+        }
+    }
+
+    /**
+     * Video lessons expose almost no text on the page, but each lesson page has the site's own
+     * "Copy notes" action (full course notes for LLMs). For every course folder under --out, open the first
+     * lesson, use that action, and save the clipboard text as _official-course-notes.md. The leading
+     * underscore keeps it out of the NN-*.md pattern the crawler uses to detect an exported course.
+     */
+    private static void fetchOfficialNotes(Page page, Config cfg) throws Exception {
+        page.context().grantPermissions(List.of("clipboard-read", "clipboard-write"));
+        URI base = URI.create(page.url());
+        Map<String, String> courses = new LinkedHashMap<>();
+        for (Locator a : page.locator("a[href]").all()) {
+            String abs = base.resolve(a.getAttribute("href")).toString();
+            if (!abs.startsWith("http") || !URI.create(abs).getHost().equals(base.getHost())) continue;
+            String p = URI.create(abs).getPath();
+            if (p.matches("/[a-z0-9-]+") && !p.endsWith("-certification")) courses.putIfAbsent(abs, p.substring(1));
+        }
+        for (Map.Entry<String, String> ce : courses.entrySet()) {
+            String slug = ce.getValue();
+            Path dir;
+            try (var dirs = Files.list(cfg.outDir())) {
+                dir = dirs.filter(d -> d.getFileName().toString().matches("\\d\\d-" + Pattern.quote(slug))).findFirst().orElse(null);
+            }
+            if (dir == null) {
+                log.info("{}: no folder under {}, skipping", slug, cfg.outDir());
+                continue;
+            }
+            Path target = dir.resolve("_official-course-notes.md");
+            if (Files.exists(target)) {
+                log.info("{}: official notes already saved", slug);
+                continue;
+            }
+            try {
+                page.navigate(ce.getKey(), new Page.NavigateOptions().setWaitUntil(WaitUntilState.DOMCONTENTLOADED));
+                page.waitForTimeout(1500);
+                String first = null;
+                for (Locator a : page.locator("a[href]").all()) {
+                    String abs = base.resolve(a.getAttribute("href")).toString();
+                    if (abs.startsWith("http") && URI.create(abs).getPath().matches("/" + slug + "/\\d+")) { first = abs; break; }
+                }
+                if (first == null) {
+                    log.warn("{}: no lessons visible (not enrolled?), skipping", slug);
+                    continue;
+                }
+                page.navigate(first, new Page.NavigateOptions().setWaitUntil(WaitUntilState.DOMCONTENTLOADED));
+                page.waitForTimeout(2500);
+                Locator toggle = page.locator(".lp__chat-button-dropdown").first();
+                Locator copy = page.locator(".lp__chat-dropdown-item[data-action=copy]").first();
+                if (copy.count() == 0) {
+                    log.info("{}: this course has no Copy notes action", slug);
+                    continue;
+                }
+                page.evaluate("() => navigator.clipboard.writeText('')");
+                toggle.click();
+                copy.click(); // never the data-action=claude item, which opens claude.ai
+                page.waitForTimeout(2500);
+                String notes = String.valueOf(page.evaluate("() => navigator.clipboard.readText()"));
+                if (notes.length() < 200) {
+                    log.warn("{}: clipboard looked empty ({} chars)", slug, notes.length());
+                    continue;
+                }
+                Files.writeString(target, notes);
+                log.info("{}: saved official notes, {} chars", slug, notes.length());
+            } catch (Exception ex) {
+                log.error("{}: failed {}", slug, ex.getMessage().lines().findFirst().orElse(""));
+            }
+            Thread.sleep(cfg.delayMs());
+        }
+    }
+
+    /**
+     * Diagnostic: the lesson page offers "Copy notes" / "Copy full course notes for LLMs" buttons. Click each
+     * (the site's own feature) and report what lands on the clipboard and which requests it triggered.
+     */
+    private static void probeCopyNotes(Page page) {
+        page.context().grantPermissions(List.of("clipboard-read", "clipboard-write"));
+        List<String> requests = new ArrayList<>();
+        page.onResponse(r -> {
+            if (!r.url().matches(".*\\.(png|jpg|svg|woff2?|css|ico)(\\?.*)?$")) requests.add(r.status() + " " + r.url());
+        });
+        page.waitForTimeout(3000);
+        // "Open in Claude" / "Copy notes" are items of a dropdown; open it, then click only the copy item
+        // (data-action="copy"), never the "claude" item, which would open claude.ai
+        for (String label : List.of("Copy notes")) {
+            Locator toggle = page.locator(".lp__chat-button-dropdown").first();
+            Locator b = page.locator(".lp__chat-dropdown-item[data-action=copy]").first();
+            System.out.println("== " + label + ": toggle=" + toggle.count() + " item=" + b.count());
+            if (b.count() == 0) continue;
+            requests.clear();
+            page.evaluate("() => navigator.clipboard.writeText('')");
+            toggle.click();
+            b.click();
+            page.waitForTimeout(2500);
+            String clip = String.valueOf(page.evaluate("() => navigator.clipboard.readText()"));
+            System.out.println("clipboard length=" + clip.length());
+            System.out.println("clipboard head: " + clip.substring(0, Math.min(clip.length(), 500)).replaceAll("\\s+", " "));
+            requests.stream().limit(10).forEach(r -> System.out.println("  req " + r));
+        }
+    }
+
+    /** Diagnostic for normal Skilljar lesson pages: text size and start of each candidate content container. */
+    private static void printSelectorSizes(Page page) {
+        page.waitForTimeout(3000);
+        Object res = page.evaluate("""
+                () => {
+                  const cands = ['main','#lesson-main','#lesson-body','.lesson-main','.lesson-content','#main-content',
+                    '[role=main]','article','#content','.content-main','#lesson-main-content','.sj-page-lesson','.cp-lesson-content'];
+                  const out = cands.map(s => { const e = document.querySelector(s);
+                    return s + ' => ' + (e ? e.innerText.length + ' | ' + e.innerText.replace(/\\s+/g,' ').slice(0,120) : 'none'); });
+                  const big = [...document.querySelectorAll('div,section')].filter(e => e.innerText && e.innerText.length > 800 && e.innerText.length < 20000)
+                    .sort((a, b) => a.innerText.length - b.innerText.length).slice(0, 6)
+                    .map(e => e.tagName + '#' + e.id + '.' + e.className + ' len=' + e.innerText.length);
+                  return out.concat(['--- smallest large containers:']).concat(big);
+                }""");
+        ((java.util.List<?>) res).forEach(System.out::println);
     }
 
     /**
@@ -255,8 +469,23 @@ public class Main {
     }
 
     // Walks each hidden screen's DOM and emits Markdown (headings, lists, code fences, tables, bold/inline code).
-    private static final String SCREENS_TO_MARKDOWN_JS = """
-            () => {
+    private static final String SCREENS_TO_MARKDOWN_JS = "() => {" + MARKDOWN_WALKER_JS() + """
+              return [...document.querySelectorAll('section.screen')].map(s => ({
+                id: s.id,
+                title: (s.querySelector('h1,h2,h3')?.textContent || s.id).trim().replace(/\\s+/g, ' '),
+                md: walk(s).replace(/\\n{3,}/g, '\\n\\n').trim()
+              }));
+            }""";
+
+    // Normal Skilljar lesson page: the body lives in #lesson-main (title included).
+    private static final String LESSON_TO_MARKDOWN_JS = "() => {" + MARKDOWN_WALKER_JS() + """
+              const root = document.querySelector('#lesson-main') || document.body;
+              return walk(root).replace(/\\n{3,}/g, '\\n\\n').trim();
+            }""";
+
+    /** JS function bodies shared by both exporters: defines walk(node) -> Markdown. */
+    private static String MARKDOWN_WALKER_JS() {
+        return """
               const SKIP = new Set(['SCRIPT','STYLE','BUTTON','SVG','NOSCRIPT']);
               const walk = (n) => {
                 if (n.nodeType === 3) return n.textContent.replace(/\\s+/g, ' ');
@@ -274,12 +503,8 @@ public class Main {
                 if (['p','div','section','ul','ol','blockquote','figure'].includes(tag)) return '\\n\\n' + kids().trim() + '\\n\\n';
                 return kids();
               };
-              return [...document.querySelectorAll('section.screen')].map(s => ({
-                id: s.id,
-                title: (s.querySelector('h1,h2,h3')?.textContent || s.id).trim().replace(/\\s+/g, ' '),
-                md: walk(s).replace(/\\n{3,}/g, '\\n\\n').trim()
-              }));
-            }""";
+            """;
+    }
 
     /** Returns the text of the SCORM content file for the current course page, or null if there is none. */
     private static String readScormContent(Page page, URI base, Config cfg) throws Exception {
